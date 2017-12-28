@@ -10,9 +10,7 @@ import Foundation
 
 class UserNetworkManager: UserNetworkService {
   
-  static var shared = UserNetworkManager()
-  
-  func login(userId: String, userPassword: String, completion: @escaping (Bool, String?) -> Void) {
+  static func login(userId: String, userPassword: String, completion: @escaping (Int?, String?) -> Void) {
     
     let config = URLSessionConfiguration.default
     let userInfoString = userId + ":" + userPassword
@@ -46,13 +44,47 @@ class UserNetworkManager: UserNetworkService {
         if let data = data,
           let json = try? JSONSerialization.jsonObject(with: data, options: []),
           let dict = json as? [String:Any] {
-          
+          guard let tokenId = dict["id"] as? Int else { fatalError() }
           guard let token = dict["token"] as? String else { fatalError() }
-          completion(true, token)
+          
+          completion(tokenId, token)
+          
         }
       } else {
-        completion(false, nil)
         print("error", error.debugDescription)
+        completion(nil, nil)
+      }
+    }
+    
+    task.resume()
+  }
+  
+  static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (Int?) -> Void) {
+    let config = URLSessionConfiguration.default
+    let session = URLSession(configuration: config)
+    
+    let userInfoString = userId + ":" + userPassword
+    guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { return }
+    let base64EncodedCredential = userInfoData.base64EncodedString()
+    let authString = "Basic \(base64EncodedCredential)"
+    
+    guard let url = URL(string: "https://api.github.com/authorizations/\(tokenId)") else { return }
+    var request = URLRequest(url: url)
+    request.httpMethod = "DELETE"
+    request.addValue(authString, forHTTPHeaderField: "Authorization")
+    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+    
+    let task = session.dataTask(with: request) { (data, response, error) in
+      if error == nil {
+        if let response = response as? HTTPURLResponse {
+          let statusCode = response.statusCode
+          print("success code ", statusCode)
+          completion(statusCode)
+        }
+        
+      } else {
+        print("error", error.debugDescription)
+        completion(nil)
       }
     }
     

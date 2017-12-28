@@ -80,12 +80,23 @@ class LoginViewController: UIViewController {
   @objc func loginBtnDidTap(_ sender: UIButton) {
     guard let userId = idTextField.text else { return }
     guard let userPassword = passWordTextField.text else { return }
-    UserNetworkManager.shared.login(userId: userId, userPassword: userPassword) { (success, token) in
-      if success {
-        print("login success", token)
+    UserNetworkManager.login(userId: userId, userPassword: userPassword) { (tokenId, token) in
+      if tokenId != nil && token != nil {
+        print("login success")
+        let newUser = User(id: userId, password: userPassword, tokenId: tokenId!, token: token!)
+        UserDefaults.standard.saveUser(user: newUser)
+        DispatchQueue.main.async {
+          self.presentListVC()
+        }
+        
       } else {
-        print("login failed")
+        print("login fail")
       }
     }
+  }
+  
+  func presentListVC() {
+    let listViewController = ListViewController()
+    present(listViewController, animated: true, completion: nil)
   }
 }

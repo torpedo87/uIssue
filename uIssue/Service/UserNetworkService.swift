@@ -10,6 +10,7 @@ import Foundation
 
 protocol UserNetworkService {
   
-  func login(userId: String, userPassword: String, completion: @escaping (_ success: Bool, _ token: String?) -> Void)
+  static func login(userId: String, userPassword: String, completion: @escaping (_ tokenId: Int?, _ token: String?) -> Void)
   
+  static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (_ statusCode: Int?) -> Void)
 }
