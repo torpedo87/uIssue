@@ -15,9 +15,13 @@ extension UserDefaults {
     UserDefaults.standard.set(dict, forKey: "user")
   }
   
-  func loadUser() -> User {
-    guard let dict = UserDefaults.standard.dictionary(forKey: "user") as? [String:Any] else { fatalError() }
-    guard let user = User(dictionary: dict) as? User else { fatalError() }
+  func loadUser() -> User? {
+    guard let dict = UserDefaults.standard.dictionary(forKey: "user") else { return nil }
+    guard let user = User(dictionary: dict) else { return nil }
     return user
+  }
+  
+  func removeUser() {
+    UserDefaults.standard.removeObject(forKey: "user")
   }
 }

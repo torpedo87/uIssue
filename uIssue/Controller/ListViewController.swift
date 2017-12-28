@@ -50,7 +50,8 @@ class ListViewController: UIViewController {
       })
       logoutBtn.snp.makeConstraints({ (make) in
         make.right.bottom.equalToSuperview().offset(-10)
-        make.width.height.equalTo(50)
+        make.height.equalTo(50)
+        make.width.equalTo(100)
       })
       
       didSetupConstraints = true
@@ -60,10 +61,17 @@ class ListViewController: UIViewController {
   }
   
   @objc func logoutBtnDidTap(_ sender: UIButton) {
-    let user = UserDefaults.standard.loadUser()
+    
+    guard let user = UserDefaults.standard.loadUser() else { fatalError() }
+    
     UserNetworkManager.logout(userId: user.getId(), userPassword: user.getPassword(), tokenId: user.getTokenId()) { (statusCode) in
       if statusCode == 204 {
         print("logout success")
+        UserDefaults.standard.removeUser()
+        DispatchQueue.main.async {
+          self.dismiss(animated: true, completion: nil)
+        }
+        
       } else {
         print("logout fail")
       }

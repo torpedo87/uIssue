@@ -25,6 +25,7 @@ class LoginViewController: UIViewController {
     let txtField = UITextField()
     txtField.placeholder = "please enter password"
     txtField.layer.borderColor = UIColor.blue.cgColor
+    txtField.isSecureTextEntry = true
     txtField.layer.borderWidth = 0.5
     return txtField
   }()
@@ -39,14 +40,18 @@ class LoginViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    view.backgroundColor = UIColor.yellow
     
     setupView()
-    
     view.setNeedsUpdateConstraints()
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    checkLoginSession()
+  }
+  
   func setupView() {
+    view.backgroundColor = UIColor.white
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
     view.addSubview(loginBtn)
@@ -98,5 +103,13 @@ class LoginViewController: UIViewController {
   func presentListVC() {
     let listViewController = ListViewController()
     present(listViewController, animated: true, completion: nil)
+  }
+  
+  func checkLoginSession() {
+    let user = UserDefaults.standard.loadUser()
+    
+    if user != nil {
+      self.presentListVC()
+    }
   }
 }
