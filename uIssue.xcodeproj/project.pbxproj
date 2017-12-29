@@ -18,8 +18,12 @@
 		48A3140D1FF39FF600201F6E /* UserNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140C1FF39FF600201F6E /* UserNetworkService.swift */; };
 		48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */; };
 		48E44ABF1FF4B7C5008F9649 /* ListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ABE1FF4B7C5008F9649 /* ListViewController.swift */; };
-		48E44AC11FF4E676008F9649 /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC01FF4E676008F9649 /* User.swift */; };
+		48E44AC11FF4E676008F9649 /* Me.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC01FF4E676008F9649 /* Me.swift */; };
 		48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC31FF4F12C008F9649 /* Userdefaults.swift */; };
+		48E44AC61FF508E9008F9649 /* Issue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC51FF508E9008F9649 /* Issue.swift */; };
+		48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC71FF50C9B008F9649 /* IssueDataManager.swift */; };
+		48E44ACA1FF50CBC008F9649 /* IssueDataService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC91FF50CBC008F9649 /* IssueDataService.swift */; };
+		48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ACB1FF603D2008F9649 /* ListCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -46,8 +50,12 @@
 		48A3140C1FF39FF600201F6E /* UserNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkService.swift; sourceTree = "<group>"; };
 		48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManager.swift; sourceTree = "<group>"; };
 		48E44ABE1FF4B7C5008F9649 /* ListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListViewController.swift; sourceTree = "<group>"; };
-		48E44AC01FF4E676008F9649 /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		48E44AC01FF4E676008F9649 /* Me.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Me.swift; sourceTree = "<group>"; };
 		48E44AC31FF4F12C008F9649 /* Userdefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Userdefaults.swift; sourceTree = "<group>"; };
+		48E44AC51FF508E9008F9649 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
+		48E44AC71FF50C9B008F9649 /* IssueDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDataManager.swift; sourceTree = "<group>"; };
+		48E44AC91FF50CBC008F9649 /* IssueDataService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDataService.swift; sourceTree = "<group>"; };
+		48E44ACB1FF603D2008F9649 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_uIssueTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5996FB856E01B05D8E6C253F /* Pods-uIssueTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uIssueTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-uIssueTests/Pods-uIssueTests.release.xcconfig"; sourceTree = "<group>"; };
 		6B5DE9CC3A79555DEC794AB6 /* Pods-uIssue.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uIssue.release.xcconfig"; path = "Pods/Target Support Files/Pods-uIssue/Pods-uIssue.release.xcconfig"; sourceTree = "<group>"; };
@@ -133,6 +141,7 @@
 				48A313E51FF3956D00201F6E /* AppDelegate.swift */,
 				48A3140A1FF3983600201F6E /* LoginViewController.swift */,
 				48E44ABE1FF4B7C5008F9649 /* ListViewController.swift */,
+				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -150,6 +159,8 @@
 			children = (
 				48A3140C1FF39FF600201F6E /* UserNetworkService.swift */,
 				48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */,
+				48E44AC71FF50C9B008F9649 /* IssueDataManager.swift */,
+				48E44AC91FF50CBC008F9649 /* IssueDataService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -157,7 +168,8 @@
 		48A314081FF3961B00201F6E /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				48E44AC01FF4E676008F9649 /* User.swift */,
+				48E44AC01FF4E676008F9649 /* Me.swift */,
+				48E44AC51FF508E9008F9649 /* Issue.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -411,10 +423,14 @@
 				48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */,
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
 				48A3140D1FF39FF600201F6E /* UserNetworkService.swift in Sources */,
-				48E44AC11FF4E676008F9649 /* User.swift in Sources */,
+				48E44AC11FF4E676008F9649 /* Me.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
+				48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */,
+				48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */,
 				48E44ABF1FF4B7C5008F9649 /* ListViewController.swift in Sources */,
+				48E44ACA1FF50CBC008F9649 /* IssueDataService.swift in Sources */,
 				48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */,
+				48E44AC61FF508E9008F9649 /* Issue.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

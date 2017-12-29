@@ -1,5 +1,5 @@
 //
-//  User.swift
+//  Me.swift
 //  uIssue
 //
 //  Created by junwoo on 2017. 12. 28..
@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct User {
+struct Me {
   
   private var id: String
   private var password: String

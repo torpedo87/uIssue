@@ -10,18 +10,18 @@ import Foundation
 
 extension UserDefaults {
   
-  func saveUser(user: User) {
+  func saveMe(user: Me) {
     let dict = user.asDictionary
-    UserDefaults.standard.set(dict, forKey: "user")
+    UserDefaults.standard.set(dict, forKey: "me")
   }
   
-  func loadUser() -> User? {
-    guard let dict = UserDefaults.standard.dictionary(forKey: "user") else { return nil }
-    guard let user = User(dictionary: dict) else { return nil }
-    return user
+  func loadMe() -> Me? {
+    guard let dict = UserDefaults.standard.dictionary(forKey: "me") else { return nil }
+    guard let me = Me(dictionary: dict) else { return nil }
+    return me
   }
   
-  func removeUser() {
-    UserDefaults.standard.removeObject(forKey: "user")
+  func removeMe() {
+    UserDefaults.standard.removeObject(forKey: "me")
   }
 }

@@ -11,8 +11,10 @@ import UIKit
 class ListViewController: UIViewController {
   
   private var didSetupConstraints = false
+  private var issueList: [Issue] = []
   private lazy var tableView: UITableView = {
     let view = UITableView()
+    view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
     view.dataSource = self
     view.delegate = self
     return view
@@ -30,7 +32,18 @@ class ListViewController: UIViewController {
     super.viewDidLoad()
     
     setupView()
+    fetchIssueData()
     view.setNeedsUpdateConstraints()
+  }
+  
+  func fetchIssueData() {
+    guard let me = UserDefaults.standard.loadMe() else { return }
+    IssueDataManager.fetchIssueList(userId: me.getId(), userPassword: me.getPassword(), filter: Filter.created.rawValue, state: State.open.rawValue) { (issueArr) in
+      if let issueArr = issueArr {
+        self.issueList = issueArr
+        self.tableView.reloadData()
+      }
+    }
   }
   
   func setupView() {
@@ -62,12 +75,12 @@ class ListViewController: UIViewController {
   
   @objc func logoutBtnDidTap(_ sender: UIButton) {
     
-    guard let user = UserDefaults.standard.loadUser() else { fatalError() }
+    guard let me = UserDefaults.standard.loadMe() else { fatalError() }
     
-    UserNetworkManager.logout(userId: user.getId(), userPassword: user.getPassword(), tokenId: user.getTokenId()) { (statusCode) in
+    UserNetworkManager.logout(userId: me.getId(), userPassword: me.getPassword(), tokenId: me.getTokenId()) { (statusCode) in
       if statusCode == 204 {
         print("logout success")
-        UserDefaults.standard.removeUser()
+        UserDefaults.standard.removeMe()
         DispatchQueue.main.async {
           self.dismiss(animated: true, completion: nil)
         }
@@ -86,11 +99,13 @@ extension ListViewController: UITableViewDataSource {
   }
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return 0
+    return issueList.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    return UITableViewCell()
+    guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseIdentifier, for: indexPath) as? ListCell else { return UITableViewCell() }
+    cell.configureCell(issue: issueList[indexPath.row])
+    return cell
   }
 }
 

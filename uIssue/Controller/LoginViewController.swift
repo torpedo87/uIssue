@@ -88,8 +88,8 @@ class LoginViewController: UIViewController {
     UserNetworkManager.login(userId: userId, userPassword: userPassword) { (tokenId, token) in
       if tokenId != nil && token != nil {
         print("login success")
-        let newUser = User(id: userId, password: userPassword, tokenId: tokenId!, token: token!)
-        UserDefaults.standard.saveUser(user: newUser)
+        let me = Me(id: userId, password: userPassword, tokenId: tokenId!, token: token!)
+        UserDefaults.standard.saveMe(user: me)
         DispatchQueue.main.async {
           self.presentListVC()
         }
@@ -106,9 +106,9 @@ class LoginViewController: UIViewController {
   }
   
   func checkLoginSession() {
-    let user = UserDefaults.standard.loadUser()
+    let me = UserDefaults.standard.loadMe()
     
-    if user != nil {
+    if me != nil {
       self.presentListVC()
     }
   }
