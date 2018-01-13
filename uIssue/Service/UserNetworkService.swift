@@ -7,10 +7,11 @@
 //
 
 import Foundation
+import RxSwift
 
 protocol UserNetworkService {
   
-  static func login(userId: String, userPassword: String, completion: @escaping (_ tokenId: Int?, _ token: String?) -> Void)
+  static func login(userId: String, userPassword: String) -> Single<(Int, String)>
   
   static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (_ statusCode: Int?) -> Void)
 }

@@ -12,6 +12,7 @@ import RxCocoa
 
 class LoginViewController: UIViewController {
   
+  private let bag = DisposeBag()
   private var didSetupConstraints = false
   private let idTextField: UITextField = {
     let txtField = UITextField()
@@ -30,11 +31,10 @@ class LoginViewController: UIViewController {
     return txtField
   }()
   
-  private lazy var loginBtn: UIButton = {
+  lazy var loginBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Login", for: UIControlState.normal)
     btn.backgroundColor = UIColor.blue
-    btn.addTarget(self, action: #selector(loginBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
     return btn
   }()
   
@@ -42,6 +42,7 @@ class LoginViewController: UIViewController {
     super.viewDidLoad()
     
     setupView()
+    bindUI()
     view.setNeedsUpdateConstraints()
   }
   
@@ -55,6 +56,40 @@ class LoginViewController: UIViewController {
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
     view.addSubview(loginBtn)
+  }
+  
+  func bindUI() {
+    loginBtn.rx.controlEvent(UIControlEvents.touchUpInside)
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .flatMap { [weak self] _ -> Single<(Int, String)> in
+        UserNetworkManager
+            .login(userId: self!.idTextField.text!, userPassword: self!.passWordTextField.text!)
+      }
+      .asObservable()
+      .observeOn(MainScheduler.instance)
+      .bind(onNext: { [weak self] tuple in
+        if tuple.1 != "error" {
+          let me = Me(id: self!.idTextField.text!, password: self!.passWordTextField.text!, tokenId: tuple.0, token: tuple.1)
+          UserDefaults.standard.saveMe(user: me)
+          self!.presentListVC()
+        } else {
+          print("error")
+        }
+      })
+      .disposed(by: bag)
+    
+//      .asDriver(onErrorJustReturn: (-1, "error"))
+//      .drive(onNext: { [weak self] (tuple) in
+//        if tuple.1 != "error" {
+//          let me = Me(id: self!.idTextField.text!, password: self!.passWordTextField.text!, tokenId: tuple.0, token: tuple.1)
+//          UserDefaults.standard.saveMe(user: me)
+//          self!.presentListVC()
+//        } else {
+//          print("error")
+//        }
+//
+//      })
+//      .disposed(by: bag)
   }
   
   override func updateViewConstraints() {
@@ -80,24 +115,6 @@ class LoginViewController: UIViewController {
       didSetupConstraints = true
     }
     super.updateViewConstraints()
-  }
-  
-  @objc func loginBtnDidTap(_ sender: UIButton) {
-    guard let userId = idTextField.text else { return }
-    guard let userPassword = passWordTextField.text else { return }
-    UserNetworkManager.login(userId: userId, userPassword: userPassword) { (tokenId, token) in
-      if tokenId != nil && token != nil {
-        print("login success")
-        let me = Me(id: userId, password: userPassword, tokenId: tokenId!, token: token!)
-        UserDefaults.standard.saveMe(user: me)
-        DispatchQueue.main.async {
-          self.presentListVC()
-        }
-        
-      } else {
-        print("login fail")
-      }
-    }
   }
   
   func presentListVC() {

@@ -7,19 +7,26 @@
 //
 
 import Foundation
+import RxSwift
+
+enum Errors: Error {
+  case requestFail
+  case invalidUserInfo
+}
 
 class UserNetworkManager: UserNetworkService {
   
-  static func login(userId: String, userPassword: String, completion: @escaping (Int?, String?) -> Void) {
+  static func login(userId: String, userPassword: String) -> Single<(Int, String)> {
     
     let config = URLSessionConfiguration.default
     let userInfoString = userId + ":" + userPassword
-    guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { return }
+    guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
     let base64EncodedCredential = userInfoData.base64EncodedString()
     let authString = "Basic \(base64EncodedCredential)"
     let session = URLSession(configuration: config)
     
     guard let url = URL(string: "https://api.github.com/authorizations") else { fatalError() }
+    
     var request = URLRequest(url: url)
     request.httpMethod = "POST"
     request.addValue(authString, forHTTPHeaderField: "Authorization")
@@ -38,25 +45,37 @@ class UserNetworkManager: UserNetworkService {
       debugPrint(error.localizedDescription)
     }
     
-    
-    let task = session.dataTask(with: request) { (data, response, error) in
-      if error == nil {
-        if let data = data,
-          let json = try? JSONSerialization.jsonObject(with: data, options: []),
-          let dict = json as? [String:Any] {
-          guard let tokenId = dict["id"] as? Int else { fatalError() }
-          guard let token = dict["token"] as? String else { fatalError() }
-          
-          completion(tokenId, token)
-          
+    return Single<(Int, String)>.create(subscribe: { (observer) -> Disposable in
+      let task = session.dataTask(with: request) { (data, response, error) in
+        guard let response = response as? HTTPURLResponse else { return }
+        if 200 ..< 300 ~= response.statusCode {
+          if let data = data,
+            let json = try? JSONSerialization.jsonObject(with: data, options: []),
+            let dict = json as? [String:Any] {
+            guard let tokenId = dict["id"] as? Int else { fatalError() }
+            guard let token = dict["token"] as? String else { fatalError() }
+            let result = (tokenId, token)
+            observer(.success(result))
+            return
+          }
+        } else if 401 == response.statusCode {
+          observer(.error(Errors.invalidUserInfo))
+          return
+        } else {
+          observer(.error(Errors.requestFail))
+          return
         }
-      } else {
-        print("error", error.debugDescription)
-        completion(nil, nil)
       }
-    }
+      
+      task.resume()
+      return Disposables.create {
+        task.cancel()
+      }
+    })
+      .catchError({ (error) -> PrimitiveSequence<SingleTrait, (Int, String)> in
+        return Observable.just((-1, "error")).asSingle()
+      })
     
-    task.resume()
   }
   
   static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (Int?) -> Void) {
