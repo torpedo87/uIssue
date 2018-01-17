@@ -10,18 +10,21 @@ import Foundation
 
 extension UserDefaults {
   
-  func saveMe(user: Me) {
-    let dict = user.asDictionary
-    UserDefaults.standard.set(dict, forKey: "me")
+  func saveToken(token: Token) {
+    let dict = token.asDictionary
+    UserDefaults.standard.set(dict, forKey: "token")
   }
   
-  func loadMe() -> Me? {
-    guard let dict = UserDefaults.standard.dictionary(forKey: "me") else { return nil }
-    guard let me = Me(dictionary: dict) else { return nil }
-    return me
+  func loadToken() -> Token? {
+    guard let dict = UserDefaults.standard.dictionary(forKey: "token") else { return nil }
+    if let id = dict["id"] as? Int, let token = dict["token"] as? String {
+      let newToken = Token(id: id, token: token)
+      return newToken
+    }
+    return nil
   }
   
-  func removeMe() {
-    UserDefaults.standard.removeObject(forKey: "me")
+  func removeLocalToken() {
+    UserDefaults.standard.removeObject(forKey: "token")
   }
 }

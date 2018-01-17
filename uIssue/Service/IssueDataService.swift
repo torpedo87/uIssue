@@ -22,8 +22,14 @@ enum State: String {
   case all
 }
 
+enum Sort: String {
+  case created
+  case updated
+  case comments
+}
+
 protocol IssueDataService {
   
-  static func fetchIssueList(userId: String, userPassword: String, filter: Filter.RawValue, state: State.RawValue, completion: @escaping (_ issues: [Issue]?) -> Void)
+  static func fetchIssueList(token: String, filter: Filter.RawValue, state: State.RawValue, sort: Sort.RawValue, completion: @escaping (_ issues: [Issue]?) -> Void)
   
 }

@@ -59,37 +59,24 @@ class LoginViewController: UIViewController {
   }
   
   func bindUI() {
-    loginBtn.rx.controlEvent(UIControlEvents.touchUpInside)
+    
+    loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Single<(Int, String)> in
+      .flatMap { [weak self] _ -> Single<Token> in
         UserNetworkManager
-            .login(userId: self!.idTextField.text!, userPassword: self!.passWordTextField.text!)
+            .getToken(userId: self!.idTextField.text!, userPassword: self!.passWordTextField.text!)
       }
-      .asObservable()
-      .observeOn(MainScheduler.instance)
-      .bind(onNext: { [weak self] tuple in
-        if tuple.1 != "error" {
-          let me = Me(id: self!.idTextField.text!, password: self!.passWordTextField.text!, tokenId: tuple.0, token: tuple.1)
-          UserDefaults.standard.saveMe(user: me)
-          self!.presentListVC()
+      .asDriver(onErrorJustReturn: Token(id: -1, token: "error"))
+      .drive(onNext: { [weak self] token in
+        if token.isValid() {
+          UserDefaults.standard.saveToken(token: token)
+          self!.presentRepoListVC()
         } else {
           print("error")
         }
+
       })
       .disposed(by: bag)
-    
-//      .asDriver(onErrorJustReturn: (-1, "error"))
-//      .drive(onNext: { [weak self] (tuple) in
-//        if tuple.1 != "error" {
-//          let me = Me(id: self!.idTextField.text!, password: self!.passWordTextField.text!, tokenId: tuple.0, token: tuple.1)
-//          UserDefaults.standard.saveMe(user: me)
-//          self!.presentListVC()
-//        } else {
-//          print("error")
-//        }
-//
-//      })
-//      .disposed(by: bag)
   }
   
   override func updateViewConstraints() {
@@ -117,16 +104,16 @@ class LoginViewController: UIViewController {
     super.updateViewConstraints()
   }
   
-  func presentListVC() {
-    let listViewController = ListViewController()
-    present(listViewController, animated: true, completion: nil)
+  func presentRepoListVC() {
+    let repoListViewController = RepoListViewController()
+    present(repoListViewController, animated: true, completion: nil)
   }
   
   func checkLoginSession() {
-    let me = UserDefaults.standard.loadMe()
+    let token = UserDefaults.standard.loadToken()
     
-    if me != nil {
-      self.presentListVC()
+    if token != nil {
+      self.presentRepoListVC()
     }
   }
 }

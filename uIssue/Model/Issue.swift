@@ -14,6 +14,7 @@ struct Issue: Codable {
   let body: String
   let user: User
   let assignees: [User]
+  let repository: Repository
 }
 
 struct User: Codable {
@@ -21,4 +22,10 @@ struct User: Codable {
   let login: String
   let id: Int
   let url: String
+}
+
+struct Repository: Codable {
+  let name: String
+  let owner: User
+  let open_issues: Int
 }

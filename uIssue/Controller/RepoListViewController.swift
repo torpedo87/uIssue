@@ -1,5 +1,5 @@
 //
-//  ListViewController.swift
+//  RepoListViewController.swift
 //  uIssue
 //
 //  Created by junwoo on 2017. 12. 28..
@@ -8,10 +8,10 @@
 
 import UIKit
 
-class ListViewController: UIViewController {
+class RepoListViewController: UIViewController {
   
   private var didSetupConstraints = false
-  private var issueList: [Issue] = []
+  private var repoList: [Repository] = []
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -32,16 +32,17 @@ class ListViewController: UIViewController {
     super.viewDidLoad()
     
     setupView()
-    fetchIssueData()
+    fetchRepoList()
+    
     view.setNeedsUpdateConstraints()
   }
   
-  func fetchIssueData() {
-    guard let me = UserDefaults.standard.loadMe() else { return }
-    IssueDataManager.fetchIssueList(userId: me.getId(), userPassword: me.getPassword(), filter: Filter.created.rawValue, state: State.open.rawValue) { (issueArr) in
-      if let issueArr = issueArr {
-        self.issueList = issueArr
-        self.tableView.reloadData()
+  func fetchRepoList() {
+    guard let token = UserDefaults.standard.loadToken() else { return }
+    IssueDataManager.fetchRepoList(token: token.token, sort: Sort.created.rawValue) { [weak self] (repos) in
+      if let repos = repos as? [Repository] {
+        self?.repoList = repos
+        self?.tableView.reloadData()
       }
     }
   }
@@ -75,41 +76,40 @@ class ListViewController: UIViewController {
   
   @objc func logoutBtnDidTap(_ sender: UIButton) {
     
-    guard let me = UserDefaults.standard.loadMe() else { fatalError() }
-    
-    UserNetworkManager.logout(userId: me.getId(), userPassword: me.getPassword(), tokenId: me.getTokenId()) { (statusCode) in
-      if statusCode == 204 {
-        print("logout success")
-        UserDefaults.standard.removeMe()
-        DispatchQueue.main.async {
-          self.dismiss(animated: true, completion: nil)
-        }
-        
-      } else {
-        print("logout fail")
-      }
-    }
+    UserDefaults.standard.removeLocalToken()
+//    UserNetworkManager.logout(userId: me.getId(), userPassword: me.getPassword(), tokenId: me.getTokenId()) { (statusCode) in
+//      if statusCode == 204 {
+//        print("logout success")
+//        UserDefaults.standard.removeLocalToken()
+//        DispatchQueue.main.async {
+//          self.dismiss(animated: true, completion: nil)
+//        }
+//
+//      } else {
+//        print("logout fail")
+//      }
+//    }
   }
   
 }
 
-extension ListViewController: UITableViewDataSource {
+extension RepoListViewController: UITableViewDataSource {
   func numberOfSections(in tableView: UITableView) -> Int {
     return 1
   }
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return issueList.count
+    return repoList.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseIdentifier, for: indexPath) as? ListCell else { return UITableViewCell() }
-    cell.configureCell(issue: issueList[indexPath.row])
+    cell.configuerCell(repo: repoList[indexPath.row])
     return cell
   }
 }
 
-extension ListViewController: UITableViewDelegate {
+extension RepoListViewController: UITableViewDelegate {
   
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     
