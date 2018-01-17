@@ -20,14 +20,6 @@ class RepoListViewController: UIViewController {
     return view
   }()
   
-  private lazy var logoutBtn: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("LOGOUT", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.blue
-    btn.addTarget(self, action: #selector(logoutBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
-    return btn
-  }()
-  
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -40,7 +32,7 @@ class RepoListViewController: UIViewController {
   func fetchRepoList() {
     guard let token = UserDefaults.standard.loadToken() else { return }
     IssueDataManager.fetchRepoList(token: token.token, sort: Sort.created.rawValue) { [weak self] (repos) in
-      if let repos = repos as? [Repository] {
+      if let repos = repos {
         self?.repoList = repos
         self?.tableView.reloadData()
       }
@@ -51,7 +43,7 @@ class RepoListViewController: UIViewController {
     view.backgroundColor = UIColor.white
     
     view.addSubview(tableView)
-    view.addSubview(logoutBtn)
+    
   }
   
   override func updateViewConstraints() {
@@ -62,11 +54,6 @@ class RepoListViewController: UIViewController {
         make.top.equalToSuperview().offset(50)
         make.bottom.equalToSuperview().offset(-100)
       })
-      logoutBtn.snp.makeConstraints({ (make) in
-        make.right.bottom.equalToSuperview().offset(-10)
-        make.height.equalTo(50)
-        make.width.equalTo(100)
-      })
       
       didSetupConstraints = true
     }
@@ -74,22 +61,7 @@ class RepoListViewController: UIViewController {
     super.updateViewConstraints()
   }
   
-  @objc func logoutBtnDidTap(_ sender: UIButton) {
-    
-    UserDefaults.standard.removeLocalToken()
-//    UserNetworkManager.logout(userId: me.getId(), userPassword: me.getPassword(), tokenId: me.getTokenId()) { (statusCode) in
-//      if statusCode == 204 {
-//        print("logout success")
-//        UserDefaults.standard.removeLocalToken()
-//        DispatchQueue.main.async {
-//          self.dismiss(animated: true, completion: nil)
-//        }
-//
-//      } else {
-//        print("logout fail")
-//      }
-//    }
-  }
+  
   
 }
 

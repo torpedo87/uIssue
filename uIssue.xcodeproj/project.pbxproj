@@ -18,6 +18,7 @@
 		48A3140D1FF39FF600201F6E /* UserNetworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140C1FF39FF600201F6E /* UserNetworkService.swift */; };
 		48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */; };
 		48B83A17200F28BB00F2A490 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A16200F28BB00F2A490 /* Token.swift */; };
+		48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A18200F66FA00F2A490 /* SettingViewController.swift */; };
 		48E44ABF1FF4B7C5008F9649 /* RepoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */; };
 		48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC31FF4F12C008F9649 /* Userdefaults.swift */; };
 		48E44AC61FF508E9008F9649 /* Issue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC51FF508E9008F9649 /* Issue.swift */; };
@@ -50,6 +51,7 @@
 		48A3140C1FF39FF600201F6E /* UserNetworkService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkService.swift; sourceTree = "<group>"; };
 		48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManager.swift; sourceTree = "<group>"; };
 		48B83A16200F28BB00F2A490 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
+		48B83A18200F66FA00F2A490 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewController.swift; sourceTree = "<group>"; };
 		48E44AC31FF4F12C008F9649 /* Userdefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Userdefaults.swift; sourceTree = "<group>"; };
 		48E44AC51FF508E9008F9649 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
@@ -142,6 +144,7 @@
 				48A3140A1FF3983600201F6E /* LoginViewController.swift */,
 				48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */,
 				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
+				48B83A18200F66FA00F2A490 /* SettingViewController.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -431,6 +434,7 @@
 				48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */,
 				48B83A17200F28BB00F2A490 /* Token.swift in Sources */,
 				48E44AC61FF508E9008F9649 /* Issue.swift in Sources */,
+				48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
