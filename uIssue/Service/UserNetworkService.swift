@@ -11,7 +11,7 @@ import RxSwift
 
 protocol UserNetworkService {
   
-  static func getToken(userId: String, userPassword: String) -> Single<Token>
+  static func getToken(userId: String, userPassword: String) -> Single<Status>
   
   //static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (_ statusCode: Int?) -> Void)
 }

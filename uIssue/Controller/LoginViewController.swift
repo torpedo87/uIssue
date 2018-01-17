@@ -59,22 +59,22 @@ class LoginViewController: UIViewController {
   }
   
   func bindUI() {
-    
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Single<Token> in
+      .filter({ [weak self] () -> Bool in
+        self?.idTextField.text != nil && self?.passWordTextField.text != nil
+      })
+      .flatMap { [weak self] _ -> Single<Status> in
         UserNetworkManager
-            .getToken(userId: self!.idTextField.text!, userPassword: self!.passWordTextField.text!)
+          .getToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
       }
-      .asDriver(onErrorJustReturn: Token(id: -1, token: "error"))
-      .drive(onNext: { [weak self] token in
-        if token.isValid() {
-          UserDefaults.standard.saveToken(token: token)
-          self!.presentRepoListVC()
+      .asDriver(onErrorJustReturn: Status.unAuthorizable)
+      .drive(onNext: { [weak self] status in
+        if status == Status.authorizable {
+          self?.presentRepoListVC()
         } else {
-          print("error")
+          print("cannot login")
         }
-
       })
       .disposed(by: bag)
   }

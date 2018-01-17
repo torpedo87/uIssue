@@ -18,11 +18,4 @@ struct Token: Codable {
       "token": token
     ]
   }
-  
-  func isValid() -> Bool {
-    if token == "error" {
-      return false
-    }
-    return true
-  }
 }

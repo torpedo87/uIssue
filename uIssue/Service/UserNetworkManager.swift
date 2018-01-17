@@ -14,9 +14,25 @@ enum Errors: Error {
   case invalidUserInfo
 }
 
+enum Status: Equatable {
+  case authorizable
+  case unAuthorizable
+  
+  static func ==(lhs: Status, rhs: Status) -> Bool {
+    switch (lhs, rhs) {
+    case (.authorizable, .unAuthorizable): return false
+    case (.authorizable , .authorizable): return true
+    case (.unAuthorizable, .authorizable): return false
+    case (.unAuthorizable, .unAuthorizable): return true
+    }
+  }
+}
+
 class UserNetworkManager: UserNetworkService {
   
-  static func getToken(userId: String, userPassword: String) -> Single<Token> {
+  static let bag = DisposeBag()
+  
+  static func getToken(userId: String, userPassword: String) -> Single<Status> {
     
     let config = URLSessionConfiguration.default
     let userInfoString = userId + ":" + userPassword
@@ -45,7 +61,7 @@ class UserNetworkManager: UserNetworkService {
       debugPrint(error.localizedDescription)
     }
     
-    return Single<Token>.create(subscribe: { (observer) -> Disposable in
+    return Single<Status>.create(subscribe: { (observer) -> Disposable in
       let task = session.dataTask(with: request) { (data, response, error) in
         guard let response = response as? HTTPURLResponse else { return }
         if 200 ..< 300 ~= response.statusCode {
@@ -55,8 +71,15 @@ class UserNetworkManager: UserNetworkService {
             guard let tokenId = dict["id"] as? Int else { fatalError() }
             guard let token = dict["token"] as? String else { fatalError() }
             let newToken = Token(id: tokenId, token: token)
-            observer(.success(newToken))
-            return
+            UserDefaults.standard.saveToken(token: newToken)
+              .subscribe(onCompleted: {
+                observer(.success(Status.authorizable))
+                return
+              }, onError: { (error) in
+                observer(.error(error))
+                return
+              })
+              .disposed(by: bag)
           }
         } else if 401 == response.statusCode {
           observer(.error(Errors.invalidUserInfo))
@@ -72,8 +95,8 @@ class UserNetworkManager: UserNetworkService {
         task.cancel()
       }
     })
-      .catchError({ (error) -> PrimitiveSequence<SingleTrait, Token> in
-        return Observable.just(Token(id: -1, token: "error")).asSingle()
+      .catchError({ (error) -> PrimitiveSequence<SingleTrait, Status> in
+        return Observable.just(Status.unAuthorizable).asSingle()
       })
     
   }
