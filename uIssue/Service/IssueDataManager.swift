@@ -33,7 +33,7 @@ class IssueDataManager {
   
   static func fetchRepoList(sort: Sort.RawValue, completion: @escaping ([Repository]?) -> Void) {
     
-    guard let token = UserDefaults.standard.loadToken() else { return }
+    guard let token = UserDefaults.standard.loadToken()?.token else { return }
     
     let config = URLSessionConfiguration.default
     let session = URLSession(configuration: config)
@@ -117,17 +117,15 @@ class IssueDataManager {
       completion(nil)
     } else if let data = data, let response = response as? HTTPURLResponse {
       if response.statusCode == 200 {
-        do {
-          let decoder = JSONDecoder()
-          let repoList = try decoder.decode([Repository].self, from: data)
-          completion(repoList)
-        } catch {
-          completion(nil)
-        }
+        let repoList = try! JSONDecoder().decode([Repository].self, from: data)
+        print("fetch repo success")
+        completion(repoList)
       } else {
+        print("fetch repo fail 1")
         completion(nil)
       }
     } else {
+      print("fetch repo fail 2")
       completion(nil)
     }
   }

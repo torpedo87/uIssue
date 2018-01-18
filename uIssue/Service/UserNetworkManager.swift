@@ -45,11 +45,8 @@ class UserNetworkManager {
           "note": "admin uIssue"
         ]
         
-        do {
-          request.httpBody = try JSONSerialization.data(withJSONObject: bodyObject, options: [])
-        } catch {
-          debugPrint(error.localizedDescription)
-        }
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+          
         return request
       }(url)
       
@@ -68,6 +65,7 @@ class UserNetworkManager {
         if 200 ..< 300 ~= response.statusCode {
           let token = try! JSONDecoder().decode(Token.self, from: data)
           UserDefaults.standard.saveToken(token: token)
+          print("request token success")
           return Status.authorizable
         } else if 401 == response.statusCode {
           throw Errors.invalidUserInfo
@@ -81,35 +79,44 @@ class UserNetworkManager {
     
   }
   
-//  static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (Int?) -> Void) {
-//    let config = URLSessionConfiguration.default
-//    let session = URLSession(configuration: config)
-//
-//    let userInfoString = userId + ":" + userPassword
-//    guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { return }
-//    let base64EncodedCredential = userInfoData.base64EncodedString()
-//    let authString = "Basic \(base64EncodedCredential)"
-//
-//    guard let url = URL(string: "https://api.github.com/authorizations/\(tokenId)") else { return }
-//    var request = URLRequest(url: url)
-//    request.httpMethod = "DELETE"
-//    request.addValue(authString, forHTTPHeaderField: "Authorization")
-//    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-//    
-//    let task = session.dataTask(with: request) { (data, response, error) in
-//      if error == nil {
-//        if let response = response as? HTTPURLResponse {
-//          let statusCode = response.statusCode
-//          print("success code ", statusCode)
-//          completion(statusCode)
-//        }
-//
-//      } else {
-//        print("error", error.debugDescription)
-//        completion(nil)
-//      }
-//    }
-//
-//    task.resume()
-//  }
+  static func removeToken(userId: String, userPassword: String) -> Observable<Status> {
+    guard let tokenId = UserDefaults.standard.loadToken()?.id else { fatalError() }
+    guard let url = URL(string: "https://api.github.com/authorizations/\(tokenId)") else { fatalError() }
+    
+    let request: Observable<URLRequest> = Observable.create { (observer) -> Disposable in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        let userInfoString = userId + ":" + userPassword
+        guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
+        let base64EncodedCredential = userInfoData.base64EncodedString()
+        let authString = "Basic \(base64EncodedCredential)"
+        request.httpMethod = "DELETE"
+        request.addValue(authString, forHTTPHeaderField: "Authorization")
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        return request
+      }(url)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    return request.flatMap({
+      URLSession.shared.rx.response(request: $0)
+    })
+      .map({ (response, data) -> Status in
+        if 200..<300 ~= response.statusCode {
+          UserDefaults.standard.removeLocalToken()
+          print("remove token success")
+          return Status.authorizable
+        } else if 401 == response.statusCode {
+          throw Errors.invalidUserInfo
+        } else {
+          throw Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<UserNetworkManager.Status> in
+        return Observable.just(Status.unAuthorizable)
+      })
+  }
 }

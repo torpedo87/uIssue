@@ -7,27 +7,52 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class SettingViewController: UIViewController {
   
+  private let bag = DisposeBag()
   private var didSetupConstraints = false
-  private lazy var logoutBtn: UIButton = {
+  lazy var logoutBtn: UIButton = {
     let btn = UIButton()
-    btn.setTitle("LOGOUT", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.blue
-    btn.addTarget(self, action: #selector(logoutBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
+    btn.setTitle("Logout", for: UIControlState.normal)
+    btn.isEnabled = false
+    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.gray, for: UIControlState.disabled)
     return btn
+  }()
+  private let idTextField: UITextField = {
+    let txtField = UITextField()
+    txtField.placeholder = "please enter id"
+    txtField.layer.borderColor = UIColor.blue.cgColor
+    txtField.layer.borderWidth = 0.5
+    return txtField
+  }()
+  
+  private let passWordTextField: UITextField = {
+    let txtField = UITextField()
+    txtField.placeholder = "please enter password"
+    txtField.layer.borderColor = UIColor.blue.cgColor
+    txtField.isSecureTextEntry = true
+    txtField.layer.borderWidth = 0.5
+    return txtField
   }()
   
   override func viewDidLoad() {
     super.viewDidLoad()
     
     setupView()
+    bindUI()
     view.setNeedsUpdateConstraints()
   }
   
   func setupView() {
+    view.backgroundColor = UIColor.white
+    view.addSubview(idTextField)
+    view.addSubview(passWordTextField)
     view.addSubview(logoutBtn)
+    
   }
   
   override func updateViewConstraints() {
@@ -39,26 +64,67 @@ class SettingViewController: UIViewController {
         make.width.equalTo(100)
       })
       
+      idTextField.snp.makeConstraints({ (make) in
+        make.center.equalToSuperview()
+        make.width.equalTo(200)
+        make.height.equalTo(50)
+      })
+      
+      passWordTextField.snp.makeConstraints({ (make) in
+        make.centerX.equalToSuperview()
+        make.top.equalTo(idTextField.snp.bottom).offset(10)
+        make.width.height.equalTo(idTextField)
+      })
+      
       didSetupConstraints = true
     }
     
     super.updateViewConstraints()
   }
   
-  @objc func logoutBtnDidTap(_ sender: UIButton) {
+  func bindUI() {
+    let idInput = idTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
+      .map { [weak self] _ -> Bool in
+        if let input = self?.idTextField.text, input.isEmpty {
+          return false
+        }
+        return true
+    }
     
-    UserDefaults.standard.removeLocalToken()
-//    UserNetworkManager.logout(userId: me.getId(), userPassword: me.getPassword(), tokenId: me.getTokenId()) { (statusCode) in
-//      if statusCode == 204 {
-//        print("logout success")
-//        UserDefaults.standard.removeLocalToken()
-//        DispatchQueue.main.async {
-//          self.dismiss(animated: true, completion: nil)
-//        }
-//
-//      } else {
-//        print("logout fail")
-//      }
-//    }
+    let pwdInput = passWordTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
+      .map { [weak self] _ -> Bool in
+        if let input = self?.passWordTextField.text, input.isEmpty {
+          return false
+        }
+        return true
+    }
+    
+    Observable.combineLatest(idInput, pwdInput)
+      .map{ tuple -> Bool in
+        if tuple.0 == true && tuple.1 == true {
+          return true
+        }
+        return false
+      }
+      .asDriver(onErrorJustReturn: false)
+      .drive(logoutBtn.rx.isEnabled).disposed(by: bag)
+    
+    logoutBtn.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
+        UserNetworkManager
+          .removeToken(userId: (self?.idTextField.text!)!, userPassword: (self?.passWordTextField.text!)!)
+      }
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorizable)
+      .drive(onNext: { status in
+        if status == UserNetworkManager.Status.authorizable {
+          guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
+          appDelegate.unwindToLoginVC()
+        } else {
+          print("cannot logout")
+        }
+      })
+      .disposed(by: bag)
   }
+  
 }
