@@ -8,14 +8,7 @@
 
 import Foundation
 
-protocol IssueDataService {
-  
-  static func fetchIssueList(token: String, filter: IssueDataManager.Filter.RawValue, state: IssueDataManager.State.RawValue, sort: IssueDataManager.Sort.RawValue, completion: @escaping (_ issues: [Issue]?) -> Void)
-  
-}
-
-
-class IssueDataManager: IssueDataService {
+class IssueDataManager {
   
   enum Filter: String {
     case assigned
@@ -38,7 +31,9 @@ class IssueDataManager: IssueDataService {
   }
 
   
-  static func fetchRepoList(token: String, sort: Sort.RawValue, completion: @escaping ([Repository]?) -> Void) {
+  static func fetchRepoList(sort: Sort.RawValue, completion: @escaping ([Repository]?) -> Void) {
+    
+    guard let token = UserDefaults.standard.loadToken() else { return }
     
     let config = URLSessionConfiguration.default
     let session = URLSession(configuration: config)

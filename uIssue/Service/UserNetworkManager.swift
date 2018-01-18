@@ -9,36 +9,17 @@
 import Foundation
 import RxSwift
 
-protocol UserNetworkService {
-  
-  static func requestToken(userId: String, userPassword: String) -> Observable<UserNetworkManager.Status>
-  
-  //static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (_ statusCode: Int?) -> Void)
-}
-
-
-class UserNetworkManager: UserNetworkService {
+class UserNetworkManager {
   
   enum Errors: Error {
     case requestFail
     case invalidUserInfo
   }
   
-  enum Status: Equatable {
+  enum Status {
     case authorizable
     case unAuthorizable
-    
-    static func ==(lhs: Status, rhs: Status) -> Bool {
-      switch (lhs, rhs) {
-      case (.authorizable, .unAuthorizable): return false
-      case (.authorizable , .authorizable): return true
-      case (.unAuthorizable, .authorizable): return false
-      case (.unAuthorizable, .unAuthorizable): return true
-      }
-    }
   }
-  
-  static let bag = DisposeBag()
   
   static func requestToken(userId: String, userPassword: String) -> Observable<Status> {
     

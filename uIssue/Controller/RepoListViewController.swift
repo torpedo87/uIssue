@@ -37,8 +37,8 @@ class RepoListViewController: UIViewController {
   }
   
   func fetchRepoList() {
-    guard let token = UserDefaults.standard.loadToken() else { return }
-    IssueDataManager.fetchRepoList(token: token.token, sort: IssueDataManager.Sort.created.rawValue) { [weak self] (repos) in
+    
+    IssueDataManager.fetchRepoList(sort: IssueDataManager.Sort.created.rawValue) { [weak self] (repos) in
       if let repos = repos {
         self?.repoList = repos
         self?.tableView.reloadData()
