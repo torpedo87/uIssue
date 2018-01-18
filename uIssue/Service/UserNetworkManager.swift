@@ -9,94 +9,93 @@
 import Foundation
 import RxSwift
 
-enum Errors: Error {
-  case requestFail
-  case invalidUserInfo
+protocol UserNetworkService {
+  
+  static func requestToken(userId: String, userPassword: String) -> Observable<UserNetworkManager.Status>
+  
+  //static func logout(userId: String, userPassword: String, tokenId: Int, completion: @escaping (_ statusCode: Int?) -> Void)
 }
 
-enum Status: Equatable {
-  case authorizable
-  case unAuthorizable
-  
-  static func ==(lhs: Status, rhs: Status) -> Bool {
-    switch (lhs, rhs) {
-    case (.authorizable, .unAuthorizable): return false
-    case (.authorizable , .authorizable): return true
-    case (.unAuthorizable, .authorizable): return false
-    case (.unAuthorizable, .unAuthorizable): return true
-    }
-  }
-}
 
 class UserNetworkManager: UserNetworkService {
   
+  enum Errors: Error {
+    case requestFail
+    case invalidUserInfo
+  }
+  
+  enum Status: Equatable {
+    case authorizable
+    case unAuthorizable
+    
+    static func ==(lhs: Status, rhs: Status) -> Bool {
+      switch (lhs, rhs) {
+      case (.authorizable, .unAuthorizable): return false
+      case (.authorizable , .authorizable): return true
+      case (.unAuthorizable, .authorizable): return false
+      case (.unAuthorizable, .unAuthorizable): return true
+      }
+    }
+  }
+  
   static let bag = DisposeBag()
   
-  static func getToken(userId: String, userPassword: String) -> Single<Status> {
-    
-    let config = URLSessionConfiguration.default
-    let userInfoString = userId + ":" + userPassword
-    guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
-    let base64EncodedCredential = userInfoData.base64EncodedString()
-    let authString = "Basic \(base64EncodedCredential)"
-    let session = URLSession(configuration: config)
+  static func requestToken(userId: String, userPassword: String) -> Observable<Status> {
     
     guard let url = URL(string: "https://api.github.com/authorizations") else { fatalError() }
     
-    var request = URLRequest(url: url)
-    request.httpMethod = "POST"
-    request.addValue(authString, forHTTPHeaderField: "Authorization")
-    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-    
-    let bodyObject: [String: Any] = [
-      "scopes": [
-        "public_repo"
-      ],
-      "note": "admin uIssue"
-    ]
-    
-    do {
-      request.httpBody = try JSONSerialization.data(withJSONObject: bodyObject, options: [])
-    } catch {
-      debugPrint(error.localizedDescription)
+    //rx 는 시퀀스이므로 request부터 Observable 형태로 감시하는 건가보다
+    //Observable<URLRequest>
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        let userInfoString = userId + ":" + userPassword
+        guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
+        let base64EncodedCredential = userInfoData.base64EncodedString()
+        let authString = "Basic \(base64EncodedCredential)"
+        request.httpMethod = "POST"
+        request.addValue(authString, forHTTPHeaderField: "Authorization")
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        
+        let bodyObject: [String: Any] = [
+          "scopes": [
+            "public_repo"
+          ],
+          "note": "admin uIssue"
+        ]
+        
+        do {
+          request.httpBody = try JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        } catch {
+          debugPrint(error.localizedDescription)
+        }
+        return request
+      }(url)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
     }
     
-    return Single<Status>.create(subscribe: { (observer) -> Disposable in
-      let task = session.dataTask(with: request) { (data, response, error) in
-        guard let response = response as? HTTPURLResponse else { return }
+    //flatmap을 사용하면 그 다음 연산자에 observable을 벗긴채로 전달 가능한건가보다
+    //O<request> -> flatmap -> O<(response, data)>
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+    }
+      //O<(response, data)> -> map -> O<status>
+      .map({ (response, data) -> Status in
         if 200 ..< 300 ~= response.statusCode {
-          if let data = data,
-            let json = try? JSONSerialization.jsonObject(with: data, options: []),
-            let dict = json as? [String:Any] {
-            guard let tokenId = dict["id"] as? Int else { fatalError() }
-            guard let token = dict["token"] as? String else { fatalError() }
-            let newToken = Token(id: tokenId, token: token)
-            UserDefaults.standard.saveToken(token: newToken)
-              .subscribe(onCompleted: {
-                observer(.success(Status.authorizable))
-                return
-              }, onError: { (error) in
-                observer(.error(error))
-                return
-              })
-              .disposed(by: bag)
-          }
+          let token = try! JSONDecoder().decode(Token.self, from: data)
+          UserDefaults.standard.saveToken(token: token)
+          return Status.authorizable
         } else if 401 == response.statusCode {
-          observer(.error(Errors.invalidUserInfo))
-          return
+          throw Errors.invalidUserInfo
         } else {
-          observer(.error(Errors.requestFail))
-          return
+          throw Errors.requestFail
         }
-      }
-      
-      task.resume()
-      return Disposables.create {
-        task.cancel()
-      }
-    })
-      .catchError({ (error) -> PrimitiveSequence<SingleTrait, Status> in
-        return Observable.just(Status.unAuthorizable).asSingle()
+      })
+      .catchError({ (error) -> Observable<Status> in
+        return Observable.just(Status.unAuthorizable)
       })
     
   }

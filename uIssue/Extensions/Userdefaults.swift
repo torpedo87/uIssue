@@ -12,20 +12,11 @@ import RxCocoa
 
 extension UserDefaults {
   
-  func saveToken(token: Token) -> Completable {
-    return Completable.create(subscribe: { (completable) -> Disposable in
-      let dict = token.asDictionary
-      UserDefaults.standard.set(dict, forKey: "token")
-      
-      guard let _ = UserDefaults.standard.loadToken() else {
-        completable(CompletableEvent.error(Errors.requestFail))
-        return Disposables.create()
-      }
-      
-      completable(CompletableEvent.completed)
-      return Disposables.create()
-    })
+  func saveToken(token: Token) {
     
+    let dict = token.asDictionary
+    UserDefaults.standard.set(dict, forKey: "token")
+
   }
   
   func loadToken() -> Token? {

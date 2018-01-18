@@ -19,6 +19,13 @@ class RepoListViewController: UIViewController {
     view.delegate = self
     return view
   }()
+  lazy var settingBtn: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("Setting", for: UIControlState.normal)
+    btn.backgroundColor = UIColor.blue
+    btn.addTarget(self, action: #selector(RepoListViewController.setttingBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
+    return btn
+  }()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -31,7 +38,7 @@ class RepoListViewController: UIViewController {
   
   func fetchRepoList() {
     guard let token = UserDefaults.standard.loadToken() else { return }
-    IssueDataManager.fetchRepoList(token: token.token, sort: Sort.created.rawValue) { [weak self] (repos) in
+    IssueDataManager.fetchRepoList(token: token.token, sort: IssueDataManager.Sort.created.rawValue) { [weak self] (repos) in
       if let repos = repos {
         self?.repoList = repos
         self?.tableView.reloadData()
@@ -43,7 +50,7 @@ class RepoListViewController: UIViewController {
     view.backgroundColor = UIColor.white
     
     view.addSubview(tableView)
-    
+    view.addSubview(settingBtn)
   }
   
   override func updateViewConstraints() {
@@ -55,13 +62,21 @@ class RepoListViewController: UIViewController {
         make.bottom.equalToSuperview().offset(-100)
       })
       
+      settingBtn.snp.makeConstraints({ (make) in
+        settingBtn.sizeToFit()
+        make.right.bottom.equalToSuperview()
+      })
+      
       didSetupConstraints = true
     }
     
     super.updateViewConstraints()
   }
   
-  
+  @objc func setttingBtnDidTap(_ sender: UIButton) {
+    let settingViewController = SettingViewController()
+    present(settingViewController, animated: true, completion: nil)
+  }
   
 }
 

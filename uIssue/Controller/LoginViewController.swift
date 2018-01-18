@@ -72,33 +72,32 @@ class LoginViewController: UIViewController {
     
     let pwdInput = passWordTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
       .map { [weak self] _ -> Bool in
-        if let input = self?.idTextField.text, input.isEmpty {
+        if let input = self?.passWordTextField.text, input.isEmpty {
           return false
         }
         return true
     }
     
-    let validate = Observable.combineLatest(idInput, pwdInput)
+    Observable.combineLatest(idInput, pwdInput)
       .map{ tuple -> Bool in
-        if tuple.0 && tuple.1 {
+        if tuple.0 == true && tuple.1 == true {
           return true
         }
         return false
       }
       .asDriver(onErrorJustReturn: false)
-    
-    validate.drive(loginBtn.rx.isEnabled).disposed(by: bag)
+      .drive(loginBtn.rx.isEnabled).disposed(by: bag)
     
     
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Single<Status> in
+      .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
         UserNetworkManager
-          .getToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
+          .requestToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
       }
-      .asDriver(onErrorJustReturn: Status.unAuthorizable)
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorizable)
       .drive(onNext: { [weak self] status in
-        if status == Status.authorizable {
+        if status == UserNetworkManager.Status.authorizable {
           self?.presentRepoListVC()
         } else {
           print("cannot login")
