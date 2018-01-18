@@ -34,7 +34,9 @@ class LoginViewController: UIViewController {
   lazy var loginBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Login", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.blue
+    btn.isEnabled = false
+    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.gray, for: UIControlState.disabled)
     return btn
   }()
   
@@ -60,21 +62,46 @@ class LoginViewController: UIViewController {
   
   func bindUI() {
     
+    let idInput = idTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
+      .map { [weak self] _ -> Bool in
+        if let input = self?.idTextField.text, input.isEmpty {
+          return false
+        }
+        return true
+    }
+    
+    let pwdInput = passWordTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
+      .map { [weak self] _ -> Bool in
+        if let input = self?.passWordTextField.text, input.isEmpty {
+          return false
+        }
+        return true
+    }
+    
+    Observable.combineLatest(idInput, pwdInput)
+      .map{ tuple -> Bool in
+        if tuple.0 == true && tuple.1 == true {
+          return true
+        }
+        return false
+      }
+      .asDriver(onErrorJustReturn: false)
+      .drive(loginBtn.rx.isEnabled).disposed(by: bag)
+    
+    
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Single<Token> in
+      .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
         UserNetworkManager
-            .getToken(userId: self!.idTextField.text!, userPassword: self!.passWordTextField.text!)
+          .requestToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
       }
-      .asDriver(onErrorJustReturn: Token(id: -1, token: "error"))
-      .drive(onNext: { [weak self] token in
-        if token.isValid() {
-          UserDefaults.standard.saveToken(token: token)
-          self!.presentRepoListVC()
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorizable)
+      .drive(onNext: { [weak self] status in
+        if status == UserNetworkManager.Status.authorizable {
+          self?.presentRepoListVC()
         } else {
-          print("error")
+          print("cannot login")
         }
-
       })
       .disposed(by: bag)
   }

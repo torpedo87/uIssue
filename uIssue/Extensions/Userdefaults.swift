@@ -7,12 +7,16 @@
 //
 
 import Foundation
+import RxSwift
+import RxCocoa
 
 extension UserDefaults {
   
   func saveToken(token: Token) {
+    
     let dict = token.asDictionary
     UserDefaults.standard.set(dict, forKey: "token")
+
   }
   
   func loadToken() -> Token? {

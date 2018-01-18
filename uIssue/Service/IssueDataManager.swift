@@ -8,7 +8,35 @@
 
 import Foundation
 
+protocol IssueDataService {
+  
+  static func fetchIssueList(token: String, filter: IssueDataManager.Filter.RawValue, state: IssueDataManager.State.RawValue, sort: IssueDataManager.Sort.RawValue, completion: @escaping (_ issues: [Issue]?) -> Void)
+  
+}
+
+
 class IssueDataManager: IssueDataService {
+  
+  enum Filter: String {
+    case assigned
+    case created
+    case mentioned
+    case subscribed
+    case all
+  }
+  
+  enum State: String {
+    case open
+    case closed
+    case all
+  }
+  
+  enum Sort: String {
+    case created
+    case updated
+    case comments
+  }
+
   
   static func fetchRepoList(token: String, sort: Sort.RawValue, completion: @escaping ([Repository]?) -> Void) {
     

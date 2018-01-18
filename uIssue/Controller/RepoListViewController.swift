@@ -19,12 +19,11 @@ class RepoListViewController: UIViewController {
     view.delegate = self
     return view
   }()
-  
-  private lazy var logoutBtn: UIButton = {
+  lazy var settingBtn: UIButton = {
     let btn = UIButton()
-    btn.setTitle("LOGOUT", for: UIControlState.normal)
+    btn.setTitle("Setting", for: UIControlState.normal)
     btn.backgroundColor = UIColor.blue
-    btn.addTarget(self, action: #selector(logoutBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
+    btn.addTarget(self, action: #selector(RepoListViewController.setttingBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
     return btn
   }()
   
@@ -39,8 +38,8 @@ class RepoListViewController: UIViewController {
   
   func fetchRepoList() {
     guard let token = UserDefaults.standard.loadToken() else { return }
-    IssueDataManager.fetchRepoList(token: token.token, sort: Sort.created.rawValue) { [weak self] (repos) in
-      if let repos = repos as? [Repository] {
+    IssueDataManager.fetchRepoList(token: token.token, sort: IssueDataManager.Sort.created.rawValue) { [weak self] (repos) in
+      if let repos = repos {
         self?.repoList = repos
         self?.tableView.reloadData()
       }
@@ -51,7 +50,7 @@ class RepoListViewController: UIViewController {
     view.backgroundColor = UIColor.white
     
     view.addSubview(tableView)
-    view.addSubview(logoutBtn)
+    view.addSubview(settingBtn)
   }
   
   override func updateViewConstraints() {
@@ -62,10 +61,10 @@ class RepoListViewController: UIViewController {
         make.top.equalToSuperview().offset(50)
         make.bottom.equalToSuperview().offset(-100)
       })
-      logoutBtn.snp.makeConstraints({ (make) in
-        make.right.bottom.equalToSuperview().offset(-10)
-        make.height.equalTo(50)
-        make.width.equalTo(100)
+      
+      settingBtn.snp.makeConstraints({ (make) in
+        settingBtn.sizeToFit()
+        make.right.bottom.equalToSuperview()
       })
       
       didSetupConstraints = true
@@ -74,21 +73,9 @@ class RepoListViewController: UIViewController {
     super.updateViewConstraints()
   }
   
-  @objc func logoutBtnDidTap(_ sender: UIButton) {
-    
-    UserDefaults.standard.removeLocalToken()
-//    UserNetworkManager.logout(userId: me.getId(), userPassword: me.getPassword(), tokenId: me.getTokenId()) { (statusCode) in
-//      if statusCode == 204 {
-//        print("logout success")
-//        UserDefaults.standard.removeLocalToken()
-//        DispatchQueue.main.async {
-//          self.dismiss(animated: true, completion: nil)
-//        }
-//
-//      } else {
-//        print("logout fail")
-//      }
-//    }
+  @objc func setttingBtnDidTap(_ sender: UIButton) {
+    let settingViewController = SettingViewController()
+    present(settingViewController, animated: true, completion: nil)
   }
   
 }
