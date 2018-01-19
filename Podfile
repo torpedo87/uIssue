@@ -13,6 +13,8 @@ target 'uIssue' do
   target 'uIssueTests' do
     inherit! :search_paths
     # Pods for testing
+    pod 'RxTest'
+    pod 'RxBlocking'
   end
 
 end
