@@ -17,7 +17,6 @@ class RepoListViewController: UIViewController {
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.dataSource = self
     view.delegate = self
     return view
   }()
@@ -32,6 +31,7 @@ class RepoListViewController: UIViewController {
     super.viewDidLoad()
     setupView()
     bindUI()
+    bindTableView()
     view.setNeedsUpdateConstraints()
   }
   
@@ -55,6 +55,17 @@ class RepoListViewController: UIViewController {
         self?.presentSettingVC()
       })
       .disposed(by: bag)
+  }
+  
+  func bindTableView() {
+    viewModel.repoList.asObservable()
+      .bind(to: tableView.rx.items) {
+        [weak self] (tableView: UITableView, index: Int, element: Repository) in
+        let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
+        cell.configureCell(viewModel: (self?.viewModel)!, index: index)
+        return cell
+    }
+    .disposed(by: bag)
   }
   
   override func updateViewConstraints() {
@@ -82,20 +93,6 @@ class RepoListViewController: UIViewController {
     present(settingViewController, animated: true, completion: nil)
   }
   
-}
-
-extension RepoListViewController: UITableViewDataSource {
-  
-  func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return viewModel.repoList.value.count
-  }
-  
-  func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-    guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseIdentifier, for: indexPath) as? ListCell else { return UITableViewCell() }
-    
-    cell.configureCell(viewModel: viewModel, index: indexPath.row)
-    return cell
-  }
 }
 
 extension RepoListViewController: UITableViewDelegate {
