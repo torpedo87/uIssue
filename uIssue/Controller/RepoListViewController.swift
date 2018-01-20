@@ -7,11 +7,13 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class RepoListViewController: UIViewController {
-  
+  private let bag = DisposeBag()
+  fileprivate var viewModel = RepoListViewViewModel(account: UserNetworkManager.status)
   private var didSetupConstraints = false
-  private var repoList: [Repository] = []
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -23,27 +25,14 @@ class RepoListViewController: UIViewController {
     let btn = UIButton()
     btn.setTitle("Setting", for: UIControlState.normal)
     btn.backgroundColor = UIColor.blue
-    btn.addTarget(self, action: #selector(RepoListViewController.setttingBtnDidTap(_:)), for: UIControlEvents.touchUpInside)
     return btn
   }()
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
     setupView()
-    fetchRepoList()
-    
+    bindUI()
     view.setNeedsUpdateConstraints()
-  }
-  
-  func fetchRepoList() {
-    guard let token = UserDefaults.standard.loadToken() else { return }
-    IssueDataManager.fetchRepoList(token: token.token, sort: IssueDataManager.Sort.created.rawValue) { [weak self] (repos) in
-      if let repos = repos {
-        self?.repoList = repos
-        self?.tableView.reloadData()
-      }
-    }
   }
   
   func setupView() {
@@ -51,6 +40,21 @@ class RepoListViewController: UIViewController {
     
     view.addSubview(tableView)
     view.addSubview(settingBtn)
+  }
+  
+  func bindUI() {
+    viewModel.repoList.asDriver()
+      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .disposed(by: bag)
+    
+    settingBtn.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .map{ _ in true }
+      .asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] _ in
+        self?.presentSettingVC()
+      })
+      .disposed(by: bag)
   }
   
   override func updateViewConstraints() {
@@ -73,7 +77,7 @@ class RepoListViewController: UIViewController {
     super.updateViewConstraints()
   }
   
-  @objc func setttingBtnDidTap(_ sender: UIButton) {
+  func presentSettingVC() {
     let settingViewController = SettingViewController()
     present(settingViewController, animated: true, completion: nil)
   }
@@ -81,17 +85,15 @@ class RepoListViewController: UIViewController {
 }
 
 extension RepoListViewController: UITableViewDataSource {
-  func numberOfSections(in tableView: UITableView) -> Int {
-    return 1
-  }
   
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return repoList.count
+    return viewModel.repoList.value.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: ListCell.reuseIdentifier, for: indexPath) as? ListCell else { return UITableViewCell() }
-    cell.configuerCell(repo: repoList[indexPath.row])
+    
+    cell.configureCell(viewModel: viewModel, index: indexPath.row)
     return cell
   }
 }

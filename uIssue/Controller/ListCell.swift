@@ -40,12 +40,8 @@ class ListCell: UITableViewCell {
     fatalError("init(coder:) has not been implemented")
   }
   
-  func configuerCell(repo: Repository) {
-    titleLabel.text = repo.name
-    countLabel.text = "\(repo.open_issues)"
-  }
-  
-  func configureCell(issue: Issue) {
-    titleLabel.text = issue.title
+  func configureCell(viewModel: RepoListViewViewModel, index: Int) {
+    titleLabel.text = viewModel.repoList.value[index].name
+    countLabel.text = "\(viewModel.repoList.value[index].open_issues)"
   }
 }

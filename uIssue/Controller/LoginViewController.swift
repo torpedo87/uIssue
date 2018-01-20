@@ -13,6 +13,7 @@ import RxCocoa
 class LoginViewController: UIViewController {
   
   private let bag = DisposeBag()
+  private let viewModel = LoginViewViewModel()
   private var didSetupConstraints = false
   private let idTextField: UITextField = {
     let txtField = UITextField()
@@ -48,11 +49,6 @@ class LoginViewController: UIViewController {
     view.setNeedsUpdateConstraints()
   }
   
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-    checkLoginSession()
-  }
-  
   func setupView() {
     view.backgroundColor = UIColor.white
     view.addSubview(idTextField)
@@ -62,42 +58,41 @@ class LoginViewController: UIViewController {
   
   func bindUI() {
     
-    let idInput = idTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
-      .map { [weak self] _ -> Bool in
-        if let input = self?.idTextField.text, input.isEmpty {
-          return false
+    //driver인데 왜 디스패치큐를 넣어줘야 작동할까...
+    UserNetworkManager.status
+      .debug("dddddd")
+      .drive(onNext: { [weak self] (status) in
+        if status == UserNetworkManager.Status.authorized {
+          DispatchQueue.main.async {
+            self?.presentRepoListVC()
+          }
         }
-        return true
-    }
+      })
+      .disposed(by: bag)
     
-    let pwdInput = passWordTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
-      .map { [weak self] _ -> Bool in
-        if let input = self?.passWordTextField.text, input.isEmpty {
-          return false
-        }
-        return true
-    }
+    //사용자 입력값을 뷰모델에 전달
+    idTextField.rx.text.orEmpty
+      .bind(to: viewModel.idTextInput)
+      .disposed(by: bag)
     
-    Observable.combineLatest(idInput, pwdInput)
-      .map{ tuple -> Bool in
-        if tuple.0 == true && tuple.1 == true {
-          return true
-        }
-        return false
-      }
-      .asDriver(onErrorJustReturn: false)
-      .drive(loginBtn.rx.isEnabled).disposed(by: bag)
+    passWordTextField.rx.text.orEmpty
+      .bind(to: viewModel.pwdTextInput)
+      .disposed(by: bag)
     
     
+    //뷰모델에서 가공된 결과를 받아서 바인딩
+    viewModel.validate
+      .drive(loginBtn.rx.isEnabled)
+      .disposed(by: bag)
+
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
-        UserNetworkManager
-          .requestToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
+        (self?.viewModel.requestLogin(id: (self?.idTextField.text!)!, password: (self?.passWordTextField.text!)!))!
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorizable)
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
       .drive(onNext: { [weak self] status in
-        if status == UserNetworkManager.Status.authorizable {
+        if status == UserNetworkManager.Status.authorized {
           self?.presentRepoListVC()
         } else {
           print("cannot login")
@@ -136,11 +131,4 @@ class LoginViewController: UIViewController {
     present(repoListViewController, animated: true, completion: nil)
   }
   
-  func checkLoginSession() {
-    let token = UserDefaults.standard.loadToken()
-    
-    if token != nil {
-      self.presentRepoListVC()
-    }
-  }
 }

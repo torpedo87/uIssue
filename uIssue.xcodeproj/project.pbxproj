@@ -9,11 +9,13 @@
 /* Begin PBXBuildFile section */
 		2055F0B7BC0D3F735C840BA9 /* Pods_uIssue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7237C7F0E77AEB4EE858BDB2 /* Pods_uIssue.framework */; };
 		24F4C84D5167248291595973 /* Pods_uIssueTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */; };
+		48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F902011F32D003F5FBB /* LoginViewViewModel.swift */; };
+		48470F93201204CE003F5FBB /* LoginViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F92201204CE003F5FBB /* LoginViewViewModelTests.swift */; };
+		48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
 		48A313F01FF3956D00201F6E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EE1FF3956D00201F6E /* LaunchScreen.storyboard */; };
-		48A313FB1FF3956D00201F6E /* uIssueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313FA1FF3956D00201F6E /* uIssueTests.swift */; };
 		48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140A1FF3983600201F6E /* LoginViewController.swift */; };
 		48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */; };
 		48B83A17200F28BB00F2A490 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A16200F28BB00F2A490 /* Token.swift */; };
@@ -36,6 +38,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		48470F902011F32D003F5FBB /* LoginViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModel.swift; sourceTree = "<group>"; };
+		48470F92201204CE003F5FBB /* LoginViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModelTests.swift; sourceTree = "<group>"; };
+		48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModel.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -43,7 +48,6 @@
 		48A313EF1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		48A313F11FF3956D00201F6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		48A313F61FF3956D00201F6E /* uIssueTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = uIssueTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		48A313FA1FF3956D00201F6E /* uIssueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = uIssueTests.swift; sourceTree = "<group>"; };
 		48A313FC1FF3956D00201F6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		48A3140A1FF3983600201F6E /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManager.swift; sourceTree = "<group>"; };
@@ -127,8 +131,8 @@
 		48A313F91FF3956D00201F6E /* uIssueTests */ = {
 			isa = PBXGroup;
 			children = (
-				48A313FA1FF3956D00201F6E /* uIssueTests.swift */,
 				48A313FC1FF3956D00201F6E /* Info.plist */,
+				48470F92201204CE003F5FBB /* LoginViewViewModelTests.swift */,
 			);
 			path = uIssueTests;
 			sourceTree = "<group>";
@@ -138,7 +142,9 @@
 			children = (
 				48A313E51FF3956D00201F6E /* AppDelegate.swift */,
 				48A3140A1FF3983600201F6E /* LoginViewController.swift */,
+				48470F902011F32D003F5FBB /* LoginViewViewModel.swift */,
 				48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */,
+				48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */,
 				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
 				48B83A18200F66FA00F2A490 /* SettingViewController.swift */,
 			);
@@ -260,6 +266,7 @@
 					};
 					48A313F51FF3956D00201F6E = {
 						CreatedOnToolsVersion = 9.2;
+						LastSwiftMigration = 0920;
 						ProvisioningStyle = Automatic;
 						TestTargetID = 48A313E11FF3956D00201F6E;
 					};
@@ -330,14 +337,12 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-uIssue/Pods-uIssue-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
@@ -353,9 +358,16 @@
 			files = (
 			);
 			inputPaths = (
+				"${SRCROOT}/Pods/Target Support Files/Pods-uIssueTests/Pods-uIssueTests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/RxBlocking/RxBlocking.framework",
+				"${BUILT_PRODUCTS_DIR}/RxTest/RxTest.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxBlocking.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxTest.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -417,8 +429,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */,
 				48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */,
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
+				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
 				48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */,
 				48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */,
@@ -434,7 +448,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				48A313FB1FF3956D00201F6E /* uIssueTests.swift in Sources */,
+				48470F93201204CE003F5FBB /* LoginViewViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -613,12 +627,14 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = J6JJA4UC5Z;
 				INFOPLIST_FILE = uIssueTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.samchon.uIssueTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/uIssue.app/uIssue";
@@ -631,6 +647,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = J6JJA4UC5Z;
 				INFOPLIST_FILE = uIssueTests/Info.plist;
