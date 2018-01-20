@@ -17,7 +17,6 @@ class RepoListViewController: UIViewController {
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.delegate = self
     return view
   }()
   lazy var settingBtn: UIButton = {
@@ -36,8 +35,8 @@ class RepoListViewController: UIViewController {
   }
   
   func setupView() {
+    title = "Repository List"
     view.backgroundColor = UIColor.white
-    
     view.addSubview(tableView)
     view.addSubview(settingBtn)
   }
@@ -52,12 +51,13 @@ class RepoListViewController: UIViewController {
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
-        self?.presentSettingVC()
+        self?.pushSettingVC()
       })
       .disposed(by: bag)
   }
   
   func bindTableView() {
+    //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {
         [weak self] (tableView: UITableView, index: Int, element: Repository) in
@@ -66,6 +66,15 @@ class RepoListViewController: UIViewController {
         return cell
     }
     .disposed(by: bag)
+    
+    //delegate
+    tableView.rx
+      .itemSelected
+      .subscribe(onNext: { [weak self] indexPath in
+        self?.tableView.deselectRow(at: indexPath, animated: true)
+        self?.pushIssueListVC()
+      })
+      .disposed(by: bag)
   }
   
   override func updateViewConstraints() {
@@ -88,16 +97,14 @@ class RepoListViewController: UIViewController {
     super.updateViewConstraints()
   }
   
-  func presentSettingVC() {
+  func pushSettingVC() {
     let settingViewController = SettingViewController()
-    present(settingViewController, animated: true, completion: nil)
+    navigationController?.pushViewController(settingViewController, animated: true)
   }
   
-}
-
-extension RepoListViewController: UITableViewDelegate {
-  
-  func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    
+  func pushIssueListVC() {
+    let issueListVC = IssueListViewController()
+    navigationController?.pushViewController(issueListVC, animated: true)
   }
+  
 }

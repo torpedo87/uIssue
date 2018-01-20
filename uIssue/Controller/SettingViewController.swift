@@ -48,6 +48,7 @@ class SettingViewController: UIViewController {
   }
   
   func setupView() {
+    title = "Setting"
     view.backgroundColor = UIColor.white
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)

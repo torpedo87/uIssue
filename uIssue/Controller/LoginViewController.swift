@@ -64,7 +64,7 @@ class LoginViewController: UIViewController {
       .drive(onNext: { [weak self] (status) in
         if status == UserNetworkManager.Status.authorized {
           DispatchQueue.main.async {
-            self?.presentRepoListVC()
+            self?.presentNavigationController()
           }
         }
       })
@@ -93,7 +93,7 @@ class LoginViewController: UIViewController {
       .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
       .drive(onNext: { [weak self] status in
         if status == UserNetworkManager.Status.authorized {
-          self?.presentRepoListVC()
+          self?.presentNavigationController()
         } else {
           print("cannot login")
         }
@@ -126,9 +126,9 @@ class LoginViewController: UIViewController {
     super.updateViewConstraints()
   }
   
-  func presentRepoListVC() {
+  func presentNavigationController() {
     let repoListViewController = RepoListViewController()
-    present(repoListViewController, animated: true, completion: nil)
+    present(UINavigationController(rootViewController: repoListViewController), animated: true, completion: nil)
   }
   
 }
