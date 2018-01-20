@@ -13,33 +13,24 @@ import RxCocoa
 class RepoListViewViewModel {
   private let bag = DisposeBag()
   
-  //input
-  let account: Driver<UserNetworkManager.Status>
-  
   //output
   let repoList = Variable<[Repository]>([])
+  private(set) var loggedIn: Driver<UserNetworkManager.Status>
   
-  init(account: Driver<UserNetworkManager.Status>) {
-    self.account = account
+  init() {
+    loggedIn = UserNetworkManager.status
     bindOutput()
   }
   
   func bindOutput() {
-    //observe the current account status
-    let currentAccount = account
-      .filter { account in
-        switch account {
-        case .authorized: return true
-        default: return false
-        }
-      }
-      .distinctUntilChanged()
     
-    //fetch repo list
-    currentAccount.asObservable()
-      .flatMap {_ in
-        IssueDataManager.fetchRepoList(sort: IssueDataManager.Sort.created.rawValue)
-    }
+    loggedIn.asObservable()
+      .flatMap({ (status) -> Observable<[Repository]> in
+        if status == UserNetworkManager.Status.authorized {
+          return IssueDataManager.fetchRepoList(sort: IssueDataManager.Sort.created.rawValue)
+        }
+        return Observable.just([Repository]())
+      })
       .bind(to: repoList)
       .disposed(by: bag)
   }

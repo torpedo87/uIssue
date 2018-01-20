@@ -12,7 +12,7 @@ import RxCocoa
 
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
-  fileprivate var viewModel = RepoListViewViewModel(account: UserNetworkManager.status)
+  fileprivate var viewModel = RepoListViewViewModel()
   private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
