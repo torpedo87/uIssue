@@ -12,14 +12,14 @@ import RxCocoa
 
 extension UserDefaults {
   
-  func saveToken(token: Token) {
+  static func saveToken(token: Token) {
     
     let dict = token.asDictionary
     UserDefaults.standard.set(dict, forKey: "token")
 
   }
   
-  func loadToken() -> Token? {
+  static func loadToken() -> Token? {
     guard let dict = UserDefaults.standard.dictionary(forKey: "token") else { return nil }
     if let id = dict["id"] as? Int, let token = dict["token"] as? String {
       let newToken = Token(id: id, token: token)
@@ -28,7 +28,7 @@ extension UserDefaults {
     return nil
   }
   
-  func removeLocalToken() {
+  static func removeLocalToken() {
     UserDefaults.standard.removeObject(forKey: "token")
   }
 }

@@ -8,6 +8,7 @@
 
 import Foundation
 import RxSwift
+import RxCocoa
 
 class UserNetworkManager {
   
@@ -17,8 +18,19 @@ class UserNetworkManager {
   }
   
   enum Status {
-    case authorizable
-    case unAuthorizable
+    case authorized
+    case unAuthorized
+  }
+  
+  static var status: Driver<Status> {
+    return Observable.create { observer in
+      if let _ = UserDefaults.loadToken() {
+        observer.onNext(.authorized)
+      } else {
+        observer.onNext(.unAuthorized)
+      }
+      return Disposables.create()
+    }.asDriver(onErrorJustReturn: Status.unAuthorized)
   }
   
   static func requestToken(userId: String, userPassword: String) -> Observable<Status> {
@@ -64,9 +76,9 @@ class UserNetworkManager {
       .map({ (response, data) -> Status in
         if 200 ..< 300 ~= response.statusCode {
           let token = try! JSONDecoder().decode(Token.self, from: data)
-          UserDefaults.standard.saveToken(token: token)
+          UserDefaults.saveToken(token: token)
           print("request token success")
-          return Status.authorizable
+          return Status.authorized
         } else if 401 == response.statusCode {
           throw Errors.invalidUserInfo
         } else {
@@ -74,13 +86,13 @@ class UserNetworkManager {
         }
       })
       .catchError({ (error) -> Observable<Status> in
-        return Observable.just(Status.unAuthorizable)
+        return Observable.just(Status.unAuthorized)
       })
     
   }
   
   static func removeToken(userId: String, userPassword: String) -> Observable<Status> {
-    guard let tokenId = UserDefaults.standard.loadToken()?.id else { fatalError() }
+    guard let tokenId = UserDefaults.loadToken()?.id else { fatalError() }
     guard let url = URL(string: "https://api.github.com/authorizations/\(tokenId)") else { fatalError() }
     
     let request: Observable<URLRequest> = Observable.create { (observer) -> Disposable in
@@ -106,9 +118,9 @@ class UserNetworkManager {
     })
       .map({ (response, data) -> Status in
         if 200..<300 ~= response.statusCode {
-          UserDefaults.standard.removeLocalToken()
+          UserDefaults.removeLocalToken()
           print("remove token success")
-          return Status.authorizable
+          return Status.authorized
         } else if 401 == response.statusCode {
           throw Errors.invalidUserInfo
         } else {
@@ -116,7 +128,7 @@ class UserNetworkManager {
         }
       })
       .catchError({ (error) -> Observable<UserNetworkManager.Status> in
-        return Observable.just(Status.unAuthorizable)
+        return Observable.just(Status.unAuthorized)
       })
   }
 }

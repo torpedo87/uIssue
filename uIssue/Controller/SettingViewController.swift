@@ -115,9 +115,9 @@ class SettingViewController: UIViewController {
         UserNetworkManager
           .removeToken(userId: (self?.idTextField.text!)!, userPassword: (self?.passWordTextField.text!)!)
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorizable)
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
       .drive(onNext: { status in
-        if status == UserNetworkManager.Status.authorizable {
+        if status == UserNetworkManager.Status.authorized {
           guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
           appDelegate.unwindToLoginVC()
         } else {

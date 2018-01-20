@@ -49,11 +49,6 @@ class LoginViewController: UIViewController {
     view.setNeedsUpdateConstraints()
   }
   
-  override func viewDidAppear(_ animated: Bool) {
-    super.viewDidAppear(animated)
-    checkLoginSession()
-  }
-  
   func setupView() {
     view.backgroundColor = UIColor.white
     view.addSubview(idTextField)
@@ -62,6 +57,18 @@ class LoginViewController: UIViewController {
   }
   
   func bindUI() {
+    
+    //driver인데 왜 디스패치큐를 넣어줘야 작동할까...
+    UserNetworkManager.status
+      .debug("dddddd")
+      .drive(onNext: { [weak self] (status) in
+        if status == UserNetworkManager.Status.authorized {
+          DispatchQueue.main.async {
+            self?.presentRepoListVC()
+          }
+        }
+      })
+      .disposed(by: bag)
     
     //사용자 입력값을 뷰모델에 전달
     idTextField.rx.text.orEmpty
@@ -76,15 +83,16 @@ class LoginViewController: UIViewController {
     //뷰모델에서 가공된 결과를 받아서 바인딩
     viewModel.validate
       .drive(loginBtn.rx.isEnabled)
+      .disposed(by: bag)
 
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
         (self?.viewModel.requestLogin(id: (self?.idTextField.text!)!, password: (self?.passWordTextField.text!)!))!
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorizable)
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
       .drive(onNext: { [weak self] status in
-        if status == UserNetworkManager.Status.authorizable {
+        if status == UserNetworkManager.Status.authorized {
           self?.presentRepoListVC()
         } else {
           print("cannot login")
@@ -123,13 +131,4 @@ class LoginViewController: UIViewController {
     present(repoListViewController, animated: true, completion: nil)
   }
   
-  
-  //status를 감시해서 rx로 개선해야함
-  func checkLoginSession() {
-    let token = UserDefaults.standard.loadToken()
-    
-    if token != nil {
-      self.presentRepoListVC()
-    }
-  }
 }

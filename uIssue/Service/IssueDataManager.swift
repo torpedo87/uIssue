@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RxSwift
 
 class IssueDataManager {
   
@@ -29,14 +30,10 @@ class IssueDataManager {
     case updated
     case comments
   }
-
   
-  static func fetchRepoList(sort: Sort.RawValue, completion: @escaping ([Repository]?) -> Void) {
+  static func fetchRepoList(sort: Sort.RawValue) -> Observable<[Repository]> {
     
-    guard let token = UserDefaults.standard.loadToken()?.token else { return }
-    
-    let config = URLSessionConfiguration.default
-    let session = URLSession(configuration: config)
+    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     
     guard var urlComponents = URLComponents(string: "https://api.github.com/user/repos") else { fatalError() }
     
@@ -48,27 +45,39 @@ class IssueDataManager {
       URLQueryItem(name: key, value: value)
     })
     
-    var request = URLRequest(url: urlComponents.url!)
-    request.httpMethod = "GET"
-    request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-    
-    let task = session.dataTask(with: request) { (data, response, error) in
-      if error == nil {
-        guard let response = response as? HTTPURLResponse else { fatalError() }
-        let statusCode = response.statusCode
-        if statusCode == 200 {
-          DispatchQueue.main.async {
-            self.didFetchRepoList(data: data, response: response, error: error, completion: completion)
-          }
-        }
-      } else {
-        print("fetch repoList error")
-      }
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        
+        return request
+      }(urlComponents.url!)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
     }
     
-    task.resume()
-    session.finishTasksAndInvalidate()
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      //O<(response, data)> -> map -> O<status>
+      .map({ (response, data) -> [Repository] in
+        if 200 ..< 300 ~= response.statusCode {
+          let repos = try! JSONDecoder().decode([Repository].self, from: data)
+          print("request token success")
+          return repos
+        } else if 401 == response.statusCode {
+          throw UserNetworkManager.Errors.invalidUserInfo
+        } else {
+          throw UserNetworkManager.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<[Repository]> in
+        return Observable.just([])
+      })
   }
   
   static func fetchIssueList(token: String, filter: String, state: String, sort: Sort.RawValue, completion: @escaping ([Issue]?) -> Void) {
@@ -110,24 +119,6 @@ class IssueDataManager {
     task.resume()
     session.finishTasksAndInvalidate()
 
-  }
-  
-  static func didFetchRepoList(data: Data?, response: URLResponse?, error: Error?, completion: @escaping ([Repository]?) -> Void) {
-    if let _ = error {
-      completion(nil)
-    } else if let data = data, let response = response as? HTTPURLResponse {
-      if response.statusCode == 200 {
-        let repoList = try! JSONDecoder().decode([Repository].self, from: data)
-        print("fetch repo success")
-        completion(repoList)
-      } else {
-        print("fetch repo fail 1")
-        completion(nil)
-      }
-    } else {
-      print("fetch repo fail 2")
-      completion(nil)
-    }
   }
   
   static func didFetchIssueList(data: Data?, response: URLResponse?, error: Error?, completion: @escaping ([Issue]?) -> Void) {
