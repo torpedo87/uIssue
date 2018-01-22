@@ -27,7 +27,8 @@ class Navigator {
       
     case .repoList:
       let vm = RepoListViewViewModel()
-      show(target: RepoListViewController.createWith(viewModel: vm), sender: sender)
+      let repoListVC = RepoListViewController.createWith(viewModel: vm)
+      show(target: UINavigationController(rootViewController: repoListVC), sender: sender)
     case .issueList(let repo):
       let vm = IssueListViewViewModel(repo: repo)
       show(target: IssueListViewController.createWith(viewModel: vm), sender: sender)
@@ -39,7 +40,7 @@ class Navigator {
   
   func unwindTo(target: UIViewController) {
     guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-    appDelegate.window?.rootViewController = UINavigationController(rootViewController: target)
+    appDelegate.window?.rootViewController = target
   }
   
   private func show(target: UIViewController, sender: UIViewController) {

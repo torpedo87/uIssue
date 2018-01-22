@@ -32,13 +32,21 @@ class LoginViewController: UIViewController {
     return txtField
   }()
   
-  lazy var loginBtn: UIButton = {
+  private lazy var loginBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Login", for: UIControlState.normal)
     btn.isEnabled = false
     btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
     btn.setTitleColor(UIColor.gray, for: UIControlState.disabled)
     return btn
+  }()
+  
+  private let messageLabel: UILabel = {
+    let label = UILabel()
+    label.isHidden = true
+    label.sizeToFit()
+    label.textAlignment = .center
+    return label
   }()
   
   static func createWith(viewModel: LoginViewViewModel) -> LoginViewController {
@@ -62,23 +70,10 @@ class LoginViewController: UIViewController {
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
     view.addSubview(loginBtn)
+    view.addSubview(messageLabel)
   }
   
   func bindUI() {
-    
-    //driver인데 왜 디스패치큐를 넣어줘야 작동할까...
-    UserNetworkManager.status
-      .debug("dddddd")
-      .drive(onNext: { [weak self] (status) in
-        switch status {
-        case .authorized:
-          DispatchQueue.main.async {
-            Navigator.shared.show(destination: .repoList, sender: self!)
-          }
-        case .unAuthorized(let value): print(value)
-        }
-      })
-      .disposed(by: bag)
     
     //사용자 입력값을 뷰모델에 전달
     idTextField.rx.text.orEmpty
@@ -105,7 +100,7 @@ class LoginViewController: UIViewController {
       .drive(onNext: { [weak self] status in
         switch status {
         case .authorized: Navigator.shared.show(destination: .repoList, sender: self!)
-        case .unAuthorized(let value): print(value)
+        case .unAuthorized(let value): self?.showErrorMsg(message: value)
         }
       })
       .disposed(by: bag)
@@ -131,9 +126,23 @@ class LoginViewController: UIViewController {
         make.top.equalTo(passWordTextField.snp.bottom).offset(10)
         make.width.height.equalTo(passWordTextField)
       })
+      
+      messageLabel.snp.makeConstraints({ (make) in
+        make.centerX.equalToSuperview()
+        make.top.equalTo(loginBtn.snp.bottom).offset(10)
+        make.width.height.equalTo(passWordTextField)
+      })
       didSetupConstraints = true
     }
     super.updateViewConstraints()
+  }
+  
+  func showErrorMsg(message: String) {
+    messageLabel.text = message
+    messageLabel.isHidden = false
+    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+      self.messageLabel.isHidden = true
+    }
   }
   
 }

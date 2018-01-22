@@ -18,13 +18,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
     
     window = UIWindow(frame: UIScreen.main.bounds)
-    window?.rootViewController = UINavigationController()
+    window?.rootViewController = SplashViewController()
     window?.makeKeyAndVisible()
     
     //testing 아닐때에만 화면 보여주기
     if !testing {
-      let nav = window!.rootViewController! as! UINavigationController
-      Navigator.shared.show(destination: .login, sender: nav)
+      let splashVC = window!.rootViewController! as! SplashViewController
+      Navigator.shared.show(destination: .login, sender: splashVC)
     }
     return true
     

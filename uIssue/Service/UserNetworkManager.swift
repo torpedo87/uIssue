@@ -85,6 +85,12 @@ class UserNetworkManager {
         }
       })
       .catchError({ (error) -> Observable<Status> in
+        if let error = error as? Errors {
+          switch error {
+          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          }
+        }
         return Observable.just(Status.unAuthorized(error.localizedDescription))
       })
     
@@ -126,6 +132,12 @@ class UserNetworkManager {
         }
       })
       .catchError({ (error) -> Observable<UserNetworkManager.Status> in
+        if let error = error as? Errors {
+          switch error {
+          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          }
+        }
         return Observable.just(Status.unAuthorized(error.localizedDescription))
       })
   }
