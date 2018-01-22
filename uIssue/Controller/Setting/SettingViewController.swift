@@ -13,6 +13,7 @@ import RxCocoa
 class SettingViewController: UIViewController {
   
   private let bag = DisposeBag()
+  private let viewModel = SettingViewViewModel()
   private var didSetupConstraints = false
   lazy var logoutBtn: UIButton = {
     let btn = UIButton()
@@ -84,37 +85,25 @@ class SettingViewController: UIViewController {
   }
   
   func bindUI() {
-    let idInput = idTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
-      .map { [weak self] _ -> Bool in
-        if let input = self?.idTextField.text, input.isEmpty {
-          return false
-        }
-        return true
-    }
+    //사용자 입력값을 뷰모델에 전달
+    idTextField.rx.text.orEmpty
+      .bind(to: viewModel.idTextInput)
+      .disposed(by: bag)
     
-    let pwdInput = passWordTextField.rx.controlEvent(UIControlEvents.editingChanged).asObservable()
-      .map { [weak self] _ -> Bool in
-        if let input = self?.passWordTextField.text, input.isEmpty {
-          return false
-        }
-        return true
-    }
+    passWordTextField.rx.text.orEmpty
+      .bind(to: viewModel.pwdTextInput)
+      .disposed(by: bag)
     
-    Observable.combineLatest(idInput, pwdInput)
-      .map{ tuple -> Bool in
-        if tuple.0 == true && tuple.1 == true {
-          return true
-        }
-        return false
-      }
-      .asDriver(onErrorJustReturn: false)
-      .drive(logoutBtn.rx.isEnabled).disposed(by: bag)
+    
+    //뷰모델에서 가공된 결과를 받아서 바인딩
+    viewModel.validate
+      .drive(logoutBtn.rx.isEnabled)
+      .disposed(by: bag)
     
     logoutBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
-        UserNetworkManager
-          .removeToken(userId: (self?.idTextField.text!)!, userPassword: (self?.passWordTextField.text!)!)
+        UserNetworkManager.removeToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
       }
       .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
       .drive(onNext: { status in
