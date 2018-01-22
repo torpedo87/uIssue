@@ -9,12 +9,11 @@
 import Foundation
 
 struct Issue: Codable {
-  let url: String
+  let repository_url: String
   let title: String
   let body: String
   let user: User
   let assignees: [User]
-  let repository: Repository
 }
 
 struct User: Codable {

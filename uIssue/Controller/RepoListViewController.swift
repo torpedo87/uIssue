@@ -72,7 +72,7 @@ class RepoListViewController: UIViewController {
       .itemSelected
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
-        self?.pushIssueListVC()
+        self?.pushIssueListVC(index: indexPath.row)
       })
       .disposed(by: bag)
   }
@@ -102,8 +102,9 @@ class RepoListViewController: UIViewController {
     navigationController?.pushViewController(settingViewController, animated: true)
   }
   
-  func pushIssueListVC() {
+  func pushIssueListVC(index: Int) {
     let issueListVC = IssueListViewController()
+    issueListVC.viewModel = viewModel.viewModel(for: index)
     navigationController?.pushViewController(issueListVC, animated: true)
   }
   

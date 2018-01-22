@@ -26,13 +26,17 @@ class RepoListViewViewModel {
     
     loggedIn.asObservable()
       .flatMap({ (status) -> Observable<[Repository]> in
-        if status == UserNetworkManager.Status.authorized {
-          return IssueDataManager.fetchRepoList(sort: IssueDataManager.Sort.created.rawValue)
+        if status == .authorized {
+          return IssueDataManager.fetchRepoList(sort: .created)
         }
         return Observable.just([Repository]())
       })
       .bind(to: repoList)
       .disposed(by: bag)
+  }
+  
+  func viewModel(for index: Int) -> IssueListViewViewModel {
+    return IssueListViewViewModel(repo: repoList.value[index])
   }
   
 }

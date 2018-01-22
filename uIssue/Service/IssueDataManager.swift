@@ -31,14 +31,14 @@ class IssueDataManager {
     case comments
   }
   
-  static func fetchRepoList(sort: Sort.RawValue) -> Observable<[Repository]> {
+  static func fetchRepoList(sort: Sort) -> Observable<[Repository]> {
     
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     
     guard var urlComponents = URLComponents(string: "https://api.github.com/user/repos") else { fatalError() }
     
     let urlParams = [
-      "sort": sort
+      "sort": sort.rawValue
     ]
     
     urlComponents.queryItems = urlParams.map({ (key, value) in
@@ -50,7 +50,6 @@ class IssueDataManager {
         var request = URLRequest(url: $0)
         request.httpMethod = "GET"
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
         return request
       }(urlComponents.url!)
@@ -67,7 +66,7 @@ class IssueDataManager {
       .map({ (response, data) -> [Repository] in
         if 200 ..< 300 ~= response.statusCode {
           let repos = try! JSONDecoder().decode([Repository].self, from: data)
-          print("request token success")
+          print("fetch repo list success")
           return repos
         } else if 401 == response.statusCode {
           throw UserNetworkManager.Errors.invalidUserInfo
@@ -80,65 +79,53 @@ class IssueDataManager {
       })
   }
   
-  static func fetchIssueList(token: String, filter: String, state: String, sort: Sort.RawValue, completion: @escaping ([Issue]?) -> Void) {
+  static func fetchIssueListForRepo(repo: Repository, sort: Sort, state: State) -> Observable<[Issue]> {
     
-    let config = URLSessionConfiguration.default
-    let session = URLSession(configuration: config)
-
-    guard var urlComponents = URLComponents(string: "https://api.github.com/user/issues") else { fatalError() }
+    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
+    
+    guard var urlComponents = URLComponents(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else { fatalError() }
     
     let urlParams = [
-      "filter": filter,
-      "state": state,
-      "sort": sort
+      "state": state.rawValue,
+      "sort": sort.rawValue
     ]
     
     urlComponents.queryItems = urlParams.map({ (key, value) in
       URLQueryItem(name: key, value: value)
     })
     
-    var request = URLRequest(url: urlComponents.url!)
-    request.httpMethod = "GET"
-    request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-    request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
-
-    let task = session.dataTask(with: request) { (data, response, error) in
-      if error == nil {
-        guard let response = response as? HTTPURLResponse else { fatalError() }
-        let statusCode = response.statusCode
-        if statusCode == 200 {
-          DispatchQueue.main.async {
-            self.didFetchIssueList(data: data, response: response, error: error, completion: completion)
-          }
-        }
-      } else {
-        print("fetch issue error")
-      }
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "GET"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        return request
+      }(urlComponents.url!)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
     }
-
-    task.resume()
-    session.finishTasksAndInvalidate()
-
-  }
-  
-  static func didFetchIssueList(data: Data?, response: URLResponse?, error: Error?, completion: @escaping ([Issue]?) -> Void) {
-    if let _ = error {
-      completion(nil)
-    } else if let data = data, let response = response as? HTTPURLResponse {
-      if response.statusCode == 200 {
-        do {
-          let decoder = JSONDecoder()
-          let issueList = try decoder.decode([Issue].self, from: data)
-          completion(issueList)
-        } catch {
-          completion(nil)
-        }
-      } else {
-        completion(nil)
+    
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
       }
-    } else {
-      completion(nil)
-    }
+      //O<(response, data)> -> map -> O<status>
+      .map({ (response, data) -> [Issue] in
+        if 200 ..< 300 ~= response.statusCode {
+          let repos = try! JSONDecoder().decode([Issue].self, from: data)
+          print("fetch issue list success")
+          return repos
+        } else if 401 == response.statusCode {
+          throw UserNetworkManager.Errors.invalidUserInfo
+        } else {
+          throw UserNetworkManager.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<[Issue]> in
+        return Observable.just([])
+      })
   }
   
 }
