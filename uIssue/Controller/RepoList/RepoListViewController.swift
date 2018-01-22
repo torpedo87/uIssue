@@ -12,7 +12,7 @@ import RxCocoa
 
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
-  private var viewModel = RepoListViewViewModel()
+  private var viewModel: RepoListViewViewModel!
   private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
@@ -27,6 +27,13 @@ class RepoListViewController: UIViewController {
                                action: nil)
     return item
   }()
+  
+  static func createWith(viewModel: RepoListViewViewModel) -> RepoListViewController {
+    return {
+      $0.viewModel = viewModel
+      return $0
+      }(RepoListViewController())
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -53,7 +60,7 @@ class RepoListViewController: UIViewController {
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
-        self?.pushSettingVC()
+        Navigator.shared.show(destination: .setting, sender: self!)
       })
       .disposed(by: bag)
   }
@@ -74,7 +81,8 @@ class RepoListViewController: UIViewController {
       .itemSelected
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
-        self?.pushIssueListVC(index: indexPath.row)
+        let selectedRepo = self?.viewModel.repoList.value[indexPath.row]
+        Navigator.shared.show(destination: .issueList(selectedRepo!), sender: self!)
       })
       .disposed(by: bag)
   }
@@ -91,17 +99,6 @@ class RepoListViewController: UIViewController {
     }
     
     super.updateViewConstraints()
-  }
-  
-  func pushSettingVC() {
-    let settingViewController = SettingViewController()
-    navigationController?.pushViewController(settingViewController, animated: true)
-  }
-  
-  func pushIssueListVC(index: Int) {
-    let issueListVC = IssueListViewController()
-    issueListVC.viewModel = viewModel.viewModel(for: index)
-    navigationController?.pushViewController(issueListVC, animated: true)
   }
   
 }

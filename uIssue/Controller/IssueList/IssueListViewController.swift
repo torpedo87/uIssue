@@ -12,7 +12,7 @@ import RxCocoa
 
 class IssueListViewController: UIViewController {
   private let bag = DisposeBag()
-  var viewModel: IssueListViewViewModel!
+  private var viewModel: IssueListViewViewModel!
   private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
@@ -26,6 +26,13 @@ class IssueListViewController: UIViewController {
                                action: nil)
     return item
   }()
+  
+  static func createWith(viewModel: IssueListViewViewModel) -> IssueListViewController {
+    return {
+      $0.viewModel = viewModel
+      return $0
+      }(IssueListViewController())
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -66,7 +73,7 @@ class IssueListViewController: UIViewController {
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
-        self?.pushSettingVC()
+        Navigator.shared.show(destination: .setting, sender: self!)
       })
       .disposed(by: bag)
   }
@@ -90,11 +97,6 @@ class IssueListViewController: UIViewController {
         
       })
       .disposed(by: bag)
-  }
-  
-  func pushSettingVC() {
-    let settingViewController = SettingViewController()
-    navigationController?.pushViewController(settingViewController, animated: true)
   }
   
 }

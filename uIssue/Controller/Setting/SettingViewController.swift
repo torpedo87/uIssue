@@ -13,7 +13,7 @@ import RxCocoa
 class SettingViewController: UIViewController {
   
   private let bag = DisposeBag()
-  private let viewModel = SettingViewViewModel()
+  private var viewModel: SettingViewViewModel!
   private var didSetupConstraints = false
   lazy var logoutBtn: UIButton = {
     let btn = UIButton()
@@ -39,6 +39,13 @@ class SettingViewController: UIViewController {
     txtField.layer.borderWidth = 0.5
     return txtField
   }()
+  
+  static func createWith(viewModel: SettingViewViewModel) -> SettingViewController {
+    return {
+      $0.viewModel = viewModel
+      return $0
+      }(SettingViewController())
+  }
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -103,15 +110,15 @@ class SettingViewController: UIViewController {
     logoutBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
-        UserNetworkManager.removeToken(userId: (self?.idTextField.text)!, userPassword: (self?.passWordTextField.text)!)
+        (self?.viewModel.requestLogout(id: (self?.idTextField.text)!,
+                                       password: (self?.passWordTextField.text)!))!
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized("logout error"))
       .drive(onNext: { status in
-        if status == UserNetworkManager.Status.authorized {
-          guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else { return }
-          appDelegate.unwindToLoginVC()
-        } else {
-          print("cannot logout")
+        switch status {
+        case .authorized: Navigator.shared.unwindTo(target:
+          LoginViewController.createWith(viewModel: LoginViewViewModel()))
+        case .unAuthorized(let value): print(value)
         }
       })
       .disposed(by: bag)

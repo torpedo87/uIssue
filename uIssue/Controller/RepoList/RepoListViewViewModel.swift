@@ -15,27 +15,28 @@ class RepoListViewViewModel {
   
   //output
   let repoList = Variable<[Repository]>([])
-  private(set) var loggedIn: Driver<UserNetworkManager.Status>
+  private var loginStatus: Driver<UserNetworkManager.Status>
   
   init() {
-    loggedIn = UserNetworkManager.status
+    loginStatus = UserNetworkManager.status
     bindOutput()
   }
   
   func bindOutput() {
     
-    loggedIn.asObservable()
+    loginStatus.asObservable()
       .flatMap({ (status) -> Observable<[Repository]> in
-        if status == .authorized {
+        switch status {
+        case .authorized:
           return IssueDataManager.fetchRepoList(sort: .created)
+        default: return Observable.just([Repository]())
         }
-        return Observable.just([Repository]())
       })
       .bind(to: repoList)
       .disposed(by: bag)
   }
   
-  func viewModel(for index: Int) -> IssueListViewViewModel {
+  func makeIssueListViewModel(for index: Int) -> IssueListViewViewModel {
     return IssueListViewViewModel(repo: repoList.value[index])
   }
   

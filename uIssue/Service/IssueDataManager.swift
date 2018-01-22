@@ -83,7 +83,9 @@ class IssueDataManager {
     
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     
-    guard var urlComponents = URLComponents(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else { fatalError() }
+    guard var urlComponents = URLComponents(string:
+      "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else
+    { fatalError() }
     
     let urlParams = [
       "state": state.rawValue,

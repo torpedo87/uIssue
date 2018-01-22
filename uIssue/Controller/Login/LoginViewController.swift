@@ -13,7 +13,7 @@ import RxCocoa
 class LoginViewController: UIViewController {
   
   private let bag = DisposeBag()
-  private let viewModel = LoginViewViewModel()
+  private var viewModel: LoginViewViewModel!
   private var didSetupConstraints = false
   private let idTextField: UITextField = {
     let txtField = UITextField()
@@ -41,6 +41,13 @@ class LoginViewController: UIViewController {
     return btn
   }()
   
+  static func createWith(viewModel: LoginViewViewModel) -> LoginViewController {
+    return {
+      $0.viewModel = viewModel
+      return $0
+    }(LoginViewController())
+  }
+  
   override func viewDidLoad() {
     super.viewDidLoad()
     
@@ -50,6 +57,7 @@ class LoginViewController: UIViewController {
   }
   
   func setupView() {
+    title = "Login"
     view.backgroundColor = UIColor.white
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
@@ -62,10 +70,12 @@ class LoginViewController: UIViewController {
     UserNetworkManager.status
       .debug("dddddd")
       .drive(onNext: { [weak self] (status) in
-        if status == UserNetworkManager.Status.authorized {
+        switch status {
+        case .authorized:
           DispatchQueue.main.async {
-            self?.presentNavigationController()
+            Navigator.shared.show(destination: .repoList, sender: self!)
           }
+        case .unAuthorized(let value): print(value)
         }
       })
       .disposed(by: bag)
@@ -88,14 +98,14 @@ class LoginViewController: UIViewController {
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
-        (self?.viewModel.requestLogin(id: (self?.idTextField.text!)!, password: (self?.passWordTextField.text!)!))!
+        (self?.viewModel.requestLogin(id: (self?.idTextField.text!)!,
+                                      password: (self?.passWordTextField.text!)!))!
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized)
+      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized("login error"))
       .drive(onNext: { [weak self] status in
-        if status == UserNetworkManager.Status.authorized {
-          self?.presentNavigationController()
-        } else {
-          print("cannot login")
+        switch status {
+        case .authorized: Navigator.shared.show(destination: .repoList, sender: self!)
+        case .unAuthorized(let value): print(value)
         }
       })
       .disposed(by: bag)
@@ -124,11 +134,6 @@ class LoginViewController: UIViewController {
       didSetupConstraints = true
     }
     super.updateViewConstraints()
-  }
-  
-  func presentNavigationController() {
-    let repoListViewController = RepoListViewController()
-    present(UINavigationController(rootViewController: repoListViewController), animated: true, completion: nil)
   }
   
 }

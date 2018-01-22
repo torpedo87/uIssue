@@ -16,6 +16,7 @@
 		48470F9B20135092003F5FBB /* IssueListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F9A20135092003F5FBB /* IssueListViewController.swift */; };
 		48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F9C20138936003F5FBB /* IssueListViewViewModel.swift */; };
 		48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA02015DDC1003F5FBB /* SettingViewViewModel.swift */; };
+		48470FA82015F93F003F5FBB /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA72015F93F003F5FBB /* Navigator.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
@@ -49,6 +50,7 @@
 		48470F9A20135092003F5FBB /* IssueListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewController.swift; sourceTree = "<group>"; };
 		48470F9C20138936003F5FBB /* IssueListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewViewModel.swift; sourceTree = "<group>"; };
 		48470FA02015DDC1003F5FBB /* SettingViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewViewModel.swift; sourceTree = "<group>"; };
+		48470FA72015F93F003F5FBB /* Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -191,6 +193,7 @@
 				48470FA32015DDDB003F5FBB /* RepoList */,
 				48470FA22015DDCB003F5FBB /* Login */,
 				48A313E51FF3956D00201F6E /* AppDelegate.swift */,
+				48470FA72015F93F003F5FBB /* Navigator.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -478,6 +481,7 @@
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
 				48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */,
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
+				48470FA82015F93F003F5FBB /* Navigator.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
 				48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */,
 				48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */,

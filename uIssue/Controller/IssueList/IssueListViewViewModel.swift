@@ -30,10 +30,14 @@ class IssueListViewViewModel {
     
     loggedIn.asObservable()
       .flatMap({ [weak self] (status) -> Observable<[Issue]> in
-        if status == UserNetworkManager.Status.authorized {
-          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!, sort: IssueDataManager.Sort.created, state: IssueDataManager.State.open)
+        switch status {
+        case .authorized:
+          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!,
+                                                        sort: IssueDataManager.Sort.created,
+                                                        state: IssueDataManager.State.open)
+        default: return Observable.just([Issue]())
         }
-        return Observable.just([Issue]())
+        
       })
       .bind(to: issueList)
       .disposed(by: bag)
