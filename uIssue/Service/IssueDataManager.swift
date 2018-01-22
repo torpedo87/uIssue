@@ -65,8 +65,8 @@ class IssueDataManager {
       //O<(response, data)> -> map -> O<status>
       .map({ (response, data) -> [Repository] in
         if 200 ..< 300 ~= response.statusCode {
-          let repos = try! JSONDecoder().decode([Repository].self, from: data)
-          print("fetch repo list success")
+          var repos = try! JSONDecoder().decode([Repository].self, from: data)
+          repos = repos.filter { $0.open_issues > 0 }
           return repos
         } else if 401 == response.statusCode {
           throw UserNetworkManager.Errors.invalidUserInfo

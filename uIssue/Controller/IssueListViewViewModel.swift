@@ -31,7 +31,7 @@ class IssueListViewViewModel {
     loggedIn.asObservable()
       .flatMap({ [weak self] (status) -> Observable<[Issue]> in
         if status == UserNetworkManager.Status.authorized {
-          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!, sort: IssueDataManager.Sort.created, state: IssueDataManager.State.all)
+          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!, sort: IssueDataManager.Sort.created, state: IssueDataManager.State.open)
         }
         return Observable.just([Issue]())
       })
