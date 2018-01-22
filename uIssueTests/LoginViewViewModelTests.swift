@@ -34,7 +34,7 @@ class LoginViewViewModelTests: XCTestCase {
     
     do {
       guard let result = try loginStatusObservable.toBlocking(timeout: 5.0).first() else { return }
-      XCTAssertEqual(result, .unAuthorizable)
+      XCTAssertEqual(result, .unAuthorized)
     } catch {
       print(error)
     }

@@ -44,4 +44,8 @@ class ListCell: UITableViewCell {
     titleLabel.text = viewModel.repoList.value[index].name
     countLabel.text = "\(viewModel.repoList.value[index].open_issues)"
   }
+  
+  func configureCell(viewModel: IssueListViewViewModel, index: Int) {
+    titleLabel.text = viewModel.issueList.value[index].title
+  }
 }

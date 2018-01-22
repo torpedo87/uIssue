@@ -19,7 +19,7 @@ class UserNetworkManager {
   
   enum Status {
     case authorized
-    case unAuthorized
+    case unAuthorized(String)
   }
   
   static var status: Driver<Status> {
@@ -27,10 +27,10 @@ class UserNetworkManager {
       if let _ = UserDefaults.loadToken() {
         observer.onNext(.authorized)
       } else {
-        observer.onNext(.unAuthorized)
+        observer.onNext(.unAuthorized("caanot load token"))
       }
       return Disposables.create()
-    }.asDriver(onErrorJustReturn: Status.unAuthorized)
+    }.asDriver(onErrorJustReturn: Status.unAuthorized("unAuthorized"))
   }
   
   static func requestToken(userId: String, userPassword: String) -> Observable<Status> {
@@ -77,7 +77,6 @@ class UserNetworkManager {
         if 200 ..< 300 ~= response.statusCode {
           let token = try! JSONDecoder().decode(Token.self, from: data)
           UserDefaults.saveToken(token: token)
-          print("request token success")
           return Status.authorized
         } else if 401 == response.statusCode {
           throw Errors.invalidUserInfo
@@ -86,7 +85,13 @@ class UserNetworkManager {
         }
       })
       .catchError({ (error) -> Observable<Status> in
-        return Observable.just(Status.unAuthorized)
+        if let error = error as? Errors {
+          switch error {
+          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          }
+        }
+        return Observable.just(Status.unAuthorized(error.localizedDescription))
       })
     
   }
@@ -119,7 +124,6 @@ class UserNetworkManager {
       .map({ (response, data) -> Status in
         if 200..<300 ~= response.statusCode {
           UserDefaults.removeLocalToken()
-          print("remove token success")
           return Status.authorized
         } else if 401 == response.statusCode {
           throw Errors.invalidUserInfo
@@ -128,7 +132,13 @@ class UserNetworkManager {
         }
       })
       .catchError({ (error) -> Observable<UserNetworkManager.Status> in
-        return Observable.just(Status.unAuthorized)
+        if let error = error as? Errors {
+          switch error {
+          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          }
+        }
+        return Observable.just(Status.unAuthorized(error.localizedDescription))
       })
   }
 }

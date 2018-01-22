@@ -12,6 +12,12 @@
 		48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F902011F32D003F5FBB /* LoginViewViewModel.swift */; };
 		48470F93201204CE003F5FBB /* LoginViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F92201204CE003F5FBB /* LoginViewViewModelTests.swift */; };
 		48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */; };
+		48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */; };
+		48470F9B20135092003F5FBB /* IssueListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F9A20135092003F5FBB /* IssueListViewController.swift */; };
+		48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F9C20138936003F5FBB /* IssueListViewViewModel.swift */; };
+		48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA02015DDC1003F5FBB /* SettingViewViewModel.swift */; };
+		48470FA82015F93F003F5FBB /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA72015F93F003F5FBB /* Navigator.swift */; };
+		48470FAA20162E21003F5FBB /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA920162E20003F5FBB /* SplashViewController.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
@@ -41,6 +47,12 @@
 		48470F902011F32D003F5FBB /* LoginViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModel.swift; sourceTree = "<group>"; };
 		48470F92201204CE003F5FBB /* LoginViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModelTests.swift; sourceTree = "<group>"; };
 		48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModel.swift; sourceTree = "<group>"; };
+		48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModelTests.swift; sourceTree = "<group>"; };
+		48470F9A20135092003F5FBB /* IssueListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewController.swift; sourceTree = "<group>"; };
+		48470F9C20138936003F5FBB /* IssueListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewViewModel.swift; sourceTree = "<group>"; };
+		48470FA02015DDC1003F5FBB /* SettingViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewViewModel.swift; sourceTree = "<group>"; };
+		48470FA72015F93F003F5FBB /* Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
+		48470FA920162E20003F5FBB /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -95,6 +107,51 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		48470FA22015DDCB003F5FBB /* Login */ = {
+			isa = PBXGroup;
+			children = (
+				48A3140A1FF3983600201F6E /* LoginViewController.swift */,
+				48470F902011F32D003F5FBB /* LoginViewViewModel.swift */,
+			);
+			path = Login;
+			sourceTree = "<group>";
+		};
+		48470FA32015DDDB003F5FBB /* RepoList */ = {
+			isa = PBXGroup;
+			children = (
+				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
+				48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */,
+				48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */,
+			);
+			path = RepoList;
+			sourceTree = "<group>";
+		};
+		48470FA42015DDE3003F5FBB /* IssueList */ = {
+			isa = PBXGroup;
+			children = (
+				48470F9C20138936003F5FBB /* IssueListViewViewModel.swift */,
+				48470F9A20135092003F5FBB /* IssueListViewController.swift */,
+			);
+			path = IssueList;
+			sourceTree = "<group>";
+		};
+		48470FA52015DDEB003F5FBB /* Setting */ = {
+			isa = PBXGroup;
+			children = (
+				48470FA02015DDC1003F5FBB /* SettingViewViewModel.swift */,
+				48B83A18200F66FA00F2A490 /* SettingViewController.swift */,
+			);
+			path = Setting;
+			sourceTree = "<group>";
+		};
+		48470FAB20163149003F5FBB /* Splash */ = {
+			isa = PBXGroup;
+			children = (
+				48470FA920162E20003F5FBB /* SplashViewController.swift */,
+			);
+			path = Splash;
+			sourceTree = "<group>";
+		};
 		48A313D91FF3956D00201F6E = {
 			isa = PBXGroup;
 			children = (
@@ -133,6 +190,7 @@
 			children = (
 				48A313FC1FF3956D00201F6E /* Info.plist */,
 				48470F92201204CE003F5FBB /* LoginViewViewModelTests.swift */,
+				48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */,
 			);
 			path = uIssueTests;
 			sourceTree = "<group>";
@@ -140,13 +198,13 @@
 		48A314051FF3959400201F6E /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				48470FAB20163149003F5FBB /* Splash */,
+				48470FA52015DDEB003F5FBB /* Setting */,
+				48470FA42015DDE3003F5FBB /* IssueList */,
+				48470FA32015DDDB003F5FBB /* RepoList */,
+				48470FA22015DDCB003F5FBB /* Login */,
 				48A313E51FF3956D00201F6E /* AppDelegate.swift */,
-				48A3140A1FF3983600201F6E /* LoginViewController.swift */,
-				48470F902011F32D003F5FBB /* LoginViewViewModel.swift */,
-				48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */,
-				48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */,
-				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
-				48B83A18200F66FA00F2A490 /* SettingViewController.swift */,
+				48470FA72015F93F003F5FBB /* Navigator.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -432,8 +490,12 @@
 				48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */,
 				48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */,
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
+				48470FAA20162E21003F5FBB /* SplashViewController.swift in Sources */,
+				48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */,
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
+				48470FA82015F93F003F5FBB /* Navigator.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
+				48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */,
 				48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */,
 				48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */,
 				48E44ABF1FF4B7C5008F9649 /* RepoListViewController.swift in Sources */,
@@ -441,6 +503,7 @@
 				48B83A17200F28BB00F2A490 /* Token.swift in Sources */,
 				48E44AC61FF508E9008F9649 /* Issue.swift in Sources */,
 				48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */,
+				48470F9B20135092003F5FBB /* IssueListViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -448,6 +511,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */,
 				48470F93201204CE003F5FBB /* LoginViewViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
