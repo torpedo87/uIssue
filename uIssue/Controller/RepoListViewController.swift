@@ -12,18 +12,20 @@ import RxCocoa
 
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
-  fileprivate var viewModel = RepoListViewViewModel()
+  private var viewModel = RepoListViewViewModel()
   private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
     return view
   }()
-  lazy var settingBtn: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("Setting", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.blue
-    return btn
+  
+  private lazy var settingBarButtonItem: UIBarButtonItem = {
+    let item = UIBarButtonItem(image: UIImage(named: "setting"),
+                               style: .plain,
+                               target: self,
+                               action: nil)
+    return item
   }()
   
   override func viewDidLoad() {
@@ -36,9 +38,9 @@ class RepoListViewController: UIViewController {
   
   func setupView() {
     title = "Repository List"
+    navigationItem.rightBarButtonItem = settingBarButtonItem
     view.backgroundColor = UIColor.white
     view.addSubview(tableView)
-    view.addSubview(settingBtn)
   }
   
   func bindUI() {
@@ -46,7 +48,7 @@ class RepoListViewController: UIViewController {
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
     
-    settingBtn.rx.tap
+    settingBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
@@ -81,14 +83,8 @@ class RepoListViewController: UIViewController {
     if !didSetupConstraints {
       
       tableView.snp.makeConstraints({ (make) in
-        make.left.right.equalToSuperview()
+        make.left.right.bottom.equalToSuperview()
         make.top.equalToSuperview().offset(50)
-        make.bottom.equalToSuperview().offset(-100)
-      })
-      
-      settingBtn.snp.makeConstraints({ (make) in
-        settingBtn.sizeToFit()
-        make.right.bottom.equalToSuperview()
       })
       
       didSetupConstraints = true

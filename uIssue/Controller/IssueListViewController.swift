@@ -19,6 +19,13 @@ class IssueListViewController: UIViewController {
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
     return view
   }()
+  private lazy var settingBarButtonItem: UIBarButtonItem = {
+    let item = UIBarButtonItem(image: UIImage(named: "setting"),
+                               style: .plain,
+                               target: self,
+                               action: nil)
+    return item
+  }()
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -30,6 +37,7 @@ class IssueListViewController: UIViewController {
   
   func setupView() {
     title = "Issue List"
+    navigationItem.rightBarButtonItem = settingBarButtonItem
     view.backgroundColor = UIColor.white
     view.addSubview(tableView)
   }
@@ -38,9 +46,8 @@ class IssueListViewController: UIViewController {
     if !didSetupConstraints {
       
       tableView.snp.makeConstraints({ (make) in
-        make.left.right.equalToSuperview()
+        make.left.right.bottom.equalToSuperview()
         make.top.equalToSuperview().offset(50)
-        make.bottom.equalToSuperview().offset(-100)
       })
       
       didSetupConstraints = true
@@ -52,6 +59,15 @@ class IssueListViewController: UIViewController {
   func bindUI() {
     viewModel.issueList.asDriver()
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .disposed(by: bag)
+    
+    settingBarButtonItem.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .map{ _ in true }
+      .asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] _ in
+        self?.pushSettingVC()
+      })
       .disposed(by: bag)
   }
   
@@ -74,6 +90,11 @@ class IssueListViewController: UIViewController {
         
       })
       .disposed(by: bag)
+  }
+  
+  func pushSettingVC() {
+    let settingViewController = SettingViewController()
+    navigationController?.pushViewController(settingViewController, animated: true)
   }
   
 }
