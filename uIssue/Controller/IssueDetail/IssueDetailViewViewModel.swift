@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import RxSwift
 
 class IssueDetailViewViewModel {
   
@@ -19,5 +20,9 @@ class IssueDetailViewViewModel {
   
   func bindOutput() {
     
+  }
+  
+  func requestEditIssue(title: String, comment: String, label: [IssueDataManager.Label], state: IssueDataManager.State) -> Observable<Issue> {
+    return IssueDataManager.editIssue(title: title, comment: comment, label: label, issue: selectedIssue, state: state)
   }
 }

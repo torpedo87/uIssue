@@ -7,9 +7,12 @@
 //
 
 import UIKit
+import RxSwift
+import RxCocoa
 
 class IssueDetailViewController: UIViewController {
   private var viewModel: IssueDetailViewViewModel!
+  private let bag = DisposeBag()
   
   private lazy var titleLabel: UILabel = {
     let label = UILabel()
@@ -25,6 +28,13 @@ class IssueDetailViewController: UIViewController {
     label.text = viewModel.selectedIssue.body
     return label
   }()
+  private lazy var closeButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("Close issue", for: UIControlState.normal)
+    btn.backgroundColor = UIColor.red
+    return btn
+  }()
+  
   static func createWith(viewModel: IssueDetailViewViewModel) -> IssueDetailViewController {
     return {
       $0.viewModel = viewModel
@@ -43,6 +53,7 @@ class IssueDetailViewController: UIViewController {
     view.backgroundColor = UIColor.white
     view.addSubview(titleLabel)
     view.addSubview(commentLabel)
+    view.addSubview(closeButton)
     
     titleLabel.snp.makeConstraints { (make) in
       make.top.equalToSuperview().offset(100)
@@ -56,9 +67,25 @@ class IssueDetailViewController: UIViewController {
       make.height.equalTo(200)
       make.top.equalTo(titleLabel.snp.bottom).offset(10)
     }
+    
+    closeButton.snp.makeConstraints { (make) in
+      make.width.equalTo(150)
+      make.height.equalTo(50)
+      make.right.bottom.equalToSuperview().offset(-20)
+    }
   }
   
   func bindUI() {
-    
+    closeButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .flatMap { [weak self] _ -> Observable<Issue> in
+        (self?.viewModel.requestEditIssue(title: (self?.titleLabel.text!)!, comment: (self?.commentLabel.text!)!, label: [.enhancement], state: .closed))!
+      }
+      .observeOn(MainScheduler.instance)
+      .bind { [weak self] (issue) in
+        if issue.title != "" {
+          self?.navigationController?.popViewController(animated: true)
+        }
+      }.disposed(by: bag)
   }
 }

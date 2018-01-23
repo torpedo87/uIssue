@@ -14,6 +14,7 @@ struct Issue: Codable {
   let body: String
   let user: User
   let assignees: [User]
+  let number: Int
 }
 
 struct User: Codable {
