@@ -31,6 +31,18 @@ class IssueDataManager {
     case comments
   }
   
+  enum Label: String {
+    case bug
+    case duplicate
+    case enhancement
+    case goodFirstIssue = "good first issue"
+    case helpWanted = "help wanted"
+    case invalid
+    case model
+    case question
+    case wontfix
+  }
+  
   static func fetchRepoList(sort: Sort) -> Observable<[Repository]> {
     
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
@@ -55,9 +67,9 @@ class IssueDataManager {
       }(urlComponents.url!)
       
       observer.onNext(request)
-      observer.onCompleted()
+      //observer.onCompleted()
       return Disposables.create()
-    }
+      }
     
     return request.flatMap{
       URLSession.shared.rx.response(request: $0)
@@ -106,7 +118,7 @@ class IssueDataManager {
       }(urlComponents.url!)
       
       observer.onNext(request)
-      observer.onCompleted()
+      //observer.onCompleted()
       return Disposables.create()
     }
     
@@ -128,6 +140,59 @@ class IssueDataManager {
       .catchError({ (error) -> Observable<[Issue]> in
         return Observable.just([])
       })
+    .debug("---------------------------------issue list ")
+  }
+  
+  static func createIssue(title: String, comment: String, label: [Label], repo: Repository) -> Observable<Issue> {
+    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
+    guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else { fatalError() }
+    
+    //rx 는 시퀀스이므로 request부터 Observable 형태로 감시하는 건가보다
+    //Observable<URLRequest>
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        
+        let bodyObject: [String: Any] = [
+          "body": comment,
+          "labels": label.map{ $0.rawValue },
+          "title": title,
+          "assignee": repo.owner.login
+        ]
+        
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        
+        return request
+      }(url)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    //flatmap을 사용하면 그 다음 연산자에 observable을 벗긴채로 전달 가능한건가보다
+    //O<request> -> flatmap -> O<(response, data)>
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      
+      .map({ (response, data) -> Issue in
+        if 200 ..< 300 ~= response.statusCode {
+          let newIssue = try! JSONDecoder().decode(Issue.self, from: data)
+          return newIssue
+        } else if 401 == response.statusCode {
+          throw UserNetworkManager.Errors.invalidUserInfo
+        } else {
+          throw UserNetworkManager.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<Issue> in
+        return Observable.empty()
+      })
+    
   }
   
 }

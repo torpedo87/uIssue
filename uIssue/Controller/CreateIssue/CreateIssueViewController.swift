@@ -28,6 +28,15 @@ class CreateIssueViewController: UIViewController {
     return view
   }()
   
+  private lazy var submitButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("Submit new issue", for: UIControlState.normal)
+    btn.setTitle("Enter title", for: UIControlState.disabled)
+    btn.backgroundColor = UIColor.blue
+    btn.isEnabled = false
+    return btn
+  }()
+  
   static func createWith(viewModel: CreateIssueViewViewModel) -> CreateIssueViewController {
     return {
       $0.viewModel = viewModel
@@ -46,6 +55,7 @@ class CreateIssueViewController: UIViewController {
     view.backgroundColor = UIColor.white
     view.addSubview(titleTextView)
     view.addSubview(commetTextView)
+    view.addSubview(submitButton)
     
     titleTextView.snp.makeConstraints { (make) in
       make.centerX.equalToSuperview()
@@ -60,9 +70,36 @@ class CreateIssueViewController: UIViewController {
       make.height.equalTo(200)
       make.top.equalTo(titleTextView.snp.bottom).offset(10)
     }
+    
+    submitButton.snp.makeConstraints { (make) in
+      make.right.equalTo(commetTextView)
+      make.height.equalTo(50)
+      make.top.equalTo(commetTextView.snp.bottom).offset(10)
+      make.width.equalTo(150)
+    }
   }
   
   func bindUI() {
+    //사용자 입력값을 뷰모델에 전달
+    titleTextView.rx.text.orEmpty
+      .bind(to: viewModel.titleInput)
+      .disposed(by: bag)
     
+    //뷰모델에서 가공된 결과를 받아서 바인딩
+    viewModel.validate
+      .drive(submitButton.rx.isEnabled)
+      .disposed(by: bag)
+    
+    submitButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .flatMap { [weak self] _ -> Observable<Issue> in
+        (self?.viewModel.submitNewIssue(title: (self?.titleTextView.text)!, comment: (self?.commetTextView.text)!, label: [.enhancement]))!
+      }
+      .observeOn(MainScheduler.instance)
+      .bind { [weak self] (issue) in
+        if issue.title != "" {
+          self?.navigationController?.popViewController(animated: true)
+        }
+    }.disposed(by: bag)
   }
 }

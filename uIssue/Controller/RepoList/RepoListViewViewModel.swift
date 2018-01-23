@@ -24,20 +24,21 @@ class RepoListViewViewModel {
   
   func bindOutput() {
     
-    loginStatus.asObservable()
-      .flatMap({ (status) -> Observable<[Repository]> in
-        switch status {
-        case .authorized:
-          return IssueDataManager.fetchRepoList(sort: .created)
-        default: return Observable.just([Repository]())
-        }
-      })
+    IssueDataManager.fetchRepoList(sort: .created)
+      .catchErrorJustReturn([])
       .bind(to: repoList)
       .disposed(by: bag)
-  }
-  
-  func makeIssueListViewModel(for index: Int) -> IssueListViewViewModel {
-    return IssueListViewViewModel(repo: repoList.value[index])
+    
+//    loginStatus.asObservable()
+//      .flatMap({ (status) -> Observable<[Repository]> in
+//        switch status {
+//        case .authorized:
+//          return IssueDataManager.fetchRepoList(sort: .created)
+//        default: return Observable.just([Repository]())
+//        }
+//      })
+//      .bind(to: repoList)
+//      .disposed(by: bag)
   }
   
 }

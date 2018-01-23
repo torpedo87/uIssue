@@ -17,7 +17,7 @@ class Navigator {
     case repoList
     case issueList(Repository)
     case setting
-    case createIssue
+    case createIssue(Repository)
     case issueDetail(Issue)
   }
   
@@ -36,8 +36,8 @@ class Navigator {
     case .setting:
       let vm = SettingViewViewModel()
       show(target: SettingViewController.createWith(viewModel: vm), sender: sender)
-    case .createIssue:
-      let vm = CreateIssueViewViewModel()
+    case .createIssue(let repo):
+      let vm = CreateIssueViewViewModel(repo: repo)
       show(target: CreateIssueViewController.createWith(viewModel: vm), sender: sender)
     case .issueDetail(let issue):
       let vm = IssueDetailViewViewModel(issue: issue)

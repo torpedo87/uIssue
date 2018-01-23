@@ -55,9 +55,6 @@ class RepoListViewController: UIViewController {
   }
   
   func bindUI() {
-    viewModel.repoList.asDriver()
-      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
-      .disposed(by: bag)
     
     settingBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
@@ -70,6 +67,10 @@ class RepoListViewController: UIViewController {
   }
   
   func bindTableView() {
+    viewModel.repoList.asDriver()
+      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .disposed(by: bag)
+    
     //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {

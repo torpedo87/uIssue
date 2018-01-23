@@ -120,6 +120,7 @@ class LoginViewController: UIViewController {
                                       password: (self?.passWordTextField.text!)!))!
       }
       .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized("login error"))
+      .debug("---------- login")
       .drive(onNext: { [weak self] status in
         switch status {
         case .authorized: Navigator.shared.show(destination: .repoList, sender: self!)

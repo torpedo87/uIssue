@@ -67,9 +67,6 @@ class IssueListViewController: UIViewController {
   }
   
   func bindUI() {
-    viewModel.issueList.asDriver()
-      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
-      .disposed(by: bag)
     
     settingBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
@@ -85,12 +82,18 @@ class IssueListViewController: UIViewController {
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
-        Navigator.shared.show(destination: .createIssue, sender: self!)
+        let selectedRepo = self?.viewModel.selectedRepo
+        Navigator.shared.show(destination: .createIssue(selectedRepo!), sender: self!)
       })
       .disposed(by: bag)
   }
   
   func bindTableView() {
+    viewModel.issueList.asDriver()
+      .debug("-------------reload table")
+      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .disposed(by: bag)
+    
     //datasource
     viewModel.issueList.asObservable()
       .bind(to: tableView.rx.items) {

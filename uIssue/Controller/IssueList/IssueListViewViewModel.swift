@@ -28,19 +28,25 @@ class IssueListViewViewModel {
   
   func bindOutput() {
     
-    loggedIn.asObservable()
-      .flatMap({ [weak self] (status) -> Observable<[Issue]> in
-        switch status {
-        case .authorized:
-          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!,
-                                                        sort: IssueDataManager.Sort.created,
-                                                        state: IssueDataManager.State.open)
-        default: return Observable.just([Issue]())
-        }
-        
-      })
+    IssueDataManager.fetchIssueListForRepo(repo: selectedRepo, sort: .created, state: .open)
+      .debug("-----fetch issuelist")
+      .catchErrorJustReturn([])
       .bind(to: issueList)
       .disposed(by: bag)
+    
+//    loggedIn.asObservable()
+//      .flatMap({ [weak self] (status) -> Observable<[Issue]> in
+//        switch status {
+//        case .authorized:
+//          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!,
+//                                                        sort: IssueDataManager.Sort.created,
+//                                                        state: IssueDataManager.State.open)
+//        default: return Observable.just([Issue]())
+//        }
+//
+//      })
+//      .bind(to: issueList)
+//      .disposed(by: bag)
   }
   
 }
