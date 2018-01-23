@@ -40,4 +40,14 @@ class LoginViewViewModelTests: XCTestCase {
     }
   }
   
+  func getUserInfoFromTxt(fileURL: URL) {
+    var readString = ""
+    do {
+      readString = try String(contentsOf: fileURL)
+    } catch let error as NSError {
+      print("Failed reading from URL: \(fileURL), Error: " + error.localizedDescription)
+    }
+    print("File Text: \(readString)")
+  }
+  
 }

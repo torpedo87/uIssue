@@ -15,7 +15,7 @@ class SettingViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: SettingViewViewModel!
   private var didSetupConstraints = false
-  lazy var logoutBtn: UIButton = {
+  private lazy var logoutBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Logout", for: UIControlState.normal)
     btn.isEnabled = false

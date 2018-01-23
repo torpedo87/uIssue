@@ -40,4 +40,5 @@ xcuserdata/
 !*.xcworkspace/contents.xcworkspacedata
 /*.gcno
 
+userInfo.txt
 # End of https://www.gitignore.io/api/xcode,cocoapods
