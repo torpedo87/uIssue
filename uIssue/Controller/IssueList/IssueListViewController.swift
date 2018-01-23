@@ -13,7 +13,6 @@ import RxCocoa
 class IssueListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: IssueListViewViewModel!
-  private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -25,6 +24,13 @@ class IssueListViewController: UIViewController {
                                target: self,
                                action: nil)
     return item
+  }()
+  private lazy var newIssueButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("+", for: UIControlState.normal)
+    btn.backgroundColor = UIColor.red
+    btn.layer.cornerRadius = 25
+    return btn
   }()
   
   static func createWith(viewModel: IssueListViewViewModel) -> IssueListViewController {
@@ -47,20 +53,17 @@ class IssueListViewController: UIViewController {
     navigationItem.rightBarButtonItem = settingBarButtonItem
     view.backgroundColor = UIColor.white
     view.addSubview(tableView)
-  }
-  
-  override func updateViewConstraints() {
-    if !didSetupConstraints {
-      
-      tableView.snp.makeConstraints({ (make) in
-        make.left.right.bottom.equalToSuperview()
-        make.top.equalToSuperview().offset(50)
-      })
-      
-      didSetupConstraints = true
-    }
+    view.addSubview(newIssueButton)
     
-    super.updateViewConstraints()
+    tableView.snp.makeConstraints({ (make) in
+      make.left.right.bottom.equalToSuperview()
+      make.top.equalToSuperview().offset(50)
+    })
+    
+    newIssueButton.snp.makeConstraints({ (make) in
+      make.width.height.equalTo(50)
+      make.right.bottom.equalToSuperview().offset(-30)
+    })
   }
   
   func bindUI() {
@@ -74,6 +77,15 @@ class IssueListViewController: UIViewController {
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
         Navigator.shared.show(destination: .setting, sender: self!)
+      })
+      .disposed(by: bag)
+    
+    newIssueButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .map{ _ in true }
+      .asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] _ in
+        Navigator.shared.show(destination: .createIssue, sender: self!)
       })
       .disposed(by: bag)
   }
@@ -94,7 +106,8 @@ class IssueListViewController: UIViewController {
       .itemSelected
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
-        
+        let selectedIssue = self?.viewModel.issueList.value[indexPath.row]
+        Navigator.shared.show(destination: .issueDetail(selectedIssue!), sender: self!)
       })
       .disposed(by: bag)
   }

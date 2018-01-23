@@ -13,7 +13,6 @@ import RxCocoa
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: RepoListViewViewModel!
-  private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -48,6 +47,11 @@ class RepoListViewController: UIViewController {
     navigationItem.rightBarButtonItem = settingBarButtonItem
     view.backgroundColor = UIColor.white
     view.addSubview(tableView)
+    
+    tableView.snp.makeConstraints({ (make) in
+      make.left.right.bottom.equalToSuperview()
+      make.top.equalToSuperview().offset(50)
+    })
   }
   
   func bindUI() {
@@ -85,20 +89,6 @@ class RepoListViewController: UIViewController {
         Navigator.shared.show(destination: .issueList(selectedRepo!), sender: self!)
       })
       .disposed(by: bag)
-  }
-  
-  override func updateViewConstraints() {
-    if !didSetupConstraints {
-      
-      tableView.snp.makeConstraints({ (make) in
-        make.left.right.bottom.equalToSuperview()
-        make.top.equalToSuperview().offset(50)
-      })
-      
-      didSetupConstraints = true
-    }
-    
-    super.updateViewConstraints()
   }
   
 }

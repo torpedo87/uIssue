@@ -16,17 +16,24 @@ class SplashViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    view.backgroundColor = UIColor.green
     bindUI()
   }
   
   func bindUI() {
+    
+    //왜 드라이버를 사용하는 데에도 디스패치큐를 지정해줘야만 작동하지?
     UserNetworkManager.status
       .drive(onNext: { [weak self] (status) in
         switch status {
         case .authorized:
-          Navigator.shared.show(destination: .repoList, sender: self!)
+          DispatchQueue.main.async {
+            Navigator.shared.show(destination: .repoList, sender: self!)
+          }
         case .unAuthorized:
-          Navigator.shared.show(destination: .login, sender: self!)
+          DispatchQueue.main.async {
+            Navigator.shared.show(destination: .login, sender: self!)
+          }
         }
       })
       .disposed(by: bag)

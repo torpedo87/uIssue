@@ -13,7 +13,6 @@ import SnapKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
-  let testing = NSClassFromString("XCTest") != nil
 
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
     
@@ -21,11 +20,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window?.rootViewController = SplashViewController()
     window?.makeKeyAndVisible()
     
-    //testing 아닐때에만 화면 보여주기
-    if !testing {
-      let splashVC = window!.rootViewController! as! SplashViewController
-      Navigator.shared.show(destination: .login, sender: splashVC)
-    }
     return true
     
   }

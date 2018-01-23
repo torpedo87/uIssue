@@ -14,7 +14,6 @@ class SettingViewController: UIViewController {
   
   private let bag = DisposeBag()
   private var viewModel: SettingViewViewModel!
-  private var didSetupConstraints = false
   private lazy var logoutBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Logout", for: UIControlState.normal)
@@ -62,33 +61,23 @@ class SettingViewController: UIViewController {
     view.addSubview(passWordTextField)
     view.addSubview(logoutBtn)
     
-  }
-  
-  override func updateViewConstraints() {
-    if !didSetupConstraints {
-      
-      logoutBtn.snp.makeConstraints({ (make) in
-        make.right.bottom.equalToSuperview().offset(-10)
-        make.height.equalTo(50)
-        make.width.equalTo(100)
-      })
-      
-      idTextField.snp.makeConstraints({ (make) in
-        make.center.equalToSuperview()
-        make.width.equalTo(200)
-        make.height.equalTo(50)
-      })
-      
-      passWordTextField.snp.makeConstraints({ (make) in
-        make.centerX.equalToSuperview()
-        make.top.equalTo(idTextField.snp.bottom).offset(10)
-        make.width.height.equalTo(idTextField)
-      })
-      
-      didSetupConstraints = true
-    }
+    logoutBtn.snp.makeConstraints({ (make) in
+      make.right.bottom.equalToSuperview().offset(-10)
+      make.height.equalTo(50)
+      make.width.equalTo(100)
+    })
     
-    super.updateViewConstraints()
+    idTextField.snp.makeConstraints({ (make) in
+      make.center.equalToSuperview()
+      make.width.equalTo(200)
+      make.height.equalTo(50)
+    })
+    
+    passWordTextField.snp.makeConstraints({ (make) in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(idTextField.snp.bottom).offset(10)
+      make.width.height.equalTo(idTextField)
+    })
   }
   
   func bindUI() {
@@ -116,8 +105,7 @@ class SettingViewController: UIViewController {
       .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized("logout error"))
       .drive(onNext: { status in
         switch status {
-        case .authorized: Navigator.shared.unwindTo(target:
-          LoginViewController.createWith(viewModel: LoginViewViewModel()))
+        case .authorized: Navigator.shared.unwindTo(target: SplashViewController())
         case .unAuthorized(let value): print(value)
         }
       })

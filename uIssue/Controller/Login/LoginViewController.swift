@@ -14,7 +14,6 @@ class LoginViewController: UIViewController {
   
   private let bag = DisposeBag()
   private var viewModel: LoginViewViewModel!
-  private var didSetupConstraints = false
   private let idTextField: UITextField = {
     let txtField = UITextField()
     txtField.placeholder = "please enter id"
@@ -71,6 +70,30 @@ class LoginViewController: UIViewController {
     view.addSubview(passWordTextField)
     view.addSubview(loginBtn)
     view.addSubview(messageLabel)
+    
+    idTextField.snp.makeConstraints({ (make) in
+      make.center.equalToSuperview()
+      make.width.equalTo(200)
+      make.height.equalTo(50)
+    })
+    
+    passWordTextField.snp.makeConstraints({ (make) in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(idTextField.snp.bottom).offset(10)
+      make.width.height.equalTo(idTextField)
+    })
+    
+    loginBtn.snp.makeConstraints({ (make) in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(passWordTextField.snp.bottom).offset(10)
+      make.width.height.equalTo(passWordTextField)
+    })
+    
+    messageLabel.snp.makeConstraints({ (make) in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(loginBtn.snp.bottom).offset(10)
+      make.width.height.equalTo(passWordTextField)
+    })
   }
   
   func bindUI() {
@@ -104,37 +127,6 @@ class LoginViewController: UIViewController {
         }
       })
       .disposed(by: bag)
-  }
-  
-  override func updateViewConstraints() {
-    if !didSetupConstraints {
-      
-      idTextField.snp.makeConstraints({ (make) in
-        make.center.equalToSuperview()
-        make.width.equalTo(200)
-        make.height.equalTo(50)
-      })
-      
-      passWordTextField.snp.makeConstraints({ (make) in
-        make.centerX.equalToSuperview()
-        make.top.equalTo(idTextField.snp.bottom).offset(10)
-        make.width.height.equalTo(idTextField)
-      })
-      
-      loginBtn.snp.makeConstraints({ (make) in
-        make.centerX.equalToSuperview()
-        make.top.equalTo(passWordTextField.snp.bottom).offset(10)
-        make.width.height.equalTo(passWordTextField)
-      })
-      
-      messageLabel.snp.makeConstraints({ (make) in
-        make.centerX.equalToSuperview()
-        make.top.equalTo(loginBtn.snp.bottom).offset(10)
-        make.width.height.equalTo(passWordTextField)
-      })
-      didSetupConstraints = true
-    }
-    super.updateViewConstraints()
   }
   
   func showErrorMsg(message: String) {

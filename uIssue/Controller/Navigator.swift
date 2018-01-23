@@ -17,6 +17,8 @@ class Navigator {
     case repoList
     case issueList(Repository)
     case setting
+    case createIssue
+    case issueDetail(Issue)
   }
   
   func show(destination: Destination, sender: UIViewController) {
@@ -24,7 +26,6 @@ class Navigator {
     case .login:
       let vm = LoginViewViewModel()
       show(target: LoginViewController.createWith(viewModel: vm), sender: sender)
-      
     case .repoList:
       let vm = RepoListViewViewModel()
       let repoListVC = RepoListViewController.createWith(viewModel: vm)
@@ -35,6 +36,12 @@ class Navigator {
     case .setting:
       let vm = SettingViewViewModel()
       show(target: SettingViewController.createWith(viewModel: vm), sender: sender)
+    case .createIssue:
+      let vm = CreateIssueViewViewModel()
+      show(target: CreateIssueViewController.createWith(viewModel: vm), sender: sender)
+    case .issueDetail(let issue):
+      let vm = IssueDetailViewViewModel(issue: issue)
+      show(target: IssueDetailViewController.createWith(viewModel: vm), sender: sender)
     }
   }
   
