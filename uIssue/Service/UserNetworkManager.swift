@@ -20,6 +20,16 @@ class UserNetworkManager {
   enum Status {
     case authorized
     case unAuthorized(String)
+    
+    //for test
+    static func ==(lhs: Status, rhs: Status) -> Bool {
+      switch (lhs, rhs) {
+      case (.authorized, .authorized): return true
+      case (.authorized, .unAuthorized): return false
+      case (.unAuthorized, .unAuthorized): return true
+      case (.unAuthorized, .authorized): return false
+      }
+    }
   }
   
   static var status: Driver<Status> {
