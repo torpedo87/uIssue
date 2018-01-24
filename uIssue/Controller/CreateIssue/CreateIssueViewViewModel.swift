@@ -30,7 +30,7 @@ class CreateIssueViewViewModel {
     
   }
   
-  func submitNewIssue(title: String, comment: String, label: [IssueDataManager.Label]) -> Observable<Issue> {
-    return IssueDataManager.createIssue(title: title, comment: comment, label: label, repo: selectedRepo)
+  func requestCreateIssue(title: String, comment: String, label: [IssueDataManager.Label]) -> Observable<Bool> {
+    return DataProvider.shared.createIssue(title: title, comment: comment, label: label, repo: selectedRepo)
   }
 }

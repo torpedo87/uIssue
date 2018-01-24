@@ -15,18 +15,18 @@ class RepoListViewViewModel {
   
   //output
   let repoList = Variable<[Repository]>([])
-  private var loginStatus: Driver<UserNetworkManager.Status>
+  //private var loginStatus: Driver<UserNetworkManager.Status>
   
   init() {
-    loginStatus = UserNetworkManager.status
+    //loginStatus = UserNetworkManager.status
+    DataProvider.shared.fetchRepoList()
     bindOutput()
   }
   
   func bindOutput() {
     
-    IssueDataManager.fetchRepoList(sort: .created)
-      .catchErrorJustReturn([])
-      .bind(to: repoList)
+    DataProvider.shared.repoListProvider.asDriver()
+      .drive(repoList)
       .disposed(by: bag)
     
 //    loginStatus.asObservable()

@@ -18,20 +18,20 @@ class IssueListViewViewModel {
   
   //output
   let issueList = Variable<[Issue]>([])
-  var loggedIn: Driver<UserNetworkManager.Status>
+  //var loggedIn: Driver<UserNetworkManager.Status>
   
   init(repo: Repository) {
     selectedRepo = repo
-    loggedIn = UserNetworkManager.status
+    //loggedIn = UserNetworkManager.status
+    requestFetchIssueList()
     bindOutput()
   }
   
   func bindOutput() {
     
-    IssueDataManager.fetchIssueListForRepo(repo: selectedRepo, sort: .created, state: .open)
-      .debug("-----fetch issuelist")
-      .catchErrorJustReturn([])
-      .bind(to: issueList)
+    DataProvider.shared.issueListProvider
+      .asDriver()
+      .drive(issueList)
       .disposed(by: bag)
     
 //    loggedIn.asObservable()
@@ -49,6 +49,9 @@ class IssueListViewViewModel {
 //      .disposed(by: bag)
   }
   
+  func requestFetchIssueList() {
+    DataProvider.shared.fetchIssueList(repo: selectedRepo, sort: .created, state: .open)
+  }
 }
 
 

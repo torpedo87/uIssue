@@ -22,7 +22,7 @@ class IssueDetailViewViewModel {
     
   }
   
-  func requestEditIssue(title: String, comment: String, label: [IssueDataManager.Label], state: IssueDataManager.State) -> Observable<Issue> {
-    return IssueDataManager.editIssue(title: title, comment: comment, label: label, issue: selectedIssue, state: state)
+  func requestEditIssue(title: String, comment: String, label: [IssueDataManager.Label], state: IssueDataManager.State) -> Observable<Bool> {
+    return DataProvider.shared.editIssue(title: title, comment: comment, label: label, issue: selectedIssue, state: state)
   }
 }
