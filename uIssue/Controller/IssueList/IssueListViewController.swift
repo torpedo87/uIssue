@@ -48,6 +48,10 @@ class IssueListViewController: UIViewController {
     view.setNeedsUpdateConstraints()
   }
   
+  deinit {
+    viewModel = nil
+  }
+  
   func setupView() {
     title = "Issue List"
     navigationItem.rightBarButtonItem = settingBarButtonItem
@@ -90,7 +94,6 @@ class IssueListViewController: UIViewController {
   
   func bindTableView() {
     viewModel.issueList.asDriver()
-      .debug("333333333333333333333333")
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
     

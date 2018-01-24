@@ -15,6 +15,7 @@ struct Issue: Codable {
   let user: User
   let assignees: [User]
   let number: Int
+  let repository: Repository?
 }
 
 struct User: Codable {
@@ -25,6 +26,7 @@ struct User: Codable {
 }
 
 struct Repository: Codable {
+  let id: Int
   let name: String
   let owner: User
   let open_issues: Int

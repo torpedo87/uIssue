@@ -23,19 +23,19 @@
 		48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB52017069E003F5FBB /* CreateIssueViewViewModel.swift */; };
 		48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */; };
 		48470FBB201719BA003F5FBB /* IssueDetailViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */; };
-		48470FBD20184EC8003F5FBB /* DataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBC20184EC8003F5FBB /* DataProvider.swift */; };
+		48470FBD20184EC8003F5FBB /* TableViewDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBC20184EC8003F5FBB /* TableViewDataSource.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
 		48A313F01FF3956D00201F6E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EE1FF3956D00201F6E /* LaunchScreen.storyboard */; };
 		48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140A1FF3983600201F6E /* LoginViewController.swift */; };
-		48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */; };
+		48A3140F1FF3A07B00201F6E /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* AuthService.swift */; };
 		48B83A17200F28BB00F2A490 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A16200F28BB00F2A490 /* Token.swift */; };
 		48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A18200F66FA00F2A490 /* SettingViewController.swift */; };
 		48E44ABF1FF4B7C5008F9649 /* RepoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */; };
 		48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC31FF4F12C008F9649 /* Userdefaults.swift */; };
 		48E44AC61FF508E9008F9649 /* Issue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC51FF508E9008F9649 /* Issue.swift */; };
-		48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC71FF50C9B008F9649 /* IssueDataManager.swift */; };
+		48E44AC81FF50C9B008F9649 /* IssueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC71FF50C9B008F9649 /* IssueService.swift */; };
 		48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ACB1FF603D2008F9649 /* ListCell.swift */; };
 /* End PBXBuildFile section */
 
@@ -64,7 +64,7 @@
 		48470FB52017069E003F5FBB /* CreateIssueViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewViewModel.swift; sourceTree = "<group>"; };
 		48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewController.swift; sourceTree = "<group>"; };
 		48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewViewModel.swift; sourceTree = "<group>"; };
-		48470FBC20184EC8003F5FBB /* DataProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataProvider.swift; sourceTree = "<group>"; };
+		48470FBC20184EC8003F5FBB /* TableViewDataSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TableViewDataSource.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -74,13 +74,13 @@
 		48A313F61FF3956D00201F6E /* uIssueTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = uIssueTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313FC1FF3956D00201F6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		48A3140A1FF3983600201F6E /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
-		48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManager.swift; sourceTree = "<group>"; };
+		48A3140E1FF3A07B00201F6E /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		48B83A16200F28BB00F2A490 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		48B83A18200F66FA00F2A490 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewController.swift; sourceTree = "<group>"; };
 		48E44AC31FF4F12C008F9649 /* Userdefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Userdefaults.swift; sourceTree = "<group>"; };
 		48E44AC51FF508E9008F9649 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
-		48E44AC71FF50C9B008F9649 /* IssueDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDataManager.swift; sourceTree = "<group>"; };
+		48E44AC71FF50C9B008F9649 /* IssueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueService.swift; sourceTree = "<group>"; };
 		48E44ACB1FF603D2008F9649 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_uIssueTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5996FB856E01B05D8E6C253F /* Pods-uIssueTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uIssueTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-uIssueTests/Pods-uIssueTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -238,7 +238,7 @@
 				48470FA22015DDCB003F5FBB /* Login */,
 				48A313E51FF3956D00201F6E /* AppDelegate.swift */,
 				48470FA72015F93F003F5FBB /* Navigator.swift */,
-				48470FBC20184EC8003F5FBB /* DataProvider.swift */,
+				48470FBC20184EC8003F5FBB /* TableViewDataSource.swift */,
 			);
 			path = Controller;
 			sourceTree = "<group>";
@@ -254,8 +254,8 @@
 		48A314071FF395DA00201F6E /* Service */ = {
 			isa = PBXGroup;
 			children = (
-				48A3140E1FF3A07B00201F6E /* UserNetworkManager.swift */,
-				48E44AC71FF50C9B008F9649 /* IssueDataManager.swift */,
+				48A3140E1FF3A07B00201F6E /* AuthService.swift */,
+				48E44AC71FF50C9B008F9649 /* IssueService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -534,11 +534,11 @@
 				48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
 				48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */,
-				48E44AC81FF50C9B008F9649 /* IssueDataManager.swift in Sources */,
+				48E44AC81FF50C9B008F9649 /* IssueService.swift in Sources */,
 				48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */,
 				48E44ABF1FF4B7C5008F9649 /* RepoListViewController.swift in Sources */,
-				48A3140F1FF3A07B00201F6E /* UserNetworkManager.swift in Sources */,
-				48470FBD20184EC8003F5FBB /* DataProvider.swift in Sources */,
+				48A3140F1FF3A07B00201F6E /* AuthService.swift in Sources */,
+				48470FBD20184EC8003F5FBB /* TableViewDataSource.swift in Sources */,
 				48B83A17200F28BB00F2A490 /* Token.swift in Sources */,
 				48470FB42017068D003F5FBB /* CreateIssueViewController.swift in Sources */,
 				48E44AC61FF508E9008F9649 /* Issue.swift in Sources */,

@@ -15,30 +15,17 @@ class RepoListViewViewModel {
   
   //output
   let repoList = Variable<[Repository]>([])
-  //private var loginStatus: Driver<UserNetworkManager.Status>
   
   init() {
-    //loginStatus = UserNetworkManager.status
-    DataProvider.shared.fetchRepoList()
+    TableViewDataSource.shared.bindAllIssues(filter: .created, state: .open, sort: .created)
+    TableViewDataSource.shared.bindRepoList()
     bindOutput()
   }
   
   func bindOutput() {
-    
-    DataProvider.shared.repoListProvider.asDriver()
+    TableViewDataSource.shared.repoListProvider.asDriver()
       .drive(repoList)
       .disposed(by: bag)
-    
-//    loginStatus.asObservable()
-//      .flatMap({ (status) -> Observable<[Repository]> in
-//        switch status {
-//        case .authorized:
-//          return IssueDataManager.fetchRepoList(sort: .created)
-//        default: return Observable.just([Repository]())
-//        }
-//      })
-//      .bind(to: repoList)
-//      .disposed(by: bag)
   }
   
 }

@@ -1,5 +1,5 @@
 //
-//  IssueDataManager.swift
+//  IssueService.swift
 //  uIssue
 //
 //  Created by junwoo on 2017. 12. 28..
@@ -9,14 +9,14 @@
 import Foundation
 import RxSwift
 
-class IssueDataManager {
+class IssueService {
   
   enum Filter: String {
     case assigned
     case created
     case mentioned
     case subscribed
-    case all
+    case varvarvarvar
   }
   
   enum State: String {
@@ -43,64 +43,16 @@ class IssueDataManager {
     case wontfix
   }
   
-  static func fetchRepoList(sort: Sort) -> Observable<[Repository]> {
+  static func fetchAllIssues(filter: Filter, state: State, sort: Sort) -> Observable<[Issue]> {
     
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     
-    guard var urlComponents = URLComponents(string: "https://api.github.com/user/repos") else { fatalError() }
+    guard var urlComponents = URLComponents(string: "https://api.github.com/issues") else { fatalError() }
     
     let urlParams = [
-      "sort": sort.rawValue
-    ]
-    
-    urlComponents.queryItems = urlParams.map({ (key, value) in
-      URLQueryItem(name: key, value: value)
-    })
-    
-    let request: Observable<URLRequest> = Observable.create{ observer in
-      let request: URLRequest = {
-        var request = URLRequest(url: $0)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        
-        return request
-      }(urlComponents.url!)
-      
-      observer.onNext(request)
-      //observer.onCompleted()
-      return Disposables.create()
-      }
-    
-    return request.flatMap{
-      URLSession.shared.rx.response(request: $0)
-      }
-      .map({ (response, data) -> [Repository] in
-        if 200 ..< 300 ~= response.statusCode {
-          var repos = try! JSONDecoder().decode([Repository].self, from: data)
-          repos = repos.filter { $0.open_issues > 0 }
-          return repos
-        } else if 401 == response.statusCode {
-          throw UserNetworkManager.Errors.invalidUserInfo
-        } else {
-          throw UserNetworkManager.Errors.requestFail
-        }
-      })
-      .catchError({ (error) -> Observable<[Repository]> in
-        return Observable.just([])
-      })
-  }
-  
-  static func fetchIssueListForRepo(repo: Repository, sort: Sort, state: State) -> Observable<[Issue]> {
-    
-    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
-    
-    guard var urlComponents = URLComponents(string:
-      "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else
-    { fatalError() }
-    
-    let urlParams = [
+      "sort": sort.rawValue,
       "state": state.rawValue,
-      "sort": sort.rawValue
+      "filter": filter.rawValue
     ]
     
     urlComponents.queryItems = urlParams.map({ (key, value) in
@@ -117,7 +69,7 @@ class IssueDataManager {
       }(urlComponents.url!)
       
       observer.onNext(request)
-      //observer.onCompleted()
+      observer.onCompleted()
       return Disposables.create()
     }
     
@@ -126,13 +78,12 @@ class IssueDataManager {
       }
       .map({ (response, data) -> [Issue] in
         if 200 ..< 300 ~= response.statusCode {
-          let repos = try! JSONDecoder().decode([Issue].self, from: data)
-          print("fetch issue list success")
-          return repos
+          let issues = try! JSONDecoder().decode([Issue].self, from: data)
+          return issues
         } else if 401 == response.statusCode {
-          throw UserNetworkManager.Errors.invalidUserInfo
+          throw AuthService.Errors.invalidUserInfo
         } else {
-          throw UserNetworkManager.Errors.requestFail
+          throw AuthService.Errors.requestFail
         }
       })
       .catchError({ (error) -> Observable<[Issue]> in
@@ -175,11 +126,13 @@ class IssueDataManager {
       .map({ (response, data) -> Issue in
         if 200 ..< 300 ~= response.statusCode {
           let newIssue = try! JSONDecoder().decode(Issue.self, from: data)
-          return newIssue
+          let updatedRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues + 1)
+          let updatedIssue = Issue(repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updatedRepo)
+          return updatedIssue
         } else if 401 == response.statusCode {
-          throw UserNetworkManager.Errors.invalidUserInfo
+          throw AuthService.Errors.invalidUserInfo
         } else {
-          throw UserNetworkManager.Errors.requestFail
+          throw AuthService.Errors.requestFail
         }
       })
       .catchError({ (error) -> Observable<Issue> in
@@ -224,11 +177,25 @@ class IssueDataManager {
       .map({ (response, data) -> Issue in
         if 200 ..< 300 ~= response.statusCode {
           let newIssue = try! JSONDecoder().decode(Issue.self, from: data)
+          let repo = issue.repository!
+          
+          switch state {
+          case .closed: do {
+            let updateRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues - 1)
+            let updatedIssue = Issue(repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updateRepo)
+            return updatedIssue
+            }
+          case .open: do {
+            let updatedIssue = Issue(repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: repo)
+            return updatedIssue
+            }
+          default: break
+          }
           return newIssue
         } else if 401 == response.statusCode {
-          throw UserNetworkManager.Errors.invalidUserInfo
+          throw AuthService.Errors.invalidUserInfo
         } else {
-          throw UserNetworkManager.Errors.requestFail
+          throw AuthService.Errors.requestFail
         }
       })
       .catchError({ (error) -> Observable<Issue> in

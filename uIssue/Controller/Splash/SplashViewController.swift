@@ -23,7 +23,7 @@ class SplashViewController: UIViewController {
   func bindUI() {
     
     //왜 드라이버를 사용하는 데에도 디스패치큐를 지정해줘야만 작동하지?
-    UserNetworkManager.status
+    AuthService.status
       .drive(onNext: { [weak self] (status) in
         switch status {
         case .authorized:

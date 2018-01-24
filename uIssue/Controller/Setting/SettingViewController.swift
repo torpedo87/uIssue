@@ -98,11 +98,11 @@ class SettingViewController: UIViewController {
     
     logoutBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
+      .flatMap { [weak self] _ -> Observable<AuthService.Status> in
         (self?.viewModel.requestLogout(id: (self?.idTextField.text)!,
                                        password: (self?.passWordTextField.text)!))!
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized("logout error"))
+      .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("logout error"))
       .drive(onNext: { status in
         switch status {
         case .authorized: Navigator.shared.unwindTo(target: SplashViewController())

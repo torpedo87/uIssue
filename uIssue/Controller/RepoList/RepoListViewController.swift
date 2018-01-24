@@ -42,6 +42,10 @@ class RepoListViewController: UIViewController {
     view.setNeedsUpdateConstraints()
   }
   
+  deinit {
+    viewModel = nil
+  }
+  
   func setupView() {
     title = "Repository List"
     navigationItem.rightBarButtonItem = settingBarButtonItem
@@ -68,6 +72,7 @@ class RepoListViewController: UIViewController {
   
   func bindTableView() {
     viewModel.repoList.asDriver()
+      .debug("=====레퍼리로드=========")
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
     

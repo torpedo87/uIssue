@@ -92,9 +92,8 @@ class CreateIssueViewController: UIViewController {
     
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .debug("1111111111111111111111111111111111111111")
       .flatMap { [weak self] _ -> Observable<Bool> in
-        (self?.viewModel.requestCreateIssue(title: (self?.titleTextView.text)!, comment: (self?.commetTextView.text)!, label: [IssueDataManager.Label.enhancement]))!
+        (self?.viewModel.requestCreateIssue(title: (self?.titleTextView.text)!, comment: (self?.commetTextView.text)!, label: [IssueService.Label.enhancement]))!
       }
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in

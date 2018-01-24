@@ -79,7 +79,7 @@ class IssueDetailViewController: UIViewController {
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        (self?.viewModel.requestEditIssue(title: (self?.titleLabel.text!)!, comment: (self?.commentLabel.text!)!, label: [IssueDataManager.Label.enhancement], state: .closed))!
+        (self?.viewModel.requestEditIssue(title: (self?.titleLabel.text!)!, comment: (self?.commentLabel.text!)!, label: [IssueService.Label.enhancement], state: .closed))!
       }
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in

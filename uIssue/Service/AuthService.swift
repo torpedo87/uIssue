@@ -1,5 +1,5 @@
 //
-//  UserNetworkManager.swift
+//  AuthService.swift
 //  uIssue
 //
 //  Created by junwoo on 2017. 12. 27..
@@ -10,7 +10,7 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class UserNetworkManager {
+class AuthService {
   
   enum Errors: Error {
     case requestFail
@@ -141,7 +141,7 @@ class UserNetworkManager {
           throw Errors.requestFail
         }
       })
-      .catchError({ (error) -> Observable<UserNetworkManager.Status> in
+      .catchError({ (error) -> Observable<AuthService.Status> in
         if let error = error as? Errors {
           switch error {
           case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
