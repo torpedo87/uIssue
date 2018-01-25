@@ -17,6 +17,21 @@ struct Issue: Codable {
   let assignees: [User]
   let number: Int
   let repository: Repository?
+  let created_at: String
+}
+
+struct RepositoryUI {
+  var id: Int
+  var name: String
+  var issueArr: [IssueUI]?
+  var created: String
+}
+
+struct IssueUI {
+  var title: String
+  var body: String?
+  var created: String
+  var repoId: Int
 }
 
 struct User: Codable {
@@ -31,6 +46,7 @@ struct Repository: Codable {
   let name: String
   let owner: User
   let open_issues: Int
+  let created_at: String
 }
 
 extension Issue: Equatable {

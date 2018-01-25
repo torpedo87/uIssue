@@ -137,8 +137,8 @@ class IssueService {
       .map({ (response, data) -> Issue in
         if 200 ..< 300 ~= response.statusCode {
           let newIssue = try! JSONDecoder().decode(Issue.self, from: data)
-          let updatedRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues + 1)
-          let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updatedRepo)
+          let updatedRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues + 1, created_at: repo.created_at)
+          let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updatedRepo, created_at: repo.created_at)
           return updatedIssue
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
@@ -192,12 +192,12 @@ class IssueService {
           
           switch state {
           case .closed: do {
-            let updateRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues - 1)
-            let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updateRepo)
+            let updateRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues - 1, created_at: repo.created_at)
+            let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updateRepo, created_at: updateRepo.created_at)
             return updatedIssue
             }
           case .open: do {
-            let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: repo)
+            let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: repo, created_at: newIssue.created_at)
             return updatedIssue
             }
           default: break

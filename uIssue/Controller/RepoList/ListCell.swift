@@ -42,7 +42,7 @@ class ListCell: UITableViewCell {
   
   func configureCell(viewModel: RepoListViewViewModel, index: Int) {
     titleLabel.text = viewModel.repoList.value[index].name
-    countLabel.text = "\(viewModel.repoList.value[index].open_issues)"
+    countLabel.text = "\(viewModel.repoList.value[index].issueArr!.count)"
   }
   
   func configureCell(viewModel: IssueListViewViewModel, index: Int) {

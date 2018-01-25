@@ -45,11 +45,6 @@ class IssueListViewController: UIViewController {
     setupView()
     bindUI()
     bindTableView()
-    view.setNeedsUpdateConstraints()
-  }
-  
-  deinit {
-    viewModel = nil
   }
   
   func setupView() {
@@ -87,7 +82,7 @@ class IssueListViewController: UIViewController {
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
         let selectedRepo = self?.viewModel.selectedRepo
-        Navigator.shared.show(destination: .createIssue(selectedRepo!), sender: self!)
+        Navigator.shared.show(destination: .createIssue(selectedRepo!, (self?.viewModel.repoIndex)!), sender: self!)
       })
       .disposed(by: bag)
   }
@@ -101,7 +96,7 @@ class IssueListViewController: UIViewController {
     //datasource
     viewModel.issueList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: Issue) in
+        [weak self] (tableView: UITableView, index: Int, element: IssueUI) in
         let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
         cell.configureCell(viewModel: (self?.viewModel)!, index: index)
         return cell
@@ -114,7 +109,7 @@ class IssueListViewController: UIViewController {
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedIssue = self?.viewModel.issueList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueDetail(selectedIssue!), sender: self!)
+        Navigator.shared.show(destination: .issueDetail(selectedIssue!, indexPath.row), sender: self!)
       })
       .disposed(by: bag)
   }

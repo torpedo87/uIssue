@@ -39,11 +39,6 @@ class RepoListViewController: UIViewController {
     setupView()
     bindUI()
     bindTableView()
-    view.setNeedsUpdateConstraints()
-  }
-  
-  deinit {
-    viewModel = nil
   }
   
   func setupView() {
@@ -79,7 +74,7 @@ class RepoListViewController: UIViewController {
     //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: Repository) in
+        [weak self] (tableView: UITableView, index: Int, element: RepositoryUI) in
         let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
         cell.configureCell(viewModel: (self?.viewModel)!, index: index)
         return cell
@@ -92,9 +87,10 @@ class RepoListViewController: UIViewController {
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedRepo = self?.viewModel.repoList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueList(selectedRepo!), sender: self!)
+        Navigator.shared.show(destination: .issueList(selectedRepo!, indexPath.row), sender: self!)
       })
       .disposed(by: bag)
+
   }
   
 }

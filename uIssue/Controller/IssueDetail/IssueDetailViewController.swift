@@ -78,14 +78,13 @@ class IssueDetailViewController: UIViewController {
   func bindUI() {
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<Bool> in
-        (self?.viewModel.requestEditIssue(title: (self?.titleLabel.text!)!, comment: (self?.commentLabel.text!)!, label: [IssueService.Label.enhancement], state: .closed))!
-      }
+      .do(onNext: { [weak self] in
+        self?.viewModel.requestRemoveIssue()
+      })
       .observeOn(MainScheduler.instance)
-      .bind { [weak self] (success) in
-        if success {
-          self?.navigationController?.popViewController(animated: true)
-        }
-      }.disposed(by: bag)
+      .bind { [weak self] in
+        self?.navigationController?.popViewController(animated: true)
+    }
+      .disposed(by: bag)
   }
 }

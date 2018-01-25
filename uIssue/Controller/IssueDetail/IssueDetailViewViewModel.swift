@@ -11,9 +11,11 @@ import RxSwift
 
 class IssueDetailViewViewModel {
   
-  var selectedIssue: Issue!
+  var selectedIssue: IssueUI!
+  var issueIndex: Int!
   
-  init(issue: Issue) {
+  init(issue: IssueUI, issueIndex: Int) {
+    self.issueIndex = issueIndex
     selectedIssue = issue
     bindOutput()
   }
@@ -22,7 +24,11 @@ class IssueDetailViewViewModel {
     
   }
   
-  func requestEditIssue(title: String, comment: String, label: [IssueService.Label], state: IssueService.State) -> Observable<Bool> {
-    return TableViewDataSource.shared.editIssue(title: title, comment: comment, label: label, issue: selectedIssue, state: state)
+  func requestEditIssue(title: String, comment: String, label: [IssueService.Label], state: IssueService.State) {
+    
+  }
+  
+  func requestRemoveIssue() {
+    TableViewDataSource.shared.deleteLocalIssue(issue: selectedIssue, issueIndex: issueIndex)
   }
 }

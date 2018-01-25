@@ -14,18 +14,23 @@ class RepoListViewViewModel {
   private let bag = DisposeBag()
   
   //output
-  let repoList = Variable<[Repository]>([])
+  let repoList = Variable<[RepositoryUI]>([])
   
   init() {
-    TableViewDataSource.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
-    TableViewDataSource.shared.bindRepoList()
+    RawDataSource.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
+    RawDataSource.shared.getTempRepoUIListFromIssueArr()
+    RawDataSource.shared.bindIssueUI()
+    RawDataSource.shared.inputIssueUIToRepoUI()
+    
     bindOutput()
   }
   
   func bindOutput() {
-    TableViewDataSource.shared.repoListProvider.asDriver()
+    TableViewDataSource.shared.resultProvider
+      .asDriver()
       .drive(repoList)
       .disposed(by: bag)
+    
   }
   
 }

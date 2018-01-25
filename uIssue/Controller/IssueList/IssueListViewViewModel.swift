@@ -14,12 +14,14 @@ class IssueListViewViewModel {
   private let bag = DisposeBag()
   
   //input
-  var selectedRepo: Repository!
+  var selectedRepo: RepositoryUI!
+  var repoIndex: Int!
   
   //output
-  let issueList = Variable<[Issue]>([])
+  let issueList = Variable<[IssueUI]>([])
   
-  init(repo: Repository) {
+  init(repo: RepositoryUI, repoIndex: Int) {
+    self.repoIndex = repoIndex
     selectedRepo = repo
     TableViewDataSource.shared.bindIssueList(repo: selectedRepo)
     bindOutput()

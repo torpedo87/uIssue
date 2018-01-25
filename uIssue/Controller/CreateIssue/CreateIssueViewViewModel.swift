@@ -16,9 +16,11 @@ class CreateIssueViewViewModel {
   let titleInput = Variable<String>("")
   //output
   let validate: Driver<Bool>
-  var selectedRepo: Repository!
+  var selectedRepo: RepositoryUI!
+  var repoIndex: Int!
   
-  init(repo: Repository) {
+  init(repo: RepositoryUI, repoIndex: Int) {
+    self.repoIndex = repoIndex
     selectedRepo = repo
     validate = titleInput.asObservable()
       .map { (text) -> Bool in
@@ -30,7 +32,8 @@ class CreateIssueViewViewModel {
     
   }
   
-  func requestCreateIssue(title: String, comment: String, label: [IssueService.Label]) -> Observable<Bool> {
-    return TableViewDataSource.shared.createIssue(title: title, comment: comment, label: label, repo: selectedRepo)
+  func requestCreateIssue(title: String, comment: String, label: [IssueService.Label]) {
+    let newIssue = IssueUI(title: title, body: comment, created: "created", repoId: selectedRepo.id)
+    TableViewDataSource.shared.createLocalIssue(issue: newIssue, repoIndex: repoIndex)
   }
 }

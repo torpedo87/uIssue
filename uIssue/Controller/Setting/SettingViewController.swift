@@ -51,7 +51,6 @@ class SettingViewController: UIViewController {
     
     setupView()
     bindUI()
-    view.setNeedsUpdateConstraints()
   }
   
   func setupView() {

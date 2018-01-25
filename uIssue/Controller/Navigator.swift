@@ -15,10 +15,10 @@ class Navigator {
   enum Destination {
     case login
     case repoList
-    case issueList(Repository)
+    case issueList(RepositoryUI, Int)
     case setting
-    case createIssue(Repository)
-    case issueDetail(Issue)
+    case createIssue(RepositoryUI, Int)
+    case issueDetail(IssueUI, Int)
   }
   
   func show(destination: Destination, sender: UIViewController) {
@@ -30,17 +30,17 @@ class Navigator {
       let vm = RepoListViewViewModel()
       let repoListVC = RepoListViewController.createWith(viewModel: vm)
       show(target: UINavigationController(rootViewController: repoListVC), sender: sender)
-    case .issueList(let repo):
-      let vm = IssueListViewViewModel(repo: repo)
+    case .issueList(let repo, let index):
+      let vm = IssueListViewViewModel(repo: repo, repoIndex: index)
       show(target: IssueListViewController.createWith(viewModel: vm), sender: sender)
     case .setting:
       let vm = SettingViewViewModel()
       show(target: SettingViewController.createWith(viewModel: vm), sender: sender)
-    case .createIssue(let repo):
-      let vm = CreateIssueViewViewModel(repo: repo)
+    case .createIssue(let repo, let repoIndex):
+      let vm = CreateIssueViewViewModel(repo: repo, repoIndex: repoIndex)
       show(target: CreateIssueViewController.createWith(viewModel: vm), sender: sender)
-    case .issueDetail(let issue):
-      let vm = IssueDetailViewViewModel(issue: issue)
+    case .issueDetail(let issue, let issueIndex):
+      let vm = IssueDetailViewViewModel(issue: issue, issueIndex: issueIndex)
       show(target: IssueDetailViewController.createWith(viewModel: vm), sender: sender)
     }
   }

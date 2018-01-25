@@ -60,7 +60,6 @@ class LoginViewController: UIViewController {
     
     setupView()
     bindUI()
-    view.setNeedsUpdateConstraints()
   }
   
   func setupView() {

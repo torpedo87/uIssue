@@ -15,105 +15,47 @@ class TableViewDataSource {
   private let bag = DisposeBag()
   
   //local
-  var allIssuesProvider = Variable<[Issue]>([])
-  var issueListProvider = Variable<[Issue]>([])
-  var repoListProvider = Variable<[Repository]>([])
+  var resultProvider = Variable<[RepositoryUI]>([])
+  var issueListProvider = Variable<[IssueUI]>([])
   
-  //all issue
-  func bindAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort) {
-    IssueService.currentPage.asObservable()
-      .flatMap { (page) in
-        IssueService.fetchAllIssues(filter: .all, state: .open, sort: .created, page: page)
-    }.asDriver(onErrorJustReturn: [])
-      .do(onNext: { [weak self] (issueArr) in
-        for issue in issueArr {
-          self?.allIssuesProvider.value.append(issue)
-        }
-      })
-      .drive()
+  
+  //해당 레퍼지토리의 이슈리스트 바인딩
+  func bindIssueList(repo: RepositoryUI) {
+    
+    resultProvider.asDriver()
+      .map { (repoUIList) in
+        repoUIList.filter { $0.id == repo.id }
+      }.map { $0.first! }
+      .map { $0.issueArr! }
+      .drive(issueListProvider)
       .disposed(by: bag)
   }
   
-  //repoList
-  func bindRepoList() {
-    allIssuesProvider.asObservable()
-      .map { (issues) -> [Repository] in
-        issues.map { $0.repository! }.filter { $0.open_issues > 0 }
-      }
-      .catchErrorJustReturn([])
-      .map({ repoArr -> [Repository] in
-        return Array(Set(repoArr))
-      })
-      .asDriver(onErrorJustReturn: [])
-    .drive(repoListProvider)
-    .disposed(by: bag)
+  func createLocalIssue(issue: IssueUI, repoIndex: Int) {
+    resultProvider.value[repoIndex].issueArr?.append(issue)
   }
   
-  //issueList
-  func bindIssueList(repo: Repository) {
-    allIssuesProvider.asObservable()
-      .map { issues in
-        issues.filter { $0.repository?.id == repo.id }
-    }.asDriver(onErrorJustReturn: [])
-    .drive(issueListProvider)
-    .disposed(by: bag)
-  }
-  
-  func createIssue(title: String,
-                   comment: String,
-                   label: [IssueService.Label],
-                   repo: Repository) -> Observable<Bool> {
-    return IssueService.createIssue(title: title,
-                                        comment: comment,
-                                        label: label,
-                                        repo: repo)
-      .do(onNext: { [weak self] (newIssue) in
-        self?.allIssuesProvider.value.append(newIssue)
-      })
-      .map { (issue) -> Bool in
-        if issue.title != "" {
-          return true
-        }
-        return false
-    }.catchErrorJustReturn(false)
-  }
-
-  func editIssue(title: String,
-                 comment: String,
-                 label: [IssueService.Label],
-                 issue: Issue,
-                 state: IssueService.State) -> Observable<Bool> {
-    return IssueService.editIssue(title: title, comment: comment, label: label, issue: issue, state: state)
-      .asObservable()
-      .do(onNext: { [weak self] issue in
-        switch state {
-        case .closed: do {
-          self?.allIssuesProvider.value = (self?.allIssuesProvider.value.filter { $0.number != issue.number })!
-          }
-        case .open: do {
-          self?.changeLocalWhenIssueUpdated(issue: issue)
-          }
-        default: break
-        }
-      })
-      .map { (issue) -> Bool in
-        if issue.title != "" {
-          return true
-        }
-        return false
-    }.catchErrorJustReturn(false)
-  }
-
-
-  func changeLocalWhenIssueUpdated(issue: Issue) {
-    var index: Int = -1
-    for i in 0..<allIssuesProvider.value.count {
-      if allIssuesProvider.value[i].id == issue.id {
-        index = i
+  func deleteLocalIssue(issue: IssueUI, issueIndex: Int) {
+    var repoIndex: Int = -1
+    for i in 0..<resultProvider.value.count {
+      if resultProvider.value[i].id == issue.repoId {
+        repoIndex = i
       }
     }
-    if index != -1 {
-      allIssuesProvider.value[index] = issue
+    if repoIndex != -1 {
+      resultProvider.value[repoIndex].issueArr?.remove(at: issueIndex)
+    }
+  }
+  
+  func editLocalIssue(issue: IssueUI, issueIndex: Int) {
+    var repoIndex: Int = -1
+    for i in 0..<resultProvider.value.count {
+      if resultProvider.value[i].id == issue.repoId {
+        repoIndex = i
+      }
+    }
+    if repoIndex != -1 {
+      resultProvider.value[repoIndex].issueArr![issueIndex] = issue
     }
   }
   
