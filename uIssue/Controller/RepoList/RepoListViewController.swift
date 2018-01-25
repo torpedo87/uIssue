@@ -72,7 +72,7 @@ class RepoListViewController: UIViewController {
   
   func bindTableView() {
     viewModel.repoList.asDriver()
-      .debug("=====레퍼리로드=========")
+      .debug("=====repoReload=========")
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
     

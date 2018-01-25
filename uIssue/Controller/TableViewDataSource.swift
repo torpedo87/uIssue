@@ -21,9 +21,16 @@ class TableViewDataSource {
   
   //all issue
   func bindAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort) {
-    IssueService.fetchAllIssues(filter: filter, state: state, sort: sort)
-      .catchErrorJustReturn([])
-      .bind(to: allIssuesProvider)
+    IssueService.currentPage.asObservable()
+      .flatMap { (page) in
+        IssueService.fetchAllIssues(filter: .all, state: .open, sort: .created, page: page)
+    }.asDriver(onErrorJustReturn: [])
+      .do(onNext: { [weak self] (issueArr) in
+        for issue in issueArr {
+          self?.allIssuesProvider.value.append(issue)
+        }
+      })
+      .drive()
       .disposed(by: bag)
   }
   
@@ -32,7 +39,12 @@ class TableViewDataSource {
     allIssuesProvider.asObservable()
       .map { (issues) -> [Repository] in
         issues.map { $0.repository! }.filter { $0.open_issues > 0 }
-    }.asDriver(onErrorJustReturn: [])
+      }
+      .catchErrorJustReturn([])
+      .map({ repoArr -> [Repository] in
+        return Array(Set(repoArr))
+      })
+      .asDriver(onErrorJustReturn: [])
     .drive(repoListProvider)
     .disposed(by: bag)
   }
@@ -56,7 +68,7 @@ class TableViewDataSource {
                                         label: label,
                                         repo: repo)
       .do(onNext: { [weak self] (newIssue) in
-        self?.allIssuesProvider.value.insert(newIssue, at: 0)
+        self?.allIssuesProvider.value.append(newIssue)
       })
       .map { (issue) -> Bool in
         if issue.title != "" {
@@ -96,7 +108,7 @@ class TableViewDataSource {
   func changeLocalWhenIssueUpdated(issue: Issue) {
     var index: Int = -1
     for i in 0..<allIssuesProvider.value.count {
-      if allIssuesProvider.value[i].number == issue.number {
+      if allIssuesProvider.value[i].id == issue.id {
         index = i
       }
     }

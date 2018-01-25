@@ -17,7 +17,7 @@ class RepoListViewViewModel {
   let repoList = Variable<[Repository]>([])
   
   init() {
-    TableViewDataSource.shared.bindAllIssues(filter: .created, state: .open, sort: .created)
+    TableViewDataSource.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
     TableViewDataSource.shared.bindRepoList()
     bindOutput()
   }

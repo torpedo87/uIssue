@@ -11,12 +11,15 @@ import RxSwift
 
 class IssueService {
   
+  static var currentPage = Variable<Int>(1)
+  static var lastPage = -1
+  
   enum Filter: String {
     case assigned
     case created
     case mentioned
     case subscribed
-    case varvarvarvar
+    case all
   }
   
   enum State: String {
@@ -43,7 +46,7 @@ class IssueService {
     case wontfix
   }
   
-  static func fetchAllIssues(filter: Filter, state: State, sort: Sort) -> Observable<[Issue]> {
+  static func fetchAllIssues(filter: Filter, state: State, sort: Sort, page: Int) -> Observable<[Issue]> {
     
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     
@@ -52,10 +55,11 @@ class IssueService {
     let urlParams = [
       "sort": sort.rawValue,
       "state": state.rawValue,
-      "filter": filter.rawValue
+      "filter": filter.rawValue,
+      "page": "\(page)"
     ]
     
-    urlComponents.queryItems = urlParams.map({ (key, value) in
+    urlComponents.queryItems = urlParams.map({ (key,value) in
       URLQueryItem(name: key, value: value)
     })
     
@@ -77,8 +81,15 @@ class IssueService {
       URLSession.shared.rx.response(request: $0)
       }
       .map({ (response, data) -> [Issue] in
+        if let link = response.allHeaderFields["Link"] as? String, lastPage == -1 {
+          lastPage = getLastPageFromLinkHeader(link: link)
+        }
+        print("====last=====\(lastPage), ========\(currentPage.value)")
         if 200 ..< 300 ~= response.statusCode {
           let issues = try! JSONDecoder().decode([Issue].self, from: data)
+          if currentPage.value < lastPage {
+            currentPage.value += 1
+          }
           return issues
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
@@ -127,7 +138,7 @@ class IssueService {
         if 200 ..< 300 ~= response.statusCode {
           let newIssue = try! JSONDecoder().decode(Issue.self, from: data)
           let updatedRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues + 1)
-          let updatedIssue = Issue(repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updatedRepo)
+          let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updatedRepo)
           return updatedIssue
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
@@ -182,11 +193,11 @@ class IssueService {
           switch state {
           case .closed: do {
             let updateRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues - 1)
-            let updatedIssue = Issue(repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updateRepo)
+            let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: updateRepo)
             return updatedIssue
             }
           case .open: do {
-            let updatedIssue = Issue(repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: repo)
+            let updatedIssue = Issue(id: newIssue.id, repository_url: newIssue.repository_url, title: newIssue.title, body: newIssue.body, user: newIssue.user, assignees: newIssue.assignees, number: newIssue.number, repository: repo)
             return updatedIssue
             }
           default: break
@@ -209,4 +220,9 @@ class IssueService {
     return arr[5]
   }
   
+  static func getLastPageFromLinkHeader(link: String) -> Int {
+    let temp = link.components(separatedBy: "=")[7]
+    let lastPage = Int((temp.components(separatedBy: "&")[0]))!
+    return lastPage
+  }
 }
