@@ -92,13 +92,14 @@ class CreateIssueViewController: UIViewController {
     
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .do(onNext: { [weak self] in
-        self?.viewModel.requestCreateIssue(title: (self?.titleTextView.text)!, comment: (self?.commetTextView.text)!, label: [.enhancement])
-      })
+      .flatMap { [weak self] _ -> Observable<Bool> in
+        (self?.viewModel.requestCreateIssue(title: (self?.titleTextView.text)!, comment: (self?.commetTextView.text)!, label: [.enhancement]))!
+      }
       .observeOn(MainScheduler.instance)
-      .bind(onNext: { [weak self] in
-        self?.navigationController?.popViewController(animated: true)
-      })
-      .disposed(by: bag)
+      .bind { [weak self] (success) in
+        if success {
+          self?.navigationController?.popViewController(animated: true)
+        }
+      }.disposed(by: bag)
   }
 }

@@ -15,10 +15,10 @@ class Navigator {
   enum Destination {
     case login
     case repoList
-    case issueList(RepositoryUI, Int)
+    case issueList(Repository, Int)
     case setting
-    case createIssue(RepositoryUI, Int)
-    case issueDetail(IssueUI, Int)
+    case createIssue(Repository, Int)
+    case issueDetail(Issue, Int)
   }
   
   func show(destination: Destination, sender: UIViewController) {

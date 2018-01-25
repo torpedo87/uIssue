@@ -16,8 +16,7 @@ class RawDataSource {
   
   //local
   var allIssuesProvider = Variable<[Issue]>([])
-  var tempRepoListProvider = Variable<[RepositoryUI]>([])
-  var allIssueUIProvider = Variable<[IssueUI]>([])
+  var tempRepoListProvider = Variable<[Repository]>([])
   
   //모든 이슈 가져오기
   func bindAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort) {
@@ -46,40 +45,28 @@ class RawDataSource {
       .map({ repoArr -> [Repository] in
         return Array(Set(repoArr))
       })
-      .map { (repos) in
-        repos.map { RepositoryUI(id: $0.id, name: $0.name, issueArr: nil, created: $0.created_at) }
-      }.asDriver(onErrorJustReturn: [])
+      .asDriver(onErrorJustReturn: [])
       .drive(tempRepoListProvider)
       .disposed(by: bag)
   }
   
-  //모든 이슈를 사용자이슈로 변형하기
-  func bindIssueUI() {
-    allIssuesProvider.asDriver()
-      .map { [weak self] arr in
-        (self?.convertIssueToIssueUI(issueArr: arr))!
-      }
-      .drive(allIssueUIProvider)
-      .disposed(by: bag)
-  }
-  
-  //해당 레퍼지토리에 사용자이슈 넣기
-  func inputIssueUIToRepoUI() {
+  //해당 레퍼지토리에 이슈 넣기
+  func inputIssueToRepo() {
     tempRepoListProvider.asDriver()
-      .map({ [weak self] repoUIList -> [RepositoryUI] in
-        var resultList = [RepositoryUI]()
+      .map({ [weak self] repoList -> [Repository] in
+        var resultList = [Repository]()
         
-        for repoUI in repoUIList {
-          var issueUIArr = [IssueUI]()
+        for repo in repoList {
+          var issueArr = [Issue]()
           
-          for issueUI in (self?.allIssueUIProvider.value)! {
-            if repoUI.id == issueUI.repoId {
-              issueUIArr.append(issueUI)
+          for issue in (self?.allIssuesProvider.value)! {
+            if repo.id == issue.repository?.id {
+              issueArr.append(issue)
             }
           }
           
-          let newRepoUI = RepositoryUI(id: repoUI.id, name: repoUI.name, issueArr: issueUIArr, created: repoUI.created)
-          resultList.append(newRepoUI)
+          let newRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues, created_at: repo.created_at, issueArr: issueArr)
+          resultList.append(newRepo)
         }
         
         return resultList
@@ -89,34 +76,18 @@ class RawDataSource {
       .disposed(by: bag)
   }
   
-  //helper
-  func convertIssueToIssueUI(issueArr: [Issue]) -> [IssueUI] {
-    var arr = [IssueUI]()
-    for issue in issueArr {
-      let newIssue = IssueUI(title: issue.title, body: issue.body, created: issue.created_at, repoId: (issue.repository?.id)!)
-      arr.append(newIssue)
-    }
-    return arr
-  }
   
   //이슈생성 api 요청하기
   func requestCreateIssue(title: String,
                    comment: String,
                    label: [IssueService.Label],
-                   repo: Repository) -> Observable<Bool> {
+                   repo: Repository) -> Observable<Issue> {
     return IssueService.createIssue(title: title,
                                     comment: comment,
                                     label: label,
                                     repo: repo)
-      .do(onNext: { [weak self] (newIssue) in
-        self?.allIssuesProvider.value.append(newIssue)
-      })
-      .map { (issue) -> Bool in
-        if issue.title != "" {
-          return true
-        }
-        return false
-      }.catchErrorJustReturn(false)
+    .catchErrorJustReturn(Issue(id: -1, repository_url: "", title: "", body: nil, user: User(avatar_url: "", login: "", id: -1, url: ""), assignees: [], number: -1, repository: nil, created_at: ""))
+      
   }
   
   //이슈 편집 api 요청하기
@@ -127,34 +98,11 @@ class RawDataSource {
                  state: IssueService.State) -> Observable<Bool> {
     return IssueService.editIssue(title: title, comment: comment, label: label, issue: issue, state: state)
       .asObservable()
-      .do(onNext: { [weak self] issue in
-        switch state {
-        case .closed: do {
-          self?.allIssuesProvider.value = (self?.allIssuesProvider.value.filter { $0.number != issue.number })!
-          }
-        case .open: do {
-          self?.changeLocalWhenIssueUpdated(issue: issue)
-          }
-        default: break
-        }
-      })
       .map { (issue) -> Bool in
         if issue.title != "" {
           return true
         }
         return false
       }.catchErrorJustReturn(false)
-  }
-  
-  func changeLocalWhenIssueUpdated(issue: Issue) {
-    var index: Int = -1
-    for i in 0..<allIssuesProvider.value.count {
-      if allIssuesProvider.value[i].id == issue.id {
-        index = i
-      }
-    }
-    if index != -1 {
-      allIssuesProvider.value[index] = issue
-    }
   }
 }

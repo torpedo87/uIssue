@@ -14,13 +14,12 @@ class RepoListViewViewModel {
   private let bag = DisposeBag()
   
   //output
-  let repoList = Variable<[RepositoryUI]>([])
+  let repoList = Variable<[Repository]>([])
   
   init() {
     RawDataSource.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
     RawDataSource.shared.getTempRepoUIListFromIssueArr()
-    RawDataSource.shared.bindIssueUI()
-    RawDataSource.shared.inputIssueUIToRepoUI()
+    RawDataSource.shared.inputIssueToRepo()
     
     bindOutput()
   }

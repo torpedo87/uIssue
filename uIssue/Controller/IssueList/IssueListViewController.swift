@@ -96,7 +96,7 @@ class IssueListViewController: UIViewController {
     //datasource
     viewModel.issueList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: IssueUI) in
+        [weak self] (tableView: UITableView, index: Int, element: Issue) in
         let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
         cell.configureCell(viewModel: (self?.viewModel)!, index: index)
         return cell

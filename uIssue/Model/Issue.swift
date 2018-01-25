@@ -9,44 +9,31 @@
 import Foundation
 
 struct Issue: Codable {
-  let id: Int
-  let repository_url: String
-  let title: String
-  let body: String?
-  let user: User
-  let assignees: [User]
-  let number: Int
-  let repository: Repository?
-  let created_at: String
-}
-
-struct RepositoryUI {
   var id: Int
-  var name: String
-  var issueArr: [IssueUI]?
-  var created: String
-}
-
-struct IssueUI {
+  var repository_url: String
   var title: String
   var body: String?
-  var created: String
-  var repoId: Int
+  var user: User
+  var assignees: [User]
+  var number: Int
+  var repository: Repository?
+  var created_at: String
 }
 
 struct User: Codable {
-  let avatar_url: String
-  let login: String
-  let id: Int
-  let url: String
+  var avatar_url: String
+  var login: String
+  var id: Int
+  var url: String
 }
 
 struct Repository: Codable {
-  let id: Int
-  let name: String
-  let owner: User
-  let open_issues: Int
-  let created_at: String
+  var id: Int
+  var name: String
+  var owner: User
+  var open_issues: Int
+  var created_at: String
+  var issueArr: [Issue]?
 }
 
 extension Issue: Equatable {
