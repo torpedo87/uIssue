@@ -18,6 +18,20 @@ struct Issue: Codable {
   var number: Int
   var repository: Repository?
   var created_at: String
+  var labels: [IssueLabel]
+  var state: String
+  var comments_url: String
+  var commentsArr: [Comment]?
+}
+
+struct Comment: Codable {
+  var user: User
+  var created_at: String
+  var body: String
+}
+
+struct IssueLabel: Codable {
+  var name: String
 }
 
 struct User: Codable {

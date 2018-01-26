@@ -26,11 +26,29 @@ class RawDataSource {
       }.asDriver(onErrorJustReturn: [])
       .do(onNext: { [weak self] (issueArr) in
         for issue in issueArr {
-          self?.allIssuesProvider.value.append(issue)
+          let newIssue = self?.inputCommentsToIssue(issue: issue)
+          self?.allIssuesProvider.value.append(newIssue!)
         }
       })
       .drive()
       .disposed(by: bag)
+  }
+  
+  //이슈에 코멘트 삽입하기
+  func inputCommentsToIssue(issue: Issue) -> Issue {
+    var newIssue: Issue?
+    IssueService.fetchComments(issue: issue)
+      .do(onNext: { comments in
+        let sortedComments = TableViewDataSource.shared.sortLocalListByCreated(list: comments)
+        newIssue = Issue(id: issue.id, repository_url: issue.repository_url, title: issue.title, body: issue.body, user: issue.user, assignees: issue.assignees, number: issue.number, repository: issue.repository, created_at: issue.created_at, labels: issue.labels, state: issue.state, comments_url: issue.comments_url, commentsArr: sortedComments)
+      })
+      .subscribe()
+      .disposed(by: bag)
+    
+    if let newIssue = newIssue {
+      return newIssue
+    }
+    return issue
   }
   
   //모든 이슈로부터 레퍼지토리 리스트 추출하기
@@ -64,11 +82,11 @@ class RawDataSource {
               issueArr.append(issue)
             }
           }
-          
+          issueArr = TableViewDataSource.shared.sortLocalListByCreated(list: issueArr)
           let newRepo = Repository(id: repo.id, name: repo.name, owner: repo.owner, open_issues: repo.open_issues, created_at: repo.created_at, issueArr: issueArr)
           resultList.append(newRepo)
         }
-        
+        resultList = TableViewDataSource.shared.sortLocalListByCreated(list: resultList)
         return resultList
       })
       .asDriver(onErrorJustReturn: [])
@@ -86,7 +104,9 @@ class RawDataSource {
                                     comment: comment,
                                     label: label,
                                     repo: repo)
-    .catchErrorJustReturn(Issue(id: -1, repository_url: "", title: "", body: nil, user: User(avatar_url: "", login: "", id: -1, url: ""), assignees: [], number: -1, repository: nil, created_at: ""))
+      .catchError({ (error) -> Observable<Issue> in
+        return Observable.empty()
+      })
       
   }
   
@@ -105,4 +125,13 @@ class RawDataSource {
         return false
       }.catchErrorJustReturn(false)
   }
+  
+  
+  
+//  func stringToDate(createdAt: String) -> Date {
+//    let dateFormatter = DateFormatter()
+//    dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss'Z'"
+//    let date = dateFormatter.date(from: createdAt)
+//    return date!
+//  }
 }

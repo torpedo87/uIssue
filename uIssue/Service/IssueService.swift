@@ -195,7 +195,44 @@ class IssueService {
       .catchError({ (error) -> Observable<Issue> in
         return Observable.empty()
       })
+  }
+  
+  static func fetchComments(issue: Issue) -> Observable<[Comment]> {
     
+    guard let userId = issue.repository?.owner.login else { fatalError() }
+    guard let repoName = issue.repository?.name else { fatalError() }
+    
+    guard let urlComponents = URLComponents(string: "https://api.github.com/repos/\(userId)/\(repoName)/issues/\(issue.number)/comments") else { fatalError() }
+    
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "GET"
+        
+        return request
+      }(urlComponents.url!)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      .map({ (response, data) -> [Comment] in
+        if 200 ..< 300 ~= response.statusCode {
+          let comments = try! JSONDecoder().decode([Comment].self, from: data)
+          return comments
+        } else if 401 == response.statusCode {
+          throw AuthService.Errors.invalidUserInfo
+        } else {
+          throw AuthService.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<[Comment]> in
+        return Observable.empty()
+      })
   }
   
   static func getRepoNameFromIssue(issue: Issue) -> String {

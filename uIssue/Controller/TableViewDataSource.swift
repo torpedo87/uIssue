@@ -18,7 +18,6 @@ class TableViewDataSource {
   var resultProvider = Variable<[Repository]>([])
   var issueListProvider = Variable<[Issue]>([])
   
-  
   //해당 레퍼지토리의 이슈리스트 바인딩
   func bindIssueList(repo: Repository) {
     
@@ -29,6 +28,18 @@ class TableViewDataSource {
       .map { $0.issueArr! }
       .drive(issueListProvider)
       .disposed(by: bag)
+  }
+  
+  func sortLocalListByCreated(list: [Repository]) -> [Repository] {
+    return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
+  }
+  
+  func sortLocalListByCreated(list: [Issue]) -> [Issue] {
+    return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
+  }
+  
+  func sortLocalListByCreated(list: [Comment]) -> [Comment] {
+    return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
   }
   
   func createIssue(title: String, comment: String, repoIndex: Int) -> Observable<Bool> {
@@ -74,6 +85,18 @@ class TableViewDataSource {
           
         }
       })
+    
+  }
+  
+  func createComment() {
+    
+  }
+  
+  func editComment() {
+    
+  }
+  
+  func deleteComment() {
     
   }
   
