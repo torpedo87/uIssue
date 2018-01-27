@@ -49,11 +49,11 @@ class TableViewDataSource {
     return RawDataSource.shared.requestCreateIssue(title: title, comment: comment, label: [.enhancement], repo: resultProvider.value[repoIndex])
       .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
+          self.resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
           return true
         }
         return false
       })
-    
   }
   
   func editIssue(issue: Issue, issueIndex: Int, state: IssueService.State, title: String, comment: String, repoIndex: Int) -> Observable<Bool> {
