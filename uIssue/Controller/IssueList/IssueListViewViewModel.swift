@@ -23,16 +23,18 @@ class IssueListViewViewModel {
   init(repo: Repository, repoIndex: Int) {
     self.repoIndex = repoIndex
     selectedRepo = repo
-    TableViewDataSource.shared.bindIssueList(repo: selectedRepo)
     bindOutput()
     
-    issueList.value = TableViewDataSource.shared.sortLocalRepoListByCreated(list: issueList.value) as! [Issue]
   }
   
   func bindOutput() {
     
-    TableViewDataSource.shared.issueListProvider
+    LocalDataManager.shared.resultProvider
       .asDriver()
+      .map { [weak self] (repoList) in
+        repoList.filter { $0.id == self?.selectedRepo.id }
+      }.map { $0.first! }
+      .map { Array($0.issuesDic!.values) }
       .drive(issueList)
       .disposed(by: bag)
   }

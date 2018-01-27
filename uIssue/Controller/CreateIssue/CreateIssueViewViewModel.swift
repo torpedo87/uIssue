@@ -32,8 +32,15 @@ class CreateIssueViewViewModel {
     
   }
   
-  func requestCreateIssue(title: String, comment: String, label: [IssueService.Label]) -> Observable<Bool> {
-    
-    return TableViewDataSource.shared.createIssue(title: title, comment: comment, repoIndex: repoIndex)
+  //이슈생성 api요청 성공하면 로컬 변경하기
+  func createIssue(title: String, comment: String) -> Observable<Bool> {
+    return APIDataManager.shared.requestCreateIssue(title: title, comment: comment, label: [.enhancement], repo: selectedRepo)
+      .map({ [weak self] (newIssue) -> Bool in
+        if newIssue.id != -1 {
+          LocalDataManager.shared.changeLocalWhenIssueCreated(newIssue: newIssue, repoIndex: (self?.repoIndex)!)
+          return true
+        }
+        return false
+      })
   }
 }

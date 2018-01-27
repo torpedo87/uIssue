@@ -17,17 +17,15 @@ class RepoListViewViewModel {
   let repoList = Variable<[Repository]>([])
   
   init() {
-    RawDataSource.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
-    RawDataSource.shared.getTempRepoUIListFromIssueArr()
-    RawDataSource.shared.inputIssueToRepo()
+    APIDataManager.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
+    APIDataManager.shared.getTempRepoUIListFromIssueArr()
+    APIDataManager.shared.inputIssueToRepo()
     
     bindOutput()
-    
-    repoList.value = TableViewDataSource.shared.sortLocalRepoListByCreated(list: repoList.value) as! [Repository]
   }
   
   func bindOutput() {
-    TableViewDataSource.shared.resultProvider
+    LocalDataManager.shared.resultProvider
       .asDriver()
       .drive(repoList)
       .disposed(by: bag)

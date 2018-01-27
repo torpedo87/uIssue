@@ -1,5 +1,5 @@
 //
-//  RawDataSource.swift
+//  APIDataManager.swift
 //  uIssue
 //
 //  Created by junwoo on 2018. 1. 25..
@@ -10,8 +10,8 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class RawDataSource {
-  static let shared: RawDataSource = RawDataSource()
+class APIDataManager {
+  static let shared: APIDataManager = APIDataManager()
   private let bag = DisposeBag()
   
   //local
@@ -64,17 +64,17 @@ class RawDataSource {
               issueArr.append(issue)
             }
           }
-          
+          issueArr = self?.sortListByCreated(list: issueArr) as! [Issue]
           var newRepo = repo
           newRepo.setIssuesDic(issueArr: issueArr)
           resultList.append(newRepo)
         }
-        
+        resultList = self?.sortListByCreated(list: resultList) as! [Repository]
         return resultList
       })
       .asDriver(onErrorJustReturn: [])
       .debug("-------------issuedic--------------")
-      .drive(TableViewDataSource.shared.resultProvider)
+      .drive(LocalDataManager.shared.resultProvider)
       .disposed(by: bag)
   }
   
@@ -105,6 +105,10 @@ class RawDataSource {
       .catchError({ (error) -> Observable<Issue> in
         return Observable.empty()
       })
+  }
+  
+  func sortListByCreated(list: [Sortable]) -> [Sortable] {
+    return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
   }
   
 }

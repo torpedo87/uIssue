@@ -21,20 +21,55 @@ class IssueDetailViewViewModel {
     self.repoIndex = repoIndex
     self.issueIndex = issueIndex
     selectedIssue = issue
-    TableViewDataSource.shared.bindCommentListForIssue(issue: issue)
+    bindCommentListForIssue(issue: selectedIssue)
     bindOutput()
     
-    commentList.value = TableViewDataSource.shared.sortLocalRepoListByCreated(list: commentList.value) as! [Comment]
   }
   
   func bindOutput() {
-    TableViewDataSource.shared.commentsListForIssueProvier.asDriver()
+    
+  }
+  
+  //해당이슈의 코멘트 가져오기
+  func bindCommentListForIssue(issue: Issue) {
+    
+    IssueService.fetchComments(issue: issue)
+      .asDriver(onErrorJustReturn: [])
       .drive(commentList)
       .disposed(by: bag)
   }
   
-  func requestEditIssue(title: String, comment: String, label: [IssueService.Label], state: IssueService.State) -> Observable<Bool> {
-    return TableViewDataSource.shared.editIssue(issue: selectedIssue, issueIndex: issueIndex, state: state, title: title, comment: comment, repoIndex: repoIndex)
+  //이슈삭제 api요청 성공하면 로컬 변경하기
+  func editIssue(state: IssueService.State, title: String, comment: String, label: [IssueService.Label]) -> Observable<Bool> {
+    return APIDataManager.shared.requestEditIssue(title: title, comment: comment, label: [.enhancement], issue: selectedIssue, state: state, repo: LocalDataManager.shared.resultProvider.value[repoIndex])
+      .map({ [weak self] (newIssue) -> Bool in
+        if newIssue.id != -1 {
+          switch state {
+          case .closed: do {
+            LocalDataManager.shared.changeLocalWhenIssueClosed(newIssue: newIssue, repoIndex: (self?.repoIndex)!)
+            }
+          default: do {
+            LocalDataManager.shared.changeLocalWhenIssueEdited(newIssue: newIssue, repoIndex: (self?.repoIndex)!)
+            }
+          }
+          return true
+        } else {
+          return false
+        }
+      })
+    
+  }
+  
+  func createComment() {
+    
+  }
+  
+  func editComment() {
+    
+  }
+  
+  func deleteComment() {
+    
   }
   
 }
