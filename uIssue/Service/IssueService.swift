@@ -98,7 +98,7 @@ class IssueService {
         }
       })
       .catchError({ (error) -> Observable<[Issue]> in
-        return Observable.just([])
+        return Observable.empty()
       })
   }
   
@@ -150,9 +150,9 @@ class IssueService {
     
   }
   
-  static func editIssue(title: String, comment: String, label: [Label], issue: Issue, state: State) -> Observable<Issue> {
+  static func editIssue(title: String, comment: String, label: [Label], issue: Issue, state: State, repo: Repository) -> Observable<Issue> {
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
-    let repoName = getRepoNameFromIssue(issue: issue)
+    let repoName = repo.name
     guard let url = URL(string: "https://api.github.com/repos/\(issue.user.login)/\(repoName)/issues/\(issue.number)") else { fatalError() }
     
     let request: Observable<URLRequest> = Observable.create{ observer in
@@ -199,10 +199,7 @@ class IssueService {
   
   static func fetchComments(issue: Issue) -> Observable<[Comment]> {
     
-    guard let userId = issue.repository?.owner.login else { fatalError() }
-    guard let repoName = issue.repository?.name else { fatalError() }
-    
-    guard let urlComponents = URLComponents(string: "https://api.github.com/repos/\(userId)/\(repoName)/issues/\(issue.number)/comments") else { fatalError() }
+    guard let urlComponents = URLComponents(string: issue.comments_url) else { fatalError() }
     
     let request: Observable<URLRequest> = Observable.create{ observer in
       let request: URLRequest = {
@@ -223,7 +220,12 @@ class IssueService {
       .map({ (response, data) -> [Comment] in
         if 200 ..< 300 ~= response.statusCode {
           let comments = try! JSONDecoder().decode([Comment].self, from: data)
-          return comments
+          var tempCommentArr = [Comment]()
+          for comment in comments {
+            let tempComment = Comment(id: comment.id, user: comment.user, created_at: comment.created_at, body: comment.body, issue: issue)
+            tempCommentArr.append(tempComment)
+          }
+          return tempCommentArr
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
         } else {
@@ -233,11 +235,6 @@ class IssueService {
       .catchError({ (error) -> Observable<[Comment]> in
         return Observable.empty()
       })
-  }
-  
-  static func getRepoNameFromIssue(issue: Issue) -> String {
-    let arr = issue.repository_url.components(separatedBy: "/")
-    return arr[5]
   }
   
   static func getLastPageFromLinkHeader(link: String) -> Int {

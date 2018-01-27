@@ -25,6 +25,8 @@ class IssueListViewViewModel {
     selectedRepo = repo
     TableViewDataSource.shared.bindIssueList(repo: selectedRepo)
     bindOutput()
+    
+    issueList.value = TableViewDataSource.shared.sortLocalRepoListByCreated(list: issueList.value) as! [Issue]
   }
   
   func bindOutput() {

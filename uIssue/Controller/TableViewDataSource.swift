@@ -17,6 +17,7 @@ class TableViewDataSource {
   //local
   var resultProvider = Variable<[Repository]>([])
   var issueListProvider = Variable<[Issue]>([])
+  var commentsListForIssueProvier = Variable<[Comment]>([])
   
   //해당 레퍼지토리의 이슈리스트 바인딩
   func bindIssueList(repo: Repository) {
@@ -25,28 +26,29 @@ class TableViewDataSource {
       .map { (repoList) in
         repoList.filter { $0.id == repo.id }
       }.map { $0.first! }
-      .map { $0.issueArr! }
+      .map { Array($0.issuesDic!.values) }
       .drive(issueListProvider)
       .disposed(by: bag)
   }
   
-  func sortLocalListByCreated(list: [Repository]) -> [Repository] {
-    return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
+  //해당이슈의 코멘트 가져오기
+  func bindCommentListForIssue(issue: Issue) {
+    
+    IssueService.fetchComments(issue: issue)
+      .asDriver(onErrorJustReturn: [])
+      .drive(commentsListForIssueProvier)
+      .disposed(by: bag)
+    
   }
   
-  func sortLocalListByCreated(list: [Issue]) -> [Issue] {
-    return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
-  }
-  
-  func sortLocalListByCreated(list: [Comment]) -> [Comment] {
+  func sortLocalRepoListByCreated(list: [Sortable]) -> [Sortable] {
     return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
   }
   
   func createIssue(title: String, comment: String, repoIndex: Int) -> Observable<Bool> {
     return RawDataSource.shared.requestCreateIssue(title: title, comment: comment, label: [.enhancement], repo: resultProvider.value[repoIndex])
-      .map({ [weak self] (newIssue) -> Bool in
+      .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
-          self?.resultProvider.value[repoIndex].issueArr?.append(newIssue)
           return true
         }
         return false
@@ -54,35 +56,21 @@ class TableViewDataSource {
     
   }
   
-  func editIssue(issue: Issue, issueIndex: Int, state: IssueService.State, title: String, comment: String) -> Observable<Bool> {
-    return RawDataSource.shared.requestEditIssue(title: title, comment: comment, label: [.enhancement], issue: issue, state: state)
-      .do(onNext: { [weak self] success in
-        if success {
+  func editIssue(issue: Issue, issueIndex: Int, state: IssueService.State, title: String, comment: String, repoIndex: Int) -> Observable<Bool> {
+    return RawDataSource.shared.requestEditIssue(title: title, comment: comment, label: [.enhancement], issue: issue, state: state, repo: resultProvider.value[repoIndex])
+      .map({ [weak self] (newIssue) -> Bool in
+        if newIssue.id != -1 {
           switch state {
           case .closed: do {
-            var repoIndex: Int = -1
-            for i in 0..<(self?.resultProvider.value.count)! {
-              if self?.resultProvider.value[i].id == issue.repository?.id {
-                repoIndex = i
-              }
-            }
-            if repoIndex != -1 {
-              self?.resultProvider.value[repoIndex].issueArr?.remove(at: issueIndex)
-            }
+            self?.resultProvider.value[repoIndex].issuesDic?.removeValue(forKey: newIssue.id)
             }
           default: do {
-            var repoIndex: Int = -1
-            for i in 0..<(self?.resultProvider.value.count)! {
-              if self?.resultProvider.value[i].id == issue.repository?.id {
-                repoIndex = i
-              }
-            }
-            if repoIndex != -1 {
-              self?.resultProvider.value[repoIndex].issueArr![issueIndex] = issue
-            }
+            self?.resultProvider.value[repoIndex].issuesDic?.updateValue(newIssue, forKey: newIssue.id)
             }
           }
-          
+          return true
+        } else {
+          return false
         }
       })
     

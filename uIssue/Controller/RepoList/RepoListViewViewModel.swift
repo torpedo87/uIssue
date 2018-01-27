@@ -22,6 +22,8 @@ class RepoListViewViewModel {
     RawDataSource.shared.inputIssueToRepo()
     
     bindOutput()
+    
+    repoList.value = TableViewDataSource.shared.sortLocalRepoListByCreated(list: repoList.value) as! [Repository]
   }
   
   func bindOutput() {

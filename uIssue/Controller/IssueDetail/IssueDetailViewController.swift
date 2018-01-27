@@ -45,6 +45,7 @@ class IssueDetailViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupView()
+    setupCommentBox()
     bindUI()
   }
   
@@ -72,6 +73,32 @@ class IssueDetailViewController: UIViewController {
       make.width.equalTo(150)
       make.height.equalTo(50)
       make.right.bottom.equalToSuperview().offset(-20)
+    }
+  }
+  
+  func setupCommentBox() {
+    var commentBoxArr = [CommentBox]()
+    let commentArr = viewModel.commentList.value
+    for i in 0..<commentArr.count {
+      let commentBox = CommentBox(comment: commentArr[i], index: i)
+      view.addSubview(commentBox)
+      commentBoxArr.append(commentBox)
+    }
+
+    for i in 0..<commentBoxArr.count {
+      if i == 0 {
+        commentBoxArr[i].snp.makeConstraints({ (make) in
+          make.top.equalTo(commentLabel.snp.bottom).offset(10)
+          make.left.right.equalTo(titleLabel)
+          make.height.equalTo(100)
+        })
+      } else {
+        commentBoxArr[i].snp.makeConstraints({ (make) in
+          make.top.equalTo(commentBoxArr[i-1].snp.bottom).offset(10)
+          make.left.right.equalTo(titleLabel)
+          make.height.equalTo(100)
+        })
+      }
     }
   }
   

@@ -109,7 +109,7 @@ class IssueListViewController: UIViewController {
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedIssue = self?.viewModel.issueList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueDetail(selectedIssue!, indexPath.row), sender: self!)
+        Navigator.shared.show(destination: .issueDetail(selectedIssue!, indexPath.row, (self?.viewModel.repoIndex)!), sender: self!)
       })
       .disposed(by: bag)
   }

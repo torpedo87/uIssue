@@ -18,7 +18,7 @@ class Navigator {
     case issueList(Repository, Int)
     case setting
     case createIssue(Repository, Int)
-    case issueDetail(Issue, Int)
+    case issueDetail(Issue, Int, Int)
   }
   
   func show(destination: Destination, sender: UIViewController) {
@@ -39,8 +39,8 @@ class Navigator {
     case .createIssue(let repo, let repoIndex):
       let vm = CreateIssueViewViewModel(repo: repo, repoIndex: repoIndex)
       show(target: CreateIssueViewController.createWith(viewModel: vm), sender: sender)
-    case .issueDetail(let issue, let issueIndex):
-      let vm = IssueDetailViewViewModel(issue: issue, issueIndex: issueIndex)
+    case .issueDetail(let issue, let issueIndex, let repoIndex):
+      let vm = IssueDetailViewViewModel(issue: issue, issueIndex: issueIndex, repoIndex: repoIndex)
       show(target: IssueDetailViewController.createWith(viewModel: vm), sender: sender)
     }
   }
