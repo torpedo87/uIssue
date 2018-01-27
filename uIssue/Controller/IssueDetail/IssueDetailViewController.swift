@@ -45,7 +45,6 @@ class IssueDetailViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     setupView()
-    setupCommentBox()
     bindUI()
   }
   
@@ -76,32 +75,6 @@ class IssueDetailViewController: UIViewController {
     }
   }
   
-  func setupCommentBox() {
-    var commentBoxArr = [CommentBox]()
-    let commentArr = viewModel.commentList.value
-    for i in 0..<commentArr.count {
-      let commentBox = CommentBox(comment: commentArr[i], index: i)
-      view.addSubview(commentBox)
-      commentBoxArr.append(commentBox)
-    }
-
-    for i in 0..<commentBoxArr.count {
-      if i == 0 {
-        commentBoxArr[i].snp.makeConstraints({ (make) in
-          make.top.equalTo(commentLabel.snp.bottom).offset(10)
-          make.left.right.equalTo(titleLabel)
-          make.height.equalTo(100)
-        })
-      } else {
-        commentBoxArr[i].snp.makeConstraints({ (make) in
-          make.top.equalTo(commentBoxArr[i-1].snp.bottom).offset(10)
-          make.left.right.equalTo(titleLabel)
-          make.height.equalTo(100)
-        })
-      }
-    }
-  }
-  
   func bindUI() {
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
@@ -114,5 +87,33 @@ class IssueDetailViewController: UIViewController {
           self?.navigationController?.popViewController(animated: true)
         }
       }.disposed(by: bag)
+    
+    viewModel.commentList.asObservable()
+      .observeOn(MainScheduler.instance)
+      .do(onNext: { [weak self] commentArr in
+        var commentBoxArr = [CommentBox]()
+        for i in 0..<commentArr.count {
+          let commentBox = CommentBox(comment: commentArr[i], index: i)
+          self?.view.addSubview(commentBox)
+          commentBoxArr.append(commentBox)
+        }
+        for i in 0..<commentBoxArr.count {
+          if i == 0 {
+            commentBoxArr[i].snp.makeConstraints({ (make) in
+              make.top.equalTo((self?.commentLabel.snp.bottom)!).offset(10)
+              make.left.right.equalTo((self?.titleLabel)!)
+              make.height.equalTo(100)
+            })
+          } else {
+            commentBoxArr[i].snp.makeConstraints({ (make) in
+              make.top.equalTo(commentBoxArr[i-1].snp.bottom).offset(10)
+              make.left.right.equalTo((self?.titleLabel)!)
+              make.height.equalTo(100)
+            })
+          }
+        }
+      })
+      .subscribe()
+      .disposed(by: bag)
   }
 }
