@@ -88,7 +88,13 @@ class IssueDetailViewController: UIViewController {
         }
       }.disposed(by: bag)
     
-    viewModel.commentList.asObservable()
+    viewModel.issueDetail.asObservable()
+      .map({ (issue) -> [Comment] in
+        if let commentsDic = issue.commentsDic {
+          return Array(commentsDic.values)
+        }
+        return []
+      })
       .observeOn(MainScheduler.instance)
       .do(onNext: { [weak self] commentArr in
         var commentBoxArr = [CommentBox]()

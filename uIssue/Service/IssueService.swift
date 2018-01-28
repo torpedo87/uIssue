@@ -98,7 +98,7 @@ class IssueService {
         }
       })
       .catchError({ (error) -> Observable<[Issue]> in
-        return Observable.empty()
+        return Observable.just([])
       })
   }
   
@@ -145,7 +145,7 @@ class IssueService {
         }
       })
       .catchError({ (error) -> Observable<Issue> in
-        return Observable.empty()
+        return Observable.just(Issue())
       })
     
   }
@@ -193,7 +193,7 @@ class IssueService {
         }
       })
       .catchError({ (error) -> Observable<Issue> in
-        return Observable.empty()
+        return Observable.just(Issue())
       })
   }
   
@@ -220,12 +220,8 @@ class IssueService {
       .map({ (response, data) -> [Comment] in
         if 200 ..< 300 ~= response.statusCode {
           let comments = try! JSONDecoder().decode([Comment].self, from: data)
-          var tempCommentArr = [Comment]()
-          for comment in comments {
-            let tempComment = Comment(id: comment.id, user: comment.user, created_at: comment.created_at, body: comment.body, issue: issue)
-            tempCommentArr.append(tempComment)
-          }
-          return tempCommentArr
+          
+          return comments
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
         } else {
@@ -233,10 +229,11 @@ class IssueService {
         }
       })
       .catchError({ (error) -> Observable<[Comment]> in
-        return Observable.empty()
+        return Observable.just([])
       })
   }
   
+  //helper
   static func getLastPageFromLinkHeader(link: String) -> Int {
     let temp = link.components(separatedBy: "=")[7]
     let lastPage = Int((temp.components(separatedBy: "&")[0]))!

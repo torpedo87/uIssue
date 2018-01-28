@@ -14,8 +14,8 @@ class IssueListViewViewModel {
   private let bag = DisposeBag()
   
   //input
-  var selectedRepo: Repository!
-  var repoIndex: Int!
+  let selectedRepo: Repository!
+  let repoIndex: Int!
   
   //output
   let issueList = Variable<[Issue]>([])

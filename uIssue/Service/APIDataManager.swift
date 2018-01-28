@@ -15,8 +15,8 @@ class APIDataManager {
   private let bag = DisposeBag()
   
   //local
-  var allIssuesProvider = Variable<[Issue]>([])
-  var tempRepoListProvider = Variable<[Repository]>([])
+  private var allIssuesProvider = Variable<[Issue]>([])
+  private var repoListProvider = Variable<[Repository]>([])
   
   //모든 이슈 가져오기
   func bindAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort) {
@@ -46,13 +46,13 @@ class APIDataManager {
         return Array(Set(repoArr))
       })
       .asDriver(onErrorJustReturn: [])
-      .drive(tempRepoListProvider)
+      .drive(repoListProvider)
       .disposed(by: bag)
   }
   
   //해당 레퍼지토리에 이슈Dic 넣기
   func inputIssueToRepo() {
-    tempRepoListProvider.asDriver()
+    repoListProvider.asDriver()
       .map({ [weak self] repoList -> [Repository] in
         var resultList = [Repository]()
         
@@ -109,6 +109,13 @@ class APIDataManager {
   
   func sortListByCreated(list: [Sortable]) -> [Sortable] {
     return list.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
+  }
+  
+  func requestFetchComment(issue: Issue) -> Observable<[Comment]> {
+    return IssueService.fetchComments(issue: issue)
+      .catchError({ (error) -> Observable<[Comment]> in
+        return Observable.just([])
+      })
   }
   
 }

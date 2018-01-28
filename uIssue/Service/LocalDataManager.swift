@@ -15,7 +15,7 @@ class LocalDataManager {
   private let bag = DisposeBag()
   
   //local
-  var resultProvider = Variable<[Repository]>([])
+  let resultProvider = Variable<[Repository]>([])
   
   
   func changeLocalWhenIssueCreated(newIssue: Issue, repoIndex: Int) {
@@ -30,4 +30,7 @@ class LocalDataManager {
     resultProvider.value[repoIndex].issuesDic?.updateValue(newIssue, forKey: newIssue.id)
   }
   
+  func changeLocalWhenCommentsFetched(repoIndex: Int, issue: Issue, comments: [Comment]) {
+    resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+  }
 }

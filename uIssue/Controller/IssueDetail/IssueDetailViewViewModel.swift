@@ -11,31 +11,43 @@ import RxSwift
 import RxCocoa
 
 class IssueDetailViewViewModel {
-  let bag = DisposeBag()
-  var selectedIssue: Issue!
-  var issueIndex: Int!
-  var repoIndex: Int!
-  let commentList = Variable<[Comment]>([])
+  private let bag = DisposeBag()
+  let selectedIssue: Issue!
+  private let issueIndex: Int!
+  private let repoIndex: Int!
+  let issueDetail = Variable<Issue>(Issue())
   
   init(issue: Issue, issueIndex: Int, repoIndex: Int) {
     self.repoIndex = repoIndex
     self.issueIndex = issueIndex
     selectedIssue = issue
-    bindCommentListForIssue(issue: selectedIssue)
+    requestFetchComments()
     bindOutput()
     
   }
   
   func bindOutput() {
+    LocalDataManager.shared.resultProvider
+      .asDriver()
+      .map { [weak self] (repoList) -> Repository in
+        return repoList[(self?.repoIndex)!]
+      }
+      .map { Array($0.issuesDic!.values) }
+      .map { [weak self] (issueArr) -> Issue in
+        return issueArr[(self?.issueIndex)!]
+    }.drive(issueDetail)
+    .disposed(by: bag)
     
   }
   
-  //해당이슈의 코멘트 가져오기
-  func bindCommentListForIssue(issue: Issue) {
-    
-    IssueService.fetchComments(issue: issue)
+  //코멘트 요청 api 성공시 로컬 변경하기
+  func requestFetchComments() {
+    APIDataManager.shared.requestFetchComment(issue: selectedIssue)
       .asDriver(onErrorJustReturn: [])
-      .drive(commentList)
+      .do(onNext: { [weak self] comments in
+        LocalDataManager.shared.changeLocalWhenCommentsFetched(repoIndex: (self?.repoIndex)!, issue: (self?.selectedIssue)!, comments: comments)
+      })
+      .drive()
       .disposed(by: bag)
   }
   

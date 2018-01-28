@@ -16,8 +16,8 @@ class CreateIssueViewViewModel {
   let titleInput = Variable<String>("")
   //output
   let validate: Driver<Bool>
-  var selectedRepo: Repository!
-  var repoIndex: Int!
+  private var selectedRepo: Repository!
+  private var repoIndex: Int!
   
   init(repo: Repository, repoIndex: Int) {
     self.repoIndex = repoIndex
