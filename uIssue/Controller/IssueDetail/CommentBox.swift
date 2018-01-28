@@ -37,6 +37,7 @@ class CommentBox: UIView {
   
   private lazy var commentTextView: UITextView = {
     let view = UITextView()
+    view.isScrollEnabled = false
     return view
   }()
   
@@ -52,6 +53,8 @@ class CommentBox: UIView {
   }
   
   func setupView() {
+    layer.borderWidth = 1.0
+    layer.borderColor = UIColor.black.cgColor
     addSubview(topView)
     topView.addSubview(userLabel)
     topView.addSubview(editButton)

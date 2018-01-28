@@ -108,13 +108,11 @@ class IssueDetailViewController: UIViewController {
             commentBoxArr[i].snp.makeConstraints({ (make) in
               make.top.equalTo((self?.commentLabel.snp.bottom)!).offset(10)
               make.left.right.equalTo((self?.titleLabel)!)
-              make.height.equalTo(100)
             })
           } else {
             commentBoxArr[i].snp.makeConstraints({ (make) in
               make.top.equalTo(commentBoxArr[i-1].snp.bottom).offset(10)
               make.left.right.equalTo((self?.titleLabel)!)
-              make.height.equalTo(100)
             })
           }
         }

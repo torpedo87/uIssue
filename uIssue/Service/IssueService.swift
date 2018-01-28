@@ -12,7 +12,7 @@ import RxSwift
 class IssueService {
   
   static var currentPage = Variable<Int>(1)
-  static var lastPage = -1
+  static var lastPage = Variable<Int>(-1)
   
   enum Filter: String {
     case assigned
@@ -81,13 +81,13 @@ class IssueService {
       URLSession.shared.rx.response(request: $0)
       }
       .map({ (response, data) -> [Issue] in
-        if let link = response.allHeaderFields["Link"] as? String, lastPage == -1 {
-          lastPage = getLastPageFromLinkHeader(link: link)
+        if let link = response.allHeaderFields["Link"] as? String, lastPage.value == -1 {
+          lastPage.value = getLastPageFromLinkHeader(link: link)
         }
-        print("====last=====\(lastPage), ========\(currentPage.value)")
+        print("====last=====\(lastPage.value), ========\(currentPage.value)")
         if 200 ..< 300 ~= response.statusCode {
           let issues = try! JSONDecoder().decode([Issue].self, from: data)
-          if currentPage.value < lastPage {
+          if currentPage.value < lastPage.value {
             currentPage.value += 1
           }
           return issues

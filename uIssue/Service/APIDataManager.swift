@@ -73,7 +73,6 @@ class APIDataManager {
         return resultList
       })
       .asDriver(onErrorJustReturn: [])
-      .debug("-------------issuedic--------------")
       .drive(LocalDataManager.shared.resultProvider)
       .disposed(by: bag)
   }

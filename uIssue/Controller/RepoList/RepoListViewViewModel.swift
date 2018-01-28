@@ -15,6 +15,8 @@ class RepoListViewViewModel {
   
   //output
   let repoList = Variable<[Repository]>([])
+  let running = Variable<Bool>(true)
+  
   
   init() {
     APIDataManager.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
@@ -30,6 +32,11 @@ class RepoListViewViewModel {
       .drive(repoList)
       .disposed(by: bag)
     
+    LocalDataManager.shared.resultProvider
+      .asDriver()
+      .map { _ in false }
+      .drive(running)
+      .disposed(by: bag)
   }
   
 }

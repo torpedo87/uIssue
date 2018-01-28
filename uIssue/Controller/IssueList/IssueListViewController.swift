@@ -16,6 +16,7 @@ class IssueListViewController: UIViewController {
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
+    view.rowHeight = 50
     return view
   }()
   private lazy var settingBarButtonItem: UIBarButtonItem = {
