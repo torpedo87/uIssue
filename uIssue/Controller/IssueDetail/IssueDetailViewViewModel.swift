@@ -51,9 +51,13 @@ class IssueDetailViewViewModel {
       .disposed(by: bag)
   }
   
-  //이슈삭제 api요청 성공하면 로컬 변경하기
-  func editIssue(state: IssueService.State, title: String, comment: String, label: [IssueService.Label]) -> Observable<Bool> {
-    return APIDataManager.shared.requestEditIssue(title: title, comment: comment, label: [.enhancement], issue: selectedIssue, state: state, repo: LocalDataManager.shared.resultProvider.value[repoIndex])
+  //이슈편집 api요청 성공하면 로컬 변경하기
+  func editIssue(state: IssueService.State, title: String, comment: String,
+                 label: [IssueService.Label]) -> Observable<Bool> {
+    return APIDataManager.shared.requestEditIssue(title: title, comment: comment,
+                                                  label: [.enhancement], issue: selectedIssue,
+                                                  state: state,
+                                                  repo: LocalDataManager.shared.resultProvider.value[repoIndex])
       .map({ [weak self] (newIssue) -> Bool in
         if newIssue.id != -1 {
           switch state {
@@ -76,8 +80,9 @@ class IssueDetailViewViewModel {
     
   }
   
-  func editComment() {
-    
+  //코멘트 편집 api요청 성공하면 로컬 변경하기
+  func editComment() -> Observable<Bool> {
+    return Observable.just(false)
   }
   
   func deleteComment() {

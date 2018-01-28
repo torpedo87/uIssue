@@ -59,7 +59,7 @@ struct Comment: Codable, Sortable {
   let body: String
   
   init(id: Int = -1, user: User = User(), created_at: String = "",
-       body: String = "", issue: Issue? = nil) {
+       body: String = "") {
     self.id = id
     self.user = user
     self.created_at = created_at

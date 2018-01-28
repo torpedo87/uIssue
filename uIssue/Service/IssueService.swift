@@ -233,6 +233,135 @@ class IssueService {
       })
   }
   
+  func createComment(issue: Issue, commentBody: String) -> Observable<Comment> {
+    guard let repo = issue.repository else { fatalError() }
+    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
+    guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/\(issue.number)/comments") else { fatalError() }
+    
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "POST"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        
+        let bodyObject: [String: String] = [
+          "body": commentBody
+        ]
+        
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        
+        return request
+      }(url)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      
+      .map({ (response, data) -> Comment in
+        if 200 ..< 300 ~= response.statusCode {
+          let newComment = try! JSONDecoder().decode(Comment.self, from: data)
+          return newComment
+        } else if 401 == response.statusCode {
+          throw AuthService.Errors.invalidUserInfo
+        } else {
+          throw AuthService.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<Comment> in
+        return Observable.just(Comment())
+      })
+  }
+  
+  
+  
+  func editComment(issue: Issue, comment: Comment) -> Observable<Comment> {
+    guard let repo = issue.repository else { fatalError() }
+    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
+    guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/comments/\(comment.id)") else { fatalError() }
+    
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "PATCH"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
+        
+        let bodyObject: [String: String] = [
+          "body": comment.body
+        ]
+        
+        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        
+        return request
+      }(url)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      
+      .map({ (response, data) -> Comment in
+        if 200 ..< 300 ~= response.statusCode {
+          let newComment = try! JSONDecoder().decode(Comment.self, from: data)
+          return newComment
+        } else if 401 == response.statusCode {
+          throw AuthService.Errors.invalidUserInfo
+        } else {
+          throw AuthService.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<Comment> in
+        return Observable.just(Comment())
+      })
+  }
+  
+  func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool> {
+    guard let repo = issue.repository else { fatalError() }
+    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
+    guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/comments/\(comment.id)") else { fatalError() }
+    
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "DELETE"
+        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        
+        return request
+      }(url)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      
+      .map({ (response, data) -> Bool in
+        if 200 ..< 300 ~= response.statusCode {
+          return true
+        } else if 401 == response.statusCode {
+          throw AuthService.Errors.invalidUserInfo
+        } else {
+          throw AuthService.Errors.requestFail
+        }
+      })
+      .catchError({ (error) -> Observable<Bool> in
+        return Observable.just(false)
+      })
+  }
+  
   //helper
   static func getLastPageFromLinkHeader(link: String) -> Int {
     let temp = link.components(separatedBy: "=")[7]
