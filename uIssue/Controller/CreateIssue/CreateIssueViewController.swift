@@ -93,7 +93,7 @@ class CreateIssueViewController: UIViewController {
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        (self?.viewModel.createIssue(title: (self?.titleTextView.text)!, comment: (self?.commetTextView.text)!))!
+        (self?.viewModel.createIssue(title: (self?.titleTextView.text)!, newComment: (self?.commetTextView.text)!))!
       }
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in

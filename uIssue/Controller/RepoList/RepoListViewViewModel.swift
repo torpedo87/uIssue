@@ -19,24 +19,26 @@ class RepoListViewViewModel {
   
   
   init() {
-    APIDataManager.shared.bindAllIssues(filter: .created, state: .all, sort: .created)
-    APIDataManager.shared.getTempRepoUIListFromIssueArr()
-    APIDataManager.shared.inputIssueToRepo()
+    LocalDataManager()
     
     bindOutput()
   }
   
   func bindOutput() {
-    LocalDataManager.shared.resultProvider
-      .asDriver()
+    LocalDataManager.shared.provider()
+      .asDriver(onErrorJustReturn: [])
       .drive(repoList)
       .disposed(by: bag)
     
-    LocalDataManager.shared.resultProvider
-      .asDriver()
+    LocalDataManager.shared.provider()
+      .asDriver(onErrorJustReturn: [])
       .map { _ in false }
       .drive(running)
       .disposed(by: bag)
+  }
+  
+  func sortByCreated() {
+    repoList.value = repoList.value.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
   }
   
 }

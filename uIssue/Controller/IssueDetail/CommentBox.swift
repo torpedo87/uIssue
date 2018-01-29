@@ -59,9 +59,23 @@ class CommentBox: UIView {
     return btn
   }()
   
+  private lazy var saveButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("SAVE", for: UIControlState.normal)
+    btn.backgroundColor = UIColor.red
+    return btn
+  }()
+  
   private lazy var cancelButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("CANCEL", for: UIControlState.normal)
+    btn.backgroundColor = UIColor.red
+    return btn
+  }()
+  
+  private lazy var deleteButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("DELETE", for: UIControlState.normal)
     btn.backgroundColor = UIColor.red
     return btn
   }()
@@ -83,25 +97,73 @@ class CommentBox: UIView {
   
   func bindUI() {
     
-    editButton.rx.controlEvent(UIControlEvents.touchUpInside)
+    commentTextView.rx.text.orEmpty.asDriver()
+      .drive(onNext: { [weak self] text in
+        if text.isEmpty {
+          self?.cancelButton.isUserInteractionEnabled = false
+          self?.saveButton.isUserInteractionEnabled = false
+        } else {
+          self?.cancelButton.isUserInteractionEnabled = true
+          self?.saveButton.isUserInteractionEnabled = true
+        }
+      })
+      .disposed(by: bag)
+    
+    
+    cancelButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .observeOn(MainScheduler.instance)
+      .do(onNext: { [weak self] _ in
+        if let issue = self?.issue {
+          LocalDataManager.shared.editIssue(newIssue: issue, repoIndex: (self?.viewModel.repoIndex)!)
+        } else {
+          LocalDataManager.shared.editComment(repoIndex: (self?.viewModel.repoIndex)!, issue: (self?.viewModel.selectedIssue)!, newComment: (self?.comment)!)
+        }
+        self?.mode.value = .normal
+      })
+      .asDriver(onErrorJustReturn: ())
+      .drive()
+      .disposed(by: bag)
+    
+    deleteButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        if self?.mode.value == .edit {
-          if let issue = self?.issue {
-            return (self?.viewModel.editIssue(state: .open, title: issue.title, comment: issue.body!, label: [.enhancement]))!
-          } else {
-            return (self?.viewModel.editComment())!
-          }
+        if let comment = self?.comment {
+          return (self?.viewModel.deleteComment(issue: (self?.viewModel.selectedIssue)!, existingComment: comment, repoIndex: (self?.viewModel.repoIndex)!))!
         } else {
-          return Observable.just(true)
+          return Observable.just(false)
         }
-      }.bind(onNext: { [weak self] (success) in
-        if success {
-          if self?.mode.value == .normal {
-            self?.mode.value = .edit
+    }.asDriver(onErrorJustReturn: false)
+    .drive()
+    .disposed(by: bag)
+    
+    editButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .do(onNext: { [weak self] _ in
+        self?.mode.value = .edit
+      })
+      .asDriver(onErrorJustReturn: ())
+      .drive()
+      .disposed(by: bag)
+    
+    
+    saveButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .observeOn(MainScheduler.instance)
+      .flatMap { [weak self] _ -> Observable<Bool> in
+        if let issue = self?.issue {
+          return (self?.viewModel.editIssue(state: .open, newTitleText: issue.title, newCommentText: (self?.commentTextView.text)!, label: [.enhancement]))!
+        } else {
+          if self?.comment?.body != "" {
+            return (self?.viewModel.editComment(issue: (self?.viewModel.selectedIssue)!, existingComment: (self?.comment)!, repoIndex: (self?.viewModel.repoIndex)!, newCommentText: (self?.commentTextView.text)!))!
           } else {
-            self?.mode.value = .normal
+            return (self?.viewModel.createComment(issue: (self?.viewModel.selectedIssue)!, newCommentBody: (self?.commentTextView.text)!, repoIndex: (self?.viewModel.repoIndex)!))!
           }
+        }
+      }.catchErrorJustReturn(false)
+      .bind(onNext: { [weak self] (success) in
+        if success {
+          self?.mode.value = .normal
         }
       })
       .disposed(by: bag)
@@ -114,13 +176,17 @@ class CommentBox: UIView {
         case .edit: do {
           self?.commentTextView.isUserInteractionEnabled = true
           self?.commentTextView.backgroundColor = UIColor.yellow
-          self?.editButton.setTitle("SAVE", for: UIControlState.normal)
+          self?.editButton.isHidden = true
+          self?.deleteButton.isHidden = true
+          self?.saveButton.isHidden = false
           self?.cancelButton.isHidden = false
           }
         case .normal: do {
           self?.commentTextView.isUserInteractionEnabled = false
           self?.commentTextView.backgroundColor = UIColor.white
-          self?.editButton.setTitle("EDIT", for: UIControlState.normal)
+          self?.editButton.isHidden = false
+          self?.deleteButton.isHidden = false
+          self?.saveButton.isHidden = true
           self?.cancelButton.isHidden = true
           }
         }
@@ -157,8 +223,10 @@ class CommentBox: UIView {
     layer.borderColor = UIColor.black.cgColor
     addSubview(topView)
     topView.addSubview(userLabel)
+    topView.addSubview(saveButton)
     topView.addSubview(editButton)
     topView.addSubview(cancelButton)
+    topView.addSubview(deleteButton)
     addSubview(commentTextView)
     
     topView.snp.makeConstraints { (make) in
@@ -181,14 +249,28 @@ class CommentBox: UIView {
       make.right.top.bottom.equalTo(topView)
     }
     
+    saveButton.snp.makeConstraints { (make) in
+      saveButton.sizeToFit()
+      make.edges.equalTo(editButton)
+    }
+    
     cancelButton.snp.makeConstraints { (make) in
       cancelButton.sizeToFit()
       make.top.bottom.equalTo(topView)
       make.right.equalTo(editButton.snp.left).offset(-5)
     }
+    
+    deleteButton.snp.makeConstraints { (make) in
+      deleteButton.sizeToFit()
+      make.edges.equalTo(cancelButton)
+    }
   }
   
   func getText() -> String {
     return commentTextView.text
+  }
+  
+  func setEditMode() {
+    mode.value = .edit
   }
 }

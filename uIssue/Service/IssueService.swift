@@ -13,6 +13,7 @@ class IssueService {
   
   static var currentPage = Variable<Int>(1)
   static var lastPage = Variable<Int>(-1)
+  private static var tempIssueArr = [Issue]()
   
   enum Filter: String {
     case assigned
@@ -87,10 +88,14 @@ class IssueService {
         print("====last=====\(lastPage.value), ========\(currentPage.value)")
         if 200 ..< 300 ~= response.statusCode {
           let issues = try! JSONDecoder().decode([Issue].self, from: data)
+          for issue in issues {
+            tempIssueArr.append(issue)
+          }
           if currentPage.value < lastPage.value {
             currentPage.value += 1
+            return []
           }
-          return issues
+          return tempIssueArr
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
         } else {
@@ -233,7 +238,7 @@ class IssueService {
       })
   }
   
-  func createComment(issue: Issue, commentBody: String) -> Observable<Comment> {
+  static func createComment(issue: Issue, commentBody: String) -> Observable<Comment> {
     guard let repo = issue.repository else { fatalError() }
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/\(issue.number)/comments") else { fatalError() }
@@ -280,7 +285,7 @@ class IssueService {
   
   
   
-  func editComment(issue: Issue, comment: Comment) -> Observable<Comment> {
+  static func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment> {
     guard let repo = issue.repository else { fatalError() }
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/comments/\(comment.id)") else { fatalError() }
@@ -292,8 +297,8 @@ class IssueService {
         request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
-        let bodyObject: [String: String] = [
-          "body": comment.body
+        let bodyObject: [String: Any] = [
+          "body": newCommentText
         ]
         
         request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
@@ -325,7 +330,7 @@ class IssueService {
       })
   }
   
-  func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool> {
+  static func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool> {
     guard let repo = issue.repository else { fatalError() }
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/comments/\(comment.id)") else { fatalError() }

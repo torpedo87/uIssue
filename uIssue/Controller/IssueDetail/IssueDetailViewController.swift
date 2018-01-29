@@ -81,10 +81,11 @@ class IssueDetailViewController: UIViewController {
   }
   
   func bindUI() {
+    
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        return (self?.viewModel.editIssue(state: .closed, title: (self?.titleTextField.text!)!, comment: (self?.bodyTextView.getText())!, label: [.enhancement]))!
+        return (self?.viewModel.editIssue(state: .closed, newTitleText: (self?.titleTextField.text!)!, newCommentText: (self?.bodyTextView.getText())!, label: [.enhancement]))!
       }
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in
@@ -103,10 +104,17 @@ class IssueDetailViewController: UIViewController {
       .observeOn(MainScheduler.instance)
       .do(onNext: { [weak self] commentArr in
         var commentBoxArr = [CommentBox]()
-        for i in 0..<commentArr.count {
-          let commentBox = CommentBox(comment: commentArr[i], issue: nil, viewModel: (self?.viewModel)!)
-          self?.view.addSubview(commentBox)
-          commentBoxArr.append(commentBox)
+        for i in 0...commentArr.count {
+          var commentBox: CommentBox?
+          if i != commentArr.count {
+            commentBox = CommentBox(comment: commentArr[i], issue: nil, viewModel: (self?.viewModel)!)
+          } else {
+            let emptyComment = Comment(id: 1, user: (self?.viewModel.selectedIssue.repository?.owner)!, created_at: "", body: "")
+            commentBox = CommentBox(comment: emptyComment, issue: nil, viewModel: (self?.viewModel)!)
+            commentBox?.setEditMode()
+          }
+          self?.view.addSubview(commentBox!)
+          commentBoxArr.append(commentBox!)
         }
         for i in 0..<commentBoxArr.count {
           if i == 0 {

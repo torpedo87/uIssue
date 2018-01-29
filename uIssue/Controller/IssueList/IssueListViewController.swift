@@ -90,7 +90,6 @@ class IssueListViewController: UIViewController {
   
   func bindTableView() {
     viewModel.issueList.asDriver()
-      .debug("------issueReload---------")
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
     

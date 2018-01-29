@@ -8,11 +8,7 @@
 
 import Foundation
 
-protocol Sortable {
-  var created_at: String { get }
-}
-
-struct Issue: Codable, Sortable {
+struct Issue: Codable {
   let id: Int
   let title: String
   let body: String?
@@ -52,7 +48,7 @@ struct Issue: Codable, Sortable {
   }
 }
 
-struct Comment: Codable, Sortable {
+struct Comment: Codable {
   let id: Int
   let user: User
   let created_at: String
@@ -89,7 +85,7 @@ struct User: Codable {
   }
 }
 
-struct Repository: Codable, Sortable {
+struct Repository: Codable {
   let id: Int
   let name: String
   let owner: User

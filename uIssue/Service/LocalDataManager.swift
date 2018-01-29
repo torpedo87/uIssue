@@ -12,25 +12,50 @@ import RxCocoa
 
 class LocalDataManager {
   static let shared: LocalDataManager = LocalDataManager()
-  private let bag = DisposeBag()
   
   //local
-  let resultProvider = Variable<[Repository]>([])
+  private let resultProvider = Variable<[Repository]>([])
+  private let bag = DisposeBag()
   
+  init() {
+    APIDataManager().getAllData()
+      .bind(to: resultProvider)
+      .disposed(by: bag)
+  }
   
-  func changeLocalWhenIssueCreated(newIssue: Issue, repoIndex: Int) {
+  func provider() -> Observable<[Repository]> {
+    return resultProvider.asObservable()
+  }
+  
+  func getRepo(index: Int) -> Repository {
+    return resultProvider.value[index]
+  }
+  
+  func createIssue(newIssue: Issue, repoIndex: Int) {
     resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
   }
   
-  func changeLocalWhenIssueClosed(newIssue: Issue, repoIndex: Int) {
+  func closeIssue(newIssue: Issue, repoIndex: Int) {
     resultProvider.value[repoIndex].issuesDic?.removeValue(forKey: newIssue.id)
   }
   
-  func changeLocalWhenIssueEdited(newIssue: Issue, repoIndex: Int) {
+  func editIssue(newIssue: Issue, repoIndex: Int) {
     resultProvider.value[repoIndex].issuesDic?.updateValue(newIssue, forKey: newIssue.id)
   }
   
-  func changeLocalWhenCommentsFetched(repoIndex: Int, issue: Issue, comments: [Comment]) {
+  func fetchComments(repoIndex: Int, issue: Issue, comments: [Comment]) {
     resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+  }
+  
+  func createComment(repoIndex: Int, issue: Issue, newComment: Comment) {
+    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+  }
+  
+  func editComment(repoIndex: Int, issue: Issue, newComment: Comment) {
+    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.updateValue(newComment, forKey: newComment.id)
+  }
+  
+  func deleteComment(repoIndex: Int, issue: Issue, existingComment: Comment) {
+    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.removeValue(forKey: existingComment.id)
   }
 }
