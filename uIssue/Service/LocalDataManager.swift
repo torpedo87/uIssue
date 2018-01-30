@@ -18,7 +18,10 @@ class LocalDataManager {
   private let bag = DisposeBag()
   
   init() {
-    APIDataManager().getAllData()
+    APIDataManager.getAllData()
+      .map({ (repoList) -> [Repository] in
+        return repoList.sorted(by: { $0.created_at > $1.created_at })
+      })
       .bind(to: resultProvider)
       .disposed(by: bag)
   }
@@ -58,4 +61,5 @@ class LocalDataManager {
   func deleteComment(repoIndex: Int, issue: Issue, existingComment: Comment) {
     resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.removeValue(forKey: existingComment.id)
   }
+  
 }

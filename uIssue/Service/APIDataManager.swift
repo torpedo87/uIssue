@@ -12,7 +12,7 @@ import RxCocoa
 
 class APIDataManager {
   
-  func getAllData() -> Observable<[Repository]> {
+  static func getAllData() -> Observable<[Repository]> {
     
     return IssueService.currentPage.asObservable()
       .flatMap { (page) in
@@ -31,9 +31,9 @@ class APIDataManager {
         
         var resultRepoList = [Repository]()
         for (key, value) in dict {
-          var temp = key
-          temp.setIssuesDic(issueArr: value)
-          resultRepoList.append(temp)
+          var tempRepo = key
+          tempRepo.setIssuesDic(issueArr: value)
+          resultRepoList.append(tempRepo)
         }
         
         return resultRepoList

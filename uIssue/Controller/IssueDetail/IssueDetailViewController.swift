@@ -102,7 +102,7 @@ class IssueDetailViewController: UIViewController {
         return []
       })
       .observeOn(MainScheduler.instance)
-      .do(onNext: { [weak self] commentArr in
+      .subscribe(onNext: { [weak self] commentArr in
         var commentBoxArr = [CommentBox]()
         for i in 0...commentArr.count {
           var commentBox: CommentBox?
@@ -130,7 +130,6 @@ class IssueDetailViewController: UIViewController {
           }
         }
       })
-      .subscribe()
       .disposed(by: bag)
   }
 }

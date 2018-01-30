@@ -85,7 +85,6 @@ class RepoListViewController: UIViewController {
   
   func bindTableView() {
     viewModel.repoList.asDriver()
-      .debug("=====repoReload=========")
       .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
     
@@ -100,8 +99,7 @@ class RepoListViewController: UIViewController {
     .disposed(by: bag)
     
     //delegate
-    tableView.rx
-      .itemSelected
+    tableView.rx.itemSelected
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedRepo = self?.viewModel.repoList.value[indexPath.row]

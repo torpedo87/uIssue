@@ -112,8 +112,8 @@ class CommentBox: UIView {
     
     cancelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .observeOn(MainScheduler.instance)
-      .do(onNext: { [weak self] _ in
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { [weak self] _ in
         if let issue = self?.issue {
           LocalDataManager.shared.editIssue(newIssue: issue, repoIndex: (self?.viewModel.repoIndex)!)
         } else {
@@ -121,8 +121,6 @@ class CommentBox: UIView {
         }
         self?.mode.value = .normal
       })
-      .asDriver(onErrorJustReturn: ())
-      .drive()
       .disposed(by: bag)
     
     deleteButton.rx.tap
@@ -139,11 +137,10 @@ class CommentBox: UIView {
     
     editButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .do(onNext: { [weak self] _ in
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { [weak self] _ in
         self?.mode.value = .edit
       })
-      .asDriver(onErrorJustReturn: ())
-      .drive()
       .disposed(by: bag)
     
     
@@ -171,7 +168,7 @@ class CommentBox: UIView {
     
     //edit or normal
     mode.asDriver()
-      .do(onNext: { [weak self] modeValue in
+      .drive(onNext: { [weak self] modeValue in
         switch modeValue {
         case .edit: do {
           self?.commentTextView.isUserInteractionEnabled = true
@@ -191,13 +188,12 @@ class CommentBox: UIView {
           }
         }
       })
-      .drive()
       .disposed(by: bag)
     
     
     //이슈 or 코멘트
     contents.asDriver()
-      .do(onNext: { [weak self] body in
+      .drive(onNext: { [weak self] body in
         switch body {
         case .commentBody: do {
           self?.userLabel.text = self?.comment!.user.login
@@ -210,7 +206,6 @@ class CommentBox: UIView {
           }
         }
       })
-      .drive()
       .disposed(by: bag)
   }
   

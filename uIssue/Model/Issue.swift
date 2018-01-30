@@ -95,8 +95,8 @@ struct Repository: Codable {
   
   mutating func setIssuesDic(issueArr: [Issue]) {
     self.issuesDic = [Int:Issue]()
-    for i in 0..<issueArr.count {
-      self.issuesDic?[issueArr[i].id] = issueArr[i]
+    for issue in issueArr {
+      self.issuesDic![issue.id] = issue
     }
   }
 }

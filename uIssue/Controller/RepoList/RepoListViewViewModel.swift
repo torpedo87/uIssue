@@ -37,8 +37,6 @@ class RepoListViewViewModel {
       .disposed(by: bag)
   }
   
-  func sortByCreated() {
-    repoList.value = repoList.value.sorted(by: { $0.created_at.compare($1.created_at) == .orderedDescending })
-  }
+  
   
 }
