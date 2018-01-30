@@ -16,15 +16,23 @@ class RepoListViewViewModel {
   //output
   let repoList = Variable<[Repository]>([])
   let running = Variable<Bool>(true)
+  let authApiType: AuthServiceRepresentable.Type
+  let issueApiType: IssueServiceRepresentable.Type
   
-  
-  init() {
-    LocalDataManager()
-    
+  init(authApiType: AuthServiceRepresentable.Type = AuthService.self, issueApiType: IssueServiceRepresentable.Type = IssueService.self) {
+    self.authApiType = authApiType
+    self.issueApiType = issueApiType
     bindOutput()
   }
   
   func bindOutput() {
+    authApiType.status.asObservable()
+      .subscribe(onNext: { [weak self] status in
+        if status == .authorized {
+          LocalDataManager(apiType: (self?.issueApiType)!)
+        }
+      }).disposed(by: bag)
+    
     LocalDataManager.shared.provider()
       .asDriver(onErrorJustReturn: [])
       .drive(repoList)

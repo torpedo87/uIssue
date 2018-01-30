@@ -9,9 +9,20 @@
 import Foundation
 import RxSwift
 
-class IssueService {
+protocol IssueServiceRepresentable {
+  static var currentPage: Variable<Int> { get }
+  static func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]>
+  static func createIssue(title: String, comment: String, label: [IssueService.Label], repo: Repository) -> Observable<Issue>
+  static func editIssue(title: String, comment: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
+  static func fetchComments(issue: Issue) -> Observable<[Comment]>
+  static func createComment(issue: Issue, commentBody: String) -> Observable<Comment>
+  static func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment>
+  static func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool>
+}
+
+class IssueService: IssueServiceRepresentable {
   
-  static var currentPage = Variable<Int>(1)
+  static var currentPage: Variable<Int> = Variable<Int>(1)
   static var lastPage = Variable<Int>(-1)
   private static var tempIssueArr = [Issue]()
   

@@ -18,8 +18,10 @@ class CreateIssueViewViewModel {
   let validate: Driver<Bool>
   private var selectedRepo: Repository!
   private var repoIndex: Int!
+  let apiType: IssueServiceRepresentable.Type
   
-  init(repo: Repository, repoIndex: Int) {
+  init(repo: Repository, repoIndex: Int, apiType: IssueServiceRepresentable.Type = IssueService.self) {
+    self.apiType = apiType
     self.repoIndex = repoIndex
     selectedRepo = repo
     validate = titleInput.asObservable()
@@ -34,7 +36,7 @@ class CreateIssueViewViewModel {
   
   //이슈생성 api요청 성공하면 로컬 변경하기
   func createIssue(title: String, newComment: String) -> Observable<Bool> {
-    return IssueService.createIssue(title: title, comment: newComment, label: [.enhancement], repo: selectedRepo)
+    return apiType.createIssue(title: title, comment: newComment, label: [.enhancement], repo: selectedRepo)
       .map({ [weak self] (newIssue) -> Bool in
         if newIssue.id != -1 {
           LocalDataManager.shared.createIssue(newIssue: newIssue, repoIndex: (self?.repoIndex)!)

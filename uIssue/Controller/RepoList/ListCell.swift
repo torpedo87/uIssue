@@ -47,5 +47,6 @@ class ListCell: UITableViewCell {
   
   func configureCell(viewModel: IssueListViewViewModel, index: Int) {
     titleLabel.text = viewModel.issueList.value[index].title
+    countLabel.text = "# \(viewModel.issueList.value[index].number)"
   }
 }

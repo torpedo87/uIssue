@@ -10,7 +10,14 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class AuthService {
+//for test
+protocol AuthServiceRepresentable {
+  static var status: Driver<AuthService.Status> { get }
+  static func requestToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
+  static func removeToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
+}
+
+class AuthService: AuthServiceRepresentable {
   
   enum Errors: Error {
     case requestFail

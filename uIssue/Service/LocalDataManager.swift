@@ -11,14 +11,16 @@ import RxSwift
 import RxCocoa
 
 class LocalDataManager {
+  let apiType: IssueServiceRepresentable.Type
   static let shared: LocalDataManager = LocalDataManager()
   
   //local
   private let resultProvider = Variable<[Repository]>([])
   private let bag = DisposeBag()
   
-  init() {
-    APIDataManager.getAllData()
+  init(apiType: IssueServiceRepresentable.Type = IssueService.self) {
+    self.apiType = apiType
+    IssueListFetcher(apiType: apiType).getAllData()
       .map({ (repoList) -> [Repository] in
         return repoList.sorted(by: { $0.created_at > $1.created_at })
       })
