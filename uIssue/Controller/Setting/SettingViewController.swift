@@ -14,8 +14,7 @@ class SettingViewController: UIViewController {
   
   private let bag = DisposeBag()
   private var viewModel: SettingViewViewModel!
-  private var didSetupConstraints = false
-  lazy var logoutBtn: UIButton = {
+  private lazy var logoutBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Logout", for: UIControlState.normal)
     btn.isEnabled = false
@@ -52,7 +51,6 @@ class SettingViewController: UIViewController {
     
     setupView()
     bindUI()
-    view.setNeedsUpdateConstraints()
   }
   
   func setupView() {
@@ -62,33 +60,23 @@ class SettingViewController: UIViewController {
     view.addSubview(passWordTextField)
     view.addSubview(logoutBtn)
     
-  }
-  
-  override func updateViewConstraints() {
-    if !didSetupConstraints {
-      
-      logoutBtn.snp.makeConstraints({ (make) in
-        make.right.bottom.equalToSuperview().offset(-10)
-        make.height.equalTo(50)
-        make.width.equalTo(100)
-      })
-      
-      idTextField.snp.makeConstraints({ (make) in
-        make.center.equalToSuperview()
-        make.width.equalTo(200)
-        make.height.equalTo(50)
-      })
-      
-      passWordTextField.snp.makeConstraints({ (make) in
-        make.centerX.equalToSuperview()
-        make.top.equalTo(idTextField.snp.bottom).offset(10)
-        make.width.height.equalTo(idTextField)
-      })
-      
-      didSetupConstraints = true
-    }
+    logoutBtn.snp.makeConstraints({ (make) in
+      make.right.bottom.equalToSuperview().offset(-10)
+      make.height.equalTo(50)
+      make.width.equalTo(100)
+    })
     
-    super.updateViewConstraints()
+    idTextField.snp.makeConstraints({ (make) in
+      make.center.equalToSuperview()
+      make.width.equalTo(200)
+      make.height.equalTo(50)
+    })
+    
+    passWordTextField.snp.makeConstraints({ (make) in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(idTextField.snp.bottom).offset(10)
+      make.width.height.equalTo(idTextField)
+    })
   }
   
   func bindUI() {
@@ -109,15 +97,14 @@ class SettingViewController: UIViewController {
     
     logoutBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<UserNetworkManager.Status> in
+      .flatMap { [weak self] _ -> Observable<AuthService.Status> in
         (self?.viewModel.requestLogout(id: (self?.idTextField.text)!,
                                        password: (self?.passWordTextField.text)!))!
       }
-      .asDriver(onErrorJustReturn: UserNetworkManager.Status.unAuthorized("logout error"))
+      .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("logout error"))
       .drive(onNext: { status in
         switch status {
-        case .authorized: Navigator.shared.unwindTo(target:
-          LoginViewController.createWith(viewModel: LoginViewViewModel()))
+        case .authorized: Navigator.shared.unwindTo(target: SplashViewController())
         case .unAuthorized(let value): print(value)
         }
       })

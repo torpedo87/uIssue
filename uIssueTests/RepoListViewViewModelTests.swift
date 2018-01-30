@@ -29,25 +29,4 @@ class RepoListViewViewModelTests: XCTestCase {
     super.tearDown()
   }
   
-  func test_whenAccountAvailable_updatesAccountStatus() {
-    let accountSubject = PublishSubject<UserNetworkManager.Status>()
-    
-    let loggedIn = viewModel.loggedIn.asObservable().subscribeOn(scheduler).materialize()
-    
-    accountSubject.onNext(.authorized)
-    accountSubject.onNext(.unAuthorized)
-    accountSubject.onCompleted()
-    
-    do {
-      let emitted = try loggedIn.take(3).toBlocking(timeout: 1).toArray()
-      XCTAssertEqual(emitted[0].element, UserNetworkManager.Status.authorized)
-      XCTAssertEqual(emitted[1].element, UserNetworkManager.Status.unAuthorized)
-      XCTAssertTrue(emitted[2].isCompleted)
-    } catch {
-      print(error)
-      XCTFail()
-    }
-    
-  }
-  
 }

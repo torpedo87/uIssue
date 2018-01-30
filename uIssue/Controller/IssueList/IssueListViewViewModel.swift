@@ -14,34 +14,34 @@ class IssueListViewViewModel {
   private let bag = DisposeBag()
   
   //input
-  var selectedRepo: Repository!
+  let selectedRepo: Repository!
+  let repoIndex: Int!
   
   //output
   let issueList = Variable<[Issue]>([])
-  var loggedIn: Driver<UserNetworkManager.Status>
   
-  init(repo: Repository) {
+  init(repo: Repository, repoIndex: Int) {
+    self.repoIndex = repoIndex
     selectedRepo = repo
-    loggedIn = UserNetworkManager.status
     bindOutput()
   }
   
   func bindOutput() {
     
-    loggedIn.asObservable()
-      .flatMap({ [weak self] (status) -> Observable<[Issue]> in
-        switch status {
-        case .authorized:
-          return IssueDataManager.fetchIssueListForRepo(repo: (self?.selectedRepo)!,
-                                                        sort: IssueDataManager.Sort.created,
-                                                        state: IssueDataManager.State.open)
-        default: return Observable.just([Issue]())
-        }
-        
+    LocalDataManager.shared.provider()
+      .asDriver(onErrorJustReturn: [])
+      .map { [weak self] (repoList) in
+        repoList.filter { $0.id == self?.selectedRepo.id }
+      }.map { $0.first! }
+      .map { Array($0.issuesDic!.values) }
+      .map({ (issueArr) -> [Issue] in
+        return issueArr.sorted(by: { $0.created_at > $1.created_at })
       })
-      .bind(to: issueList)
+      .drive(issueList)
       .disposed(by: bag)
   }
+  
+  
   
 }
 

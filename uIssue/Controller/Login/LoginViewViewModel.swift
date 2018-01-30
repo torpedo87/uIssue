@@ -47,8 +47,8 @@ class LoginViewViewModel {
     
   }
   
-  func requestLogin(id: String, password: String) -> Observable<UserNetworkManager.Status> {
-    return UserNetworkManager.requestToken(userId: id, userPassword: password)
+  func requestLogin(id: String, password: String) -> Observable<AuthService.Status> {
+    return AuthService.requestToken(userId: id, userPassword: password)
   }
   
 }

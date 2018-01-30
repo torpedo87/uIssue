@@ -13,10 +13,10 @@ import RxCocoa
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: RepoListViewViewModel!
-  private var didSetupConstraints = false
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
+    view.rowHeight = 50
     return view
   }()
   
@@ -26,6 +26,13 @@ class RepoListViewController: UIViewController {
                                target: self,
                                action: nil)
     return item
+  }()
+  
+  private lazy var activityIndicator: UIActivityIndicatorView = {
+    let spinner = UIActivityIndicatorView()
+    spinner.color = UIColor.blue
+    spinner.isHidden = false
+    return spinner
   }()
   
   static func createWith(viewModel: RepoListViewViewModel) -> RepoListViewController {
@@ -40,7 +47,6 @@ class RepoListViewController: UIViewController {
     setupView()
     bindUI()
     bindTableView()
-    view.setNeedsUpdateConstraints()
   }
   
   func setupView() {
@@ -48,12 +54,24 @@ class RepoListViewController: UIViewController {
     navigationItem.rightBarButtonItem = settingBarButtonItem
     view.backgroundColor = UIColor.white
     view.addSubview(tableView)
+    view.addSubview(activityIndicator)
+    
+    tableView.snp.makeConstraints({ (make) in
+      make.left.right.bottom.equalToSuperview()
+      make.top.equalToSuperview().offset(50)
+    })
+    
+    activityIndicator.snp.makeConstraints { (make) in
+      make.width.height.equalTo(100)
+      make.center.equalToSuperview()
+    }
   }
   
   func bindUI() {
-    viewModel.repoList.asDriver()
-      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
-      .disposed(by: bag)
+    viewModel.running.asDriver()
+      .skip(1)
+      .drive(activityIndicator.rx.isAnimating)
+      .disposed(by:bag)
     
     settingBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
@@ -66,6 +84,10 @@ class RepoListViewController: UIViewController {
   }
   
   func bindTableView() {
+    viewModel.repoList.asDriver()
+      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .disposed(by: bag)
+    
     //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {
@@ -77,28 +99,14 @@ class RepoListViewController: UIViewController {
     .disposed(by: bag)
     
     //delegate
-    tableView.rx
-      .itemSelected
+    tableView.rx.itemSelected
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedRepo = self?.viewModel.repoList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueList(selectedRepo!), sender: self!)
+        Navigator.shared.show(destination: .issueList(selectedRepo!, indexPath.row), sender: self!)
       })
       .disposed(by: bag)
-  }
-  
-  override func updateViewConstraints() {
-    if !didSetupConstraints {
-      
-      tableView.snp.makeConstraints({ (make) in
-        make.left.right.bottom.equalToSuperview()
-        make.top.equalToSuperview().offset(50)
-      })
-      
-      didSetupConstraints = true
-    }
-    
-    super.updateViewConstraints()
+
   }
   
 }
