@@ -39,6 +39,7 @@ class TestAPIMock: AuthServiceRepresentable, IssueServiceRepresentable {
   var currentPage: Variable<Int> = Variable<Int>(1)
   
   func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]> {
+    print("======fetchAllIssue---------")
     lastMethodCall = #function
     return issueArrObjects.asObservable()
   }

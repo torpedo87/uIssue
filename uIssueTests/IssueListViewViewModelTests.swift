@@ -15,9 +15,6 @@ import RxBlocking
 
 class IssueListViewViewModelTests: XCTestCase {
   
-  var viewModel: IssueListViewViewModel!
-  var scheduler: ConcurrentDispatchQueueScheduler!
-  
   private func createViewModel(testRepo: Repository, repoIndex: Int) -> IssueListViewViewModel {
     return IssueListViewViewModel(repo: testRepo, repoIndex: repoIndex)
   }
@@ -32,5 +29,7 @@ class IssueListViewViewModelTests: XCTestCase {
     super.tearDown()
   }
   
-  
+  func test_fetchIssueList() {
+    
+  }
 }

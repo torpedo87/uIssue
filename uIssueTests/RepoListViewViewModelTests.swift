@@ -21,21 +21,21 @@ class RepoListViewViewModelTests: XCTestCase {
   }
   
   func test_fetchRepoListWhenStatusIsAuthorized() {
-//    TestAPIMock.shared.reset()
-//
-//    let statusSubject = PublishSubject<AuthService.Status>()
-//    let viewModel = createViewModel(issueApi: TestAPIMock(), status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
-//    let repoList = viewModel.repoList.asObservable()
-//
-//    DispatchQueue.main.async {
-//      statusSubject.onNext(.authorized)
-//      TestAPIMock.shared.issueArrObjects.onNext(TestData.issueArr)
-//    }
-//
-//    let emitted = try! repoList.take(2).toBlocking(timeout: 3).toArray()
-//    XCTAssertNil(emitted[0])
-//    XCTAssertEqual(emitted[1][0].name, "name")
-//    XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "fetchAllIssues(filter:, state:, sort:, page:)")
+    TestAPIMock.shared.reset()
+
+    let statusSubject = PublishSubject<AuthService.Status>()
+    let viewModel = createViewModel(issueApi: TestAPIMock.shared, status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
+    let repoList = viewModel.repoList.asObservable()
+
+    DispatchQueue.main.async {
+      statusSubject.onNext(.authorized)
+      TestAPIMock.shared.issueArrObjects.onNext(TestData.issueArr)
+    }
+
+    let emitted = try! repoList.take(2).toBlocking(timeout: 3).toArray()
+    XCTAssertEqual(emitted[0], [])
+    XCTAssertEqual(emitted[1][0].name, "name")
+    XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "fetchAllIssues(filter:state:sort:page:)")
   }
   
 }

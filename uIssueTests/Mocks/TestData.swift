@@ -15,7 +15,6 @@ import RxBlocking
 @testable import uIssue
 
 class TestData {
-  static var issueArr: [Issue] {
-    return [Issue.test]
-  }
+  static var issueArr: [Issue] = [Issue.test, Issue.test, Issue.test]
+  
 }

@@ -100,11 +100,11 @@ class CommentBox: UIView {
     commentTextView.rx.text.orEmpty.asDriver()
       .drive(onNext: { [weak self] text in
         if text.isEmpty {
-          self?.cancelButton.isUserInteractionEnabled = false
-          self?.saveButton.isUserInteractionEnabled = false
+          self?.cancelButton.isEnabled = false
+          self?.saveButton.isEnabled = false
         } else {
-          self?.cancelButton.isUserInteractionEnabled = true
-          self?.saveButton.isUserInteractionEnabled = true
+          self?.cancelButton.isEnabled = true
+          self?.saveButton.isEnabled = true
         }
       })
       .disposed(by: bag)
