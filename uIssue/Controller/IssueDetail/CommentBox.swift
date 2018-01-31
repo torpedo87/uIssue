@@ -114,10 +114,10 @@ class CommentBox: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
-        if let issue = self?.issue {
-          LocalDataManager.shared.editIssue(newIssue: issue, repoIndex: (self?.viewModel.repoIndex)!)
+        if let _ = self?.issue {
+          self?.viewModel.cancelEditIssue()
         } else {
-          LocalDataManager.shared.editComment(repoIndex: (self?.viewModel.repoIndex)!, issue: (self?.viewModel.selectedIssue)!, newComment: (self?.comment)!)
+          self?.viewModel.cancelEditComment(newComment: (self?.comment)!)
         }
         self?.mode.value = .normal
       })

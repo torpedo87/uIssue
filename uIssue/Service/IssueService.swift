@@ -10,21 +10,21 @@ import Foundation
 import RxSwift
 
 protocol IssueServiceRepresentable {
-  static var currentPage: Variable<Int> { get }
-  static func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]>
-  static func createIssue(title: String, comment: String, label: [IssueService.Label], repo: Repository) -> Observable<Issue>
-  static func editIssue(title: String, comment: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
-  static func fetchComments(issue: Issue) -> Observable<[Comment]>
-  static func createComment(issue: Issue, commentBody: String) -> Observable<Comment>
-  static func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment>
-  static func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool>
+  var currentPage: Variable<Int> { get }
+  func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]>
+  func createIssue(title: String, comment: String, label: [IssueService.Label], repo: Repository) -> Observable<Issue>
+  func editIssue(title: String, comment: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
+  func fetchComments(issue: Issue) -> Observable<[Comment]>
+  func createComment(issue: Issue, commentBody: String) -> Observable<Comment>
+  func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment>
+  func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool>
 }
 
 class IssueService: IssueServiceRepresentable {
   
-  static var currentPage: Variable<Int> = Variable<Int>(1)
-  static var lastPage = Variable<Int>(-1)
-  private static var tempIssueArr = [Issue]()
+  var currentPage: Variable<Int> = Variable<Int>(1)
+  var lastPage = Variable<Int>(-1)
+  private var tempIssueArr = [Issue]()
   
   enum Filter: String {
     case assigned
@@ -58,7 +58,7 @@ class IssueService: IssueServiceRepresentable {
     case wontfix
   }
   
-  static func fetchAllIssues(filter: Filter, state: State, sort: Sort, page: Int) -> Observable<[Issue]> {
+  func fetchAllIssues(filter: Filter, state: State, sort: Sort, page: Int) -> Observable<[Issue]> {
     
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     
@@ -92,21 +92,20 @@ class IssueService: IssueServiceRepresentable {
     return request.flatMap{
       URLSession.shared.rx.response(request: $0)
       }
-      .map({ (response, data) -> [Issue] in
-        if let link = response.allHeaderFields["Link"] as? String, lastPage.value == -1 {
-          lastPage.value = getLastPageFromLinkHeader(link: link)
+      .map({ [weak self] (response, data) -> [Issue] in
+        if let link = response.allHeaderFields["Link"] as? String, self?.lastPage.value == -1 {
+          self?.lastPage.value = (self?.getLastPageFromLinkHeader(link: link))!
         }
-        print("====last=====\(lastPage.value), ========\(currentPage.value)")
         if 200 ..< 300 ~= response.statusCode {
           let issues = try! JSONDecoder().decode([Issue].self, from: data)
           for issue in issues {
-            tempIssueArr.append(issue)
+            self?.tempIssueArr.append(issue)
           }
-          if currentPage.value < lastPage.value {
-            currentPage.value += 1
+          if (self?.currentPage.value)! < (self?.lastPage.value)! {
+            self?.currentPage.value += 1
             return []
           }
-          return tempIssueArr
+          return (self?.tempIssueArr)!
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
         } else {
@@ -118,7 +117,7 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  static func createIssue(title: String, comment: String, label: [Label], repo: Repository) -> Observable<Issue> {
+  func createIssue(title: String, comment: String, label: [Label], repo: Repository) -> Observable<Issue> {
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else { fatalError() }
     
@@ -166,7 +165,7 @@ class IssueService: IssueServiceRepresentable {
     
   }
   
-  static func editIssue(title: String, comment: String, label: [Label], issue: Issue, state: State, repo: Repository) -> Observable<Issue> {
+  func editIssue(title: String, comment: String, label: [Label], issue: Issue, state: State, repo: Repository) -> Observable<Issue> {
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     let repoName = repo.name
     guard let url = URL(string: "https://api.github.com/repos/\(issue.user.login)/\(repoName)/issues/\(issue.number)") else { fatalError() }
@@ -213,7 +212,7 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  static func fetchComments(issue: Issue) -> Observable<[Comment]> {
+  func fetchComments(issue: Issue) -> Observable<[Comment]> {
     
     guard let urlComponents = URLComponents(string: issue.comments_url) else { fatalError() }
     
@@ -249,7 +248,7 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  static func createComment(issue: Issue, commentBody: String) -> Observable<Comment> {
+  func createComment(issue: Issue, commentBody: String) -> Observable<Comment> {
     guard let repo = issue.repository else { fatalError() }
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/\(issue.number)/comments") else { fatalError() }
@@ -296,7 +295,7 @@ class IssueService: IssueServiceRepresentable {
   
   
   
-  static func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment> {
+  func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment> {
     guard let repo = issue.repository else { fatalError() }
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/comments/\(comment.id)") else { fatalError() }
@@ -341,7 +340,7 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  static func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool> {
+  func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool> {
     guard let repo = issue.repository else { fatalError() }
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues/comments/\(comment.id)") else { fatalError() }
@@ -379,7 +378,7 @@ class IssueService: IssueServiceRepresentable {
   }
   
   //helper
-  static func getLastPageFromLinkHeader(link: String) -> Int {
+  func getLastPageFromLinkHeader(link: String) -> Int {
     let temp = link.components(separatedBy: "=")[7]
     let lastPage = Int((temp.components(separatedBy: "&")[0]))!
     return lastPage

@@ -16,29 +16,32 @@ class RepoListViewViewModel {
   //output
   let repoList = Variable<[Repository]>([])
   let running = Variable<Bool>(true)
-  let authApiType: AuthServiceRepresentable.Type
-  let issueApiType: IssueServiceRepresentable.Type
+  let issueApi: IssueServiceRepresentable
+  let statusDriver: Driver<AuthService.Status>
   
-  init(authApiType: AuthServiceRepresentable.Type = AuthService.self, issueApiType: IssueServiceRepresentable.Type = IssueService.self) {
-    self.authApiType = authApiType
-    self.issueApiType = issueApiType
+  init(issueApi: IssueServiceRepresentable = IssueService(),
+       statusDriver: Driver<AuthService.Status> = AuthService().status) {
+    self.statusDriver = statusDriver
+    self.issueApi = issueApi
     bindOutput()
   }
   
   func bindOutput() {
-    authApiType.status.asObservable()
-      .subscribe(onNext: { [weak self] status in
-        if status == .authorized {
-          LocalDataManager(apiType: (self?.issueApiType)!)
-        }
-      }).disposed(by: bag)
     
-    LocalDataManager.shared.provider()
+    statusDriver
+      .drive(onNext: { [weak self] status in
+        if status == .authorized {
+          LocalDataManager.shared.bindOutput(issueApi: (self?.issueApi)!)
+        }
+      })
+      .disposed(by: bag)
+    
+    LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [])
       .drive(repoList)
       .disposed(by: bag)
     
-    LocalDataManager.shared.provider()
+    LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [])
       .map { _ in false }
       .drive(running)

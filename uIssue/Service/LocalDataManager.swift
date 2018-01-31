@@ -11,16 +11,15 @@ import RxSwift
 import RxCocoa
 
 class LocalDataManager {
-  let apiType: IssueServiceRepresentable.Type
-  static let shared: LocalDataManager = LocalDataManager()
+  
+  static let shared = LocalDataManager()
   
   //local
   private let resultProvider = Variable<[Repository]>([])
   private let bag = DisposeBag()
   
-  init(apiType: IssueServiceRepresentable.Type = IssueService.self) {
-    self.apiType = apiType
-    IssueListFetcher(apiType: apiType).getAllData()
+  func bindOutput(issueApi: IssueServiceRepresentable) {
+    IssueListFetcher().getAllData(issueApi: issueApi)
       .map({ (repoList) -> [Repository] in
         return repoList.sorted(by: { $0.created_at > $1.created_at })
       })
@@ -28,7 +27,7 @@ class LocalDataManager {
       .disposed(by: bag)
   }
   
-  func provider() -> Observable<[Repository]> {
+  func getProvider() -> Observable<[Repository]> {
     return resultProvider.asObservable()
   }
   
@@ -57,7 +56,9 @@ class LocalDataManager {
   }
   
   func editComment(repoIndex: Int, issue: Issue, newComment: Comment) {
-    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.updateValue(newComment, forKey: newComment.id)
+    if newComment.body != "" {
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.updateValue(newComment, forKey: newComment.id)
+    }
   }
   
   func deleteComment(repoIndex: Int, issue: Issue, existingComment: Comment) {

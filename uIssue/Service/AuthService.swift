@@ -12,9 +12,9 @@ import RxCocoa
 
 //for test
 protocol AuthServiceRepresentable {
-  static var status: Driver<AuthService.Status> { get }
-  static func requestToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
-  static func removeToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
+  var status: Driver<AuthService.Status> { get }
+  func requestToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
+  func removeToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
 }
 
 class AuthService: AuthServiceRepresentable {
@@ -39,7 +39,7 @@ class AuthService: AuthServiceRepresentable {
     }
   }
   
-  static var status: Driver<Status> {
+  var status: Driver<Status> {
     return Observable.create { observer in
       if let _ = UserDefaults.loadToken() {
         observer.onNext(.authorized)
@@ -50,7 +50,7 @@ class AuthService: AuthServiceRepresentable {
     }.asDriver(onErrorJustReturn: Status.unAuthorized("unAuthorized"))
   }
   
-  static func requestToken(userId: String, userPassword: String) -> Observable<Status> {
+  func requestToken(userId: String, userPassword: String) -> Observable<Status> {
     
     guard let url = URL(string: "https://api.github.com/authorizations") else { fatalError() }
     
@@ -113,7 +113,7 @@ class AuthService: AuthServiceRepresentable {
     
   }
   
-  static func removeToken(userId: String, userPassword: String) -> Observable<Status> {
+  func removeToken(userId: String, userPassword: String) -> Observable<Status> {
     guard let tokenId = UserDefaults.loadToken()?.id else { fatalError() }
     guard let url = URL(string: "https://api.github.com/authorizations/\(tokenId)") else { fatalError() }
     

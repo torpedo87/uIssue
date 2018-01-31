@@ -48,7 +48,7 @@ class SettingViewViewModel {
   }
   
   func requestLogout(id: String, password: String) -> Observable<AuthService.Status> {
-    return AuthService.removeToken(userId: id, userPassword: password)
+    return AuthService().removeToken(userId: id, userPassword: password)
   }
   
 }

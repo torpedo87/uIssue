@@ -63,7 +63,7 @@ class LoginViewViewModelTests: XCTestCase {
         XCTFail(error.localizedDescription)
       }
       
-      let logoutResult = AuthService.removeToken(userId: userId, userPassword: userPassword).subscribeOn(scheduler)
+      let logoutResult = AuthService().removeToken(userId: userId, userPassword: userPassword).subscribeOn(scheduler)
       do {
         guard let result = try logoutResult.toBlocking(timeout: 5.0).first() else { return }
         XCTAssertTrue(result == AuthService.Status.authorized)
@@ -81,7 +81,7 @@ class LoginViewViewModelTests: XCTestCase {
         XCTFail(error.localizedDescription)
       }
       
-      let logoutResult = AuthService.removeToken(userId: userId, userPassword: userPassword).subscribeOn(scheduler)
+      let logoutResult = AuthService().removeToken(userId: userId, userPassword: userPassword).subscribeOn(scheduler)
       do {
         guard let result = try logoutResult.toBlocking(timeout: 5.0).first() else { return }
         XCTAssertTrue(result == AuthService.Status.authorized)

@@ -15,37 +15,27 @@ import RxBlocking
 
 class RepoListViewViewModelTests: XCTestCase {
   
-  var viewModel: RepoListViewViewModel!
-  var scheduler: ConcurrentDispatchQueueScheduler!
   
-  private func createViewModel() -> RepoListViewViewModel {
-    return RepoListViewViewModel(authApiType: TestAPIMock.self, issueApiType: TestAPIMock.self)
-  }
-  
-  override func setUp() {
-    super.setUp()
-    viewModel = createViewModel()
-    scheduler = ConcurrentDispatchQueueScheduler(qos: .default)
-  }
-  
-  override func tearDown() {
-    // Put teardown code here. This method is called after the invocation of each test method in the class.
-    super.tearDown()
+  private func createViewModel(issueApi: IssueServiceRepresentable, status: Driver<AuthService.Status>) -> RepoListViewViewModel {
+    return RepoListViewViewModel(issueApi: issueApi, statusDriver: status)
   }
   
   func test_fetchRepoListWhenStatusIsAuthorized() {
-//    let statusSubject = PublishSubject<AuthService.Status>()
-//    XCTAssertNil(viewModel.repoList.value)
+//    TestAPIMock.shared.reset()
 //
+//    let statusSubject = PublishSubject<AuthService.Status>()
+//    let viewModel = createViewModel(issueApi: TestAPIMock(), status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
 //    let repoList = viewModel.repoList.asObservable()
 //
 //    DispatchQueue.main.async {
 //      statusSubject.onNext(.authorized)
+//      TestAPIMock.shared.issueArrObjects.onNext(TestData.issueArr)
 //    }
 //
 //    let emitted = try! repoList.take(2).toBlocking(timeout: 3).toArray()
 //    XCTAssertNil(emitted[0])
-//    XCTAssertNotNil(emitted[1][0].issuesDic)
+//    XCTAssertEqual(emitted[1][0].name, "name")
+//    XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "fetchAllIssues(filter:, state:, sort:, page:)")
   }
   
 }

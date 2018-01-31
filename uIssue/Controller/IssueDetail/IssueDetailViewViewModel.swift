@@ -16,20 +16,20 @@ class IssueDetailViewViewModel {
   private let issueIndex: Int!
   let repoIndex: Int!
   let issueDetail = Variable<Issue>(Issue())
-  let apiType: IssueServiceRepresentable.Type
+  let commentList = Variable<[Comment]>([])
+  let issueApi: IssueServiceRepresentable
   
-  init(issue: Issue, issueIndex: Int, repoIndex: Int, apiType: IssueServiceRepresentable.Type = IssueService.self) {
-    self.apiType = apiType
+  init(issue: Issue, issueIndex: Int, repoIndex: Int, issueApi: IssueServiceRepresentable = IssueService()) {
+    self.issueApi = issueApi
     self.repoIndex = repoIndex
     self.issueIndex = issueIndex
     selectedIssue = issue
     requestFetchComments()
     bindOutput()
-    
   }
   
   func bindOutput() {
-    LocalDataManager.shared.provider()
+    LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [])
       .map { [weak self] (repoList) -> Repository in
         return repoList[(self?.repoIndex)!]
@@ -42,12 +42,11 @@ class IssueDetailViewViewModel {
         return issueArr[(self?.issueIndex)!]
     }.drive(issueDetail)
     .disposed(by: bag)
-    
   }
   
   //코멘트 요청 api 성공시 로컬 변경하기
   func requestFetchComments() {
-    apiType.fetchComments(issue: selectedIssue)
+    issueApi.fetchComments(issue: selectedIssue)
       .asDriver(onErrorJustReturn: [])
       .drive(onNext: { [weak self] (comments) in
         LocalDataManager.shared.fetchComments(repoIndex: (self?.repoIndex)!, issue: (self?.selectedIssue)!, comments: comments)
@@ -59,7 +58,7 @@ class IssueDetailViewViewModel {
   func editIssue(state: IssueService.State, newTitleText: String, newCommentText: String,
                  label: [IssueService.Label]) -> Observable<Bool> {
     
-    return apiType.editIssue(title: newTitleText, comment: newCommentText,
+    return issueApi.editIssue(title: newTitleText, comment: newCommentText,
                                                   label: [.enhancement], issue: selectedIssue,
                                                   state: state,
                                                   repo: LocalDataManager.shared.getRepo(index: repoIndex))
@@ -84,8 +83,8 @@ class IssueDetailViewViewModel {
   //코멘트 생성 api 요청 성공시 로컬 변경하기
   func createComment(issue: Issue, newCommentBody: String, repoIndex: Int) -> Observable<Bool> {
     
-    return apiType.createComment(issue: issue, commentBody: newCommentBody)
-      .map({ (newComment) -> Bool in
+    return issueApi.createComment(issue: issue, commentBody: newCommentBody)
+      .map({ [weak self] (newComment) -> Bool in
         if newComment.id != -1 {
           LocalDataManager.shared.createComment(repoIndex: repoIndex, issue: issue, newComment: newComment)
           return true
@@ -96,8 +95,8 @@ class IssueDetailViewViewModel {
   
   //코멘트 편집 api요청 성공하면 로컬 변경하기
   func editComment(issue: Issue, existingComment: Comment, repoIndex: Int, newCommentText: String) -> Observable<Bool> {
-    return apiType.editComment(issue: issue, comment: existingComment, newCommentText: newCommentText)
-      .map({ (newComment) -> Bool in
+    return issueApi.editComment(issue: issue, comment: existingComment, newCommentText: newCommentText)
+      .map({ [weak self] (newComment) -> Bool in
         if newComment.id != -1 {
           LocalDataManager.shared.editComment(repoIndex: repoIndex, issue: issue, newComment: newComment)
           return true
@@ -108,8 +107,8 @@ class IssueDetailViewViewModel {
   }
   
   func deleteComment(issue: Issue, existingComment: Comment, repoIndex: Int) -> Observable<Bool> {
-    return apiType.deleteComment(issue: issue, comment: existingComment)
-      .map({ (success) -> Bool in
+    return issueApi.deleteComment(issue: issue, comment: existingComment)
+      .map({ [weak self] (success) -> Bool in
         if success {
           LocalDataManager.shared.deleteComment(repoIndex: repoIndex, issue: issue, existingComment: existingComment)
           return true
@@ -119,4 +118,11 @@ class IssueDetailViewViewModel {
       })
   }
   
+  func cancelEditIssue() {
+    LocalDataManager.shared.editIssue(newIssue: selectedIssue, repoIndex: repoIndex)
+  }
+  
+  func cancelEditComment(newComment: Comment) {
+    LocalDataManager.shared.editComment(repoIndex: repoIndex, issue: selectedIssue, newComment: newComment)
+  }
 }

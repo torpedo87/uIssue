@@ -28,7 +28,7 @@ class IssueListViewViewModel {
   
   func bindOutput() {
     
-    LocalDataManager.shared.provider()
+    LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [])
       .map { [weak self] (repoList) in
         repoList.filter { $0.id == self?.selectedRepo.id }

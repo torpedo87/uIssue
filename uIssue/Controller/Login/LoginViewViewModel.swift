@@ -14,13 +14,14 @@ class LoginViewViewModel {
   //input
   let idTextInput = Variable<String>("")
   let pwdTextInput = Variable<String>("")
-  let apiType: AuthServiceRepresentable.Type
+  let authApi: AuthServiceRepresentable
   
   //output
   let validate: Driver<Bool>
   
-  init(apiType: AuthServiceRepresentable.Type = AuthService.self) {
-    self.apiType = apiType
+  //api 의존성 주입을 위해 프로토콜 사용
+  init(authApi: AuthServiceRepresentable = AuthService()) {
+    self.authApi = authApi
     let isIdValid = idTextInput.asObservable()
       .map { (text) -> Bool in
         if text.isEmpty {
@@ -49,7 +50,7 @@ class LoginViewViewModel {
   }
   
   func requestLogin(id: String, password: String) -> Observable<AuthService.Status> {
-    return apiType.requestToken(userId: id, userPassword: password)
+    return authApi.requestToken(userId: id, userPassword: password)
   }
   
 }
