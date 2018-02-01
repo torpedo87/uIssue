@@ -141,3 +141,9 @@ extension User: Hashable {
     return id.hashValue
   }
 }
+
+extension Comment: Equatable {
+  static func ==(lhs: Comment, rhs: Comment) -> Bool {
+    return lhs.id == rhs.id
+  }
+}

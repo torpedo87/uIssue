@@ -91,4 +91,81 @@ class IssueDetailViewViewModelTests: XCTestCase {
       XCTFail()
     }
   }
+  
+  func test_editComment_changeLocal() {
+    LocalDataManager.shared.setRepoList(repoList: TestData().repoListWithComment)
+    DispatchQueue.main.async {
+      TestAPIMock.shared.commentObjects.onNext(TestData().editedComment)
+    }
+    let viewModel = createViewModel(issue: Issue.test, issueIndex: 0, repoIndex: 0)
+    let bool = try! viewModel.editComment(issue: Issue.test, existingComment: Comment.test, repoIndex: 0, newCommentText: "edited").toBlocking().first()
+    
+    if bool! {
+      let result = try! LocalDataManager.shared.getProvider().toBlocking().first()
+      XCTAssertEqual(result![0].issuesDic![1]!.commentsDic?[1]?.body, "edited")
+    } else {
+      XCTFail()
+    }
+  }
+  
+  func test_deleteComment_changeLocalWhenAPISucceed() {
+    LocalDataManager.shared.setRepoList(repoList: TestData().repoListWithComment)
+    DispatchQueue.main.async {
+      TestAPIMock.shared.boolObjects.onNext(true)
+    }
+    let viewModel = createViewModel(issue: Issue.test, issueIndex: 0, repoIndex: 0)
+    let bool = try! viewModel.deleteComment(issue: Issue.test, existingComment: Comment.test, repoIndex: 0).toBlocking().first()
+    
+    if bool! {
+      let result = try! LocalDataManager.shared.getProvider().toBlocking().first()
+      XCTAssertNil(result![0].issuesDic![1]!.commentsDic?[1])
+    } else {
+      XCTFail()
+    }
+  }
+  
+  func test_deleteComment_changeLocalWhenAPIFail() {
+    LocalDataManager.shared.setRepoList(repoList: TestData().repoListWithComment)
+    DispatchQueue.main.async {
+      TestAPIMock.shared.boolObjects.onNext(false)
+    }
+    let viewModel = createViewModel(issue: Issue.test, issueIndex: 0, repoIndex: 0)
+    let bool = try! viewModel.deleteComment(issue: Issue.test, existingComment: Comment.test, repoIndex: 0).toBlocking().first()
+    
+    if bool! {
+      XCTFail()
+    } else {
+      let result = try! LocalDataManager.shared.getProvider().toBlocking().first()
+      XCTAssertNotNil(result![0].issuesDic![1]!.commentsDic?[1])
+    }
+  }
+  
+  func test_cancelEditIssue() {
+    LocalDataManager.shared.setRepoList(repoList: TestData().repoListWithComment)
+    
+    let before = try! LocalDataManager.shared.getProvider().toBlocking().first()
+    
+    let viewModel = createViewModel(issue: Issue.test, issueIndex: 0, repoIndex: 0)
+    viewModel.cancelEditIssue()
+    
+    let after = try! LocalDataManager.shared.getProvider().toBlocking().first()
+    
+    XCTAssertEqual(before![0].issuesDic![1], after![0].issuesDic![1])
+    XCTAssertEqual(before![0].issuesDic![1], Issue.test)
+  }
+  
+  func test_cancelEditComment() {
+    LocalDataManager.shared.setRepoList(repoList: TestData().repoListWithComment)
+    
+    let before = try! LocalDataManager.shared.getProvider().toBlocking().first()
+    
+    let viewModel = createViewModel(issue: Issue.test, issueIndex: 0, repoIndex: 0)
+    viewModel.cancelEditComment(newComment: TestData().comment)
+    
+    let after = try! LocalDataManager.shared.getProvider().toBlocking().first()
+    
+    let aComment = before![0].issuesDic![1]?.commentsDic![1]
+    let bComment = after![0].issuesDic![1]?.commentsDic![1]
+    XCTAssertEqual(aComment, bComment)
+  }
 }

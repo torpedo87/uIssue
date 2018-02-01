@@ -51,8 +51,6 @@ class IssueListViewViewModel {
       .disposed(by: bag)
   }
   
-  
-  
 }
 
 
