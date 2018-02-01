@@ -18,12 +18,17 @@
 		48470FA82015F93F003F5FBB /* Navigator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA72015F93F003F5FBB /* Navigator.swift */; };
 		48470FAA20162E21003F5FBB /* SplashViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FA920162E20003F5FBB /* SplashViewController.swift */; };
 		48470FAD2016E616003F5FBB /* userInfo.txt in Resources */ = {isa = PBXBuildFile; fileRef = 48470FAC2016E615003F5FBB /* userInfo.txt */; };
-		48470FB12016FF45003F5FBB /* UserNetworkManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB02016FF45003F5FBB /* UserNetworkManagerTests.swift */; };
 		48470FB42017068D003F5FBB /* CreateIssueViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB32017068D003F5FBB /* CreateIssueViewController.swift */; };
 		48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB52017069E003F5FBB /* CreateIssueViewViewModel.swift */; };
 		48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */; };
 		48470FBB201719BA003F5FBB /* IssueDetailViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */; };
 		48470FBD20184EC8003F5FBB /* LocalDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBC20184EC8003F5FBB /* LocalDataManager.swift */; };
+		48512A13202046DF00ECBF31 /* TestAPIMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A12202046DF00ECBF31 /* TestAPIMock.swift */; };
+		48512A1520204A4100ECBF31 /* LoginViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */; };
+		48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */; };
+		48512A1920204CAA00ECBF31 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1820204CAA00ECBF31 /* TestData.swift */; };
+		48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */; };
+		48512A1F2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
@@ -32,7 +37,7 @@
 		48A3140F1FF3A07B00201F6E /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* AuthService.swift */; };
 		48B83A17200F28BB00F2A490 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A16200F28BB00F2A490 /* Token.swift */; };
 		48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A18200F66FA00F2A490 /* SettingViewController.swift */; };
-		48B96ED12019F7C6003DDF35 /* APIDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B96ED02019F7C6003DDF35 /* APIDataManager.swift */; };
+		48B96ED12019F7C6003DDF35 /* IssueListFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */; };
 		48B96ED3201B156D003DDF35 /* CommentBox.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B96ED2201B156D003DDF35 /* CommentBox.swift */; };
 		48E44ABF1FF4B7C5008F9649 /* RepoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */; };
 		48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC31FF4F12C008F9649 /* Userdefaults.swift */; };
@@ -61,12 +66,17 @@
 		48470FA72015F93F003F5FBB /* Navigator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Navigator.swift; sourceTree = "<group>"; };
 		48470FA920162E20003F5FBB /* SplashViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplashViewController.swift; sourceTree = "<group>"; };
 		48470FAC2016E615003F5FBB /* userInfo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = userInfo.txt; sourceTree = "<group>"; };
-		48470FB02016FF45003F5FBB /* UserNetworkManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserNetworkManagerTests.swift; sourceTree = "<group>"; };
 		48470FB32017068D003F5FBB /* CreateIssueViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewController.swift; sourceTree = "<group>"; };
 		48470FB52017069E003F5FBB /* CreateIssueViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewViewModel.swift; sourceTree = "<group>"; };
 		48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewController.swift; sourceTree = "<group>"; };
 		48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewViewModel.swift; sourceTree = "<group>"; };
 		48470FBC20184EC8003F5FBB /* LocalDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataManager.swift; sourceTree = "<group>"; };
+		48512A12202046DF00ECBF31 /* TestAPIMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAPIMock.swift; sourceTree = "<group>"; };
+		48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModelTests.swift; sourceTree = "<group>"; };
+		48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewViewModelTests.swift; sourceTree = "<group>"; };
+		48512A1820204CAA00ECBF31 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
+		48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewViewModelTests.swift; sourceTree = "<group>"; };
+		48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewViewModelTests.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -79,7 +89,7 @@
 		48A3140E1FF3A07B00201F6E /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
 		48B83A16200F28BB00F2A490 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		48B83A18200F66FA00F2A490 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
-		48B96ED02019F7C6003DDF35 /* APIDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = APIDataManager.swift; sourceTree = "<group>"; };
+		48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListFetcher.swift; sourceTree = "<group>"; };
 		48B96ED2201B156D003DDF35 /* CommentBox.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBox.swift; sourceTree = "<group>"; };
 		48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewController.swift; sourceTree = "<group>"; };
 		48E44AC31FF4F12C008F9649 /* Userdefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Userdefaults.swift; sourceTree = "<group>"; };
@@ -187,6 +197,15 @@
 			path = IssueDetail;
 			sourceTree = "<group>";
 		};
+		48512A112020469F00ECBF31 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				48512A12202046DF00ECBF31 /* TestAPIMock.swift */,
+				48512A1820204CAA00ECBF31 /* TestData.swift */,
+			);
+			path = Mocks;
+			sourceTree = "<group>";
+		};
 		48A313D91FF3956D00201F6E = {
 			isa = PBXGroup;
 			children = (
@@ -223,10 +242,14 @@
 		48A313F91FF3956D00201F6E /* uIssueTests */ = {
 			isa = PBXGroup;
 			children = (
+				48512A112020469F00ECBF31 /* Mocks */,
 				48470FAC2016E615003F5FBB /* userInfo.txt */,
 				48A313FC1FF3956D00201F6E /* Info.plist */,
 				48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */,
-				48470FB02016FF45003F5FBB /* UserNetworkManagerTests.swift */,
+				48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */,
+				48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */,
+				48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */,
+				48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */,
 			);
 			path = uIssueTests;
 			sourceTree = "<group>";
@@ -259,7 +282,7 @@
 			isa = PBXGroup;
 			children = (
 				48470FBC20184EC8003F5FBB /* LocalDataManager.swift */,
-				48B96ED02019F7C6003DDF35 /* APIDataManager.swift */,
+				48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */,
 				48A3140E1FF3A07B00201F6E /* AuthService.swift */,
 				48E44AC71FF50C9B008F9649 /* IssueService.swift */,
 			);
@@ -540,7 +563,7 @@
 				48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
 				48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */,
-				48B96ED12019F7C6003DDF35 /* APIDataManager.swift in Sources */,
+				48B96ED12019F7C6003DDF35 /* IssueListFetcher.swift in Sources */,
 				48E44AC81FF50C9B008F9649 /* IssueService.swift in Sources */,
 				48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */,
 				48B96ED3201B156D003DDF35 /* CommentBox.swift in Sources */,
@@ -560,7 +583,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */,
-				48470FB12016FF45003F5FBB /* UserNetworkManagerTests.swift in Sources */,
+				48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */,
+				48512A13202046DF00ECBF31 /* TestAPIMock.swift in Sources */,
+				48512A1F2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift in Sources */,
+				48512A1920204CAA00ECBF31 /* TestData.swift in Sources */,
+				48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */,
+				48512A1520204A4100ECBF31 /* LoginViewViewModelTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

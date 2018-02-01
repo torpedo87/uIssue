@@ -100,11 +100,11 @@ class CommentBox: UIView {
     commentTextView.rx.text.orEmpty.asDriver()
       .drive(onNext: { [weak self] text in
         if text.isEmpty {
-          self?.cancelButton.isUserInteractionEnabled = false
-          self?.saveButton.isUserInteractionEnabled = false
+          self?.cancelButton.isEnabled = false
+          self?.saveButton.isEnabled = false
         } else {
-          self?.cancelButton.isUserInteractionEnabled = true
-          self?.saveButton.isUserInteractionEnabled = true
+          self?.cancelButton.isEnabled = true
+          self?.saveButton.isEnabled = true
         }
       })
       .disposed(by: bag)
@@ -114,10 +114,10 @@ class CommentBox: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
-        if let issue = self?.issue {
-          LocalDataManager.shared.editIssue(newIssue: issue, repoIndex: (self?.viewModel.repoIndex)!)
+        if let _ = self?.issue {
+          self?.viewModel.cancelEditIssue()
         } else {
-          LocalDataManager.shared.editComment(repoIndex: (self?.viewModel.repoIndex)!, issue: (self?.viewModel.selectedIssue)!, newComment: (self?.comment)!)
+          self?.viewModel.cancelEditComment(newComment: (self?.comment)!)
         }
         self?.mode.value = .normal
       })

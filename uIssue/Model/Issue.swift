@@ -46,6 +46,8 @@ struct Issue: Codable {
       self.commentsDic?[comment.id] = comment
     }
   }
+  
+  static let test = Issue(id: 1, title: "title", body: "body", user: User.test, assignees: [User.test], number: 1, repository: Repository.test, created_at: "1", labels: [IssueLabel.test], state: IssueService.State.open.rawValue, comments_url: "comments_url", commentsDic: nil)
 }
 
 struct Comment: Codable {
@@ -61,6 +63,8 @@ struct Comment: Codable {
     self.created_at = created_at
     self.body = body
   }
+  
+  static let test = Comment(id: 1, user: User.test, created_at: "1", body: "body")
 }
 
 struct IssueLabel: Codable {
@@ -69,6 +73,8 @@ struct IssueLabel: Codable {
   init(name: String = "") {
     self.name = name
   }
+  
+  static let test = IssueLabel(name: "debug")
 }
 
 struct User: Codable {
@@ -83,6 +89,8 @@ struct User: Codable {
     self.id = id
     self.url = url
   }
+  
+  static let test = User(avatar_url: "avatar_url", login: "login", id: 1, url: "url")
 }
 
 struct Repository: Codable {
@@ -99,6 +107,8 @@ struct Repository: Codable {
       self.issuesDic![issue.id] = issue
     }
   }
+  
+  static let test = Repository(id: 1, name: "name", owner: User.test, open_issues: 1, created_at: "1", issuesDic: nil)
 }
 
 extension Issue: Equatable {
@@ -129,5 +139,11 @@ extension User: Equatable {
 extension User: Hashable {
   var hashValue: Int {
     return id.hashValue
+  }
+}
+
+extension Comment: Equatable {
+  static func ==(lhs: Comment, rhs: Comment) -> Bool {
+    return lhs.id == rhs.id
   }
 }

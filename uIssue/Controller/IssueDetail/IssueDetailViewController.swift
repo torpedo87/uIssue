@@ -52,6 +52,7 @@ class IssueDetailViewController: UIViewController {
     super.viewDidLoad()
     setupView()
     bindUI()
+    viewModel.requestFetchComments()
   }
   
   func setupView() {
@@ -94,12 +95,16 @@ class IssueDetailViewController: UIViewController {
         }
       }.disposed(by: bag)
     
+    
     viewModel.issueDetail.asObservable()
       .map({ (issue) -> [Comment] in
         if let commentsDic = issue.commentsDic {
           return Array(commentsDic.values)
         }
         return []
+      })
+      .map({ (commentArr) -> [Comment] in
+        return commentArr.sorted(by: { $0.created_at < $1.created_at })
       })
       .observeOn(MainScheduler.instance)
       .subscribe(onNext: { [weak self] commentArr in

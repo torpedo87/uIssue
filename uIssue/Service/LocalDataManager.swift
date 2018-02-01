@@ -11,14 +11,15 @@ import RxSwift
 import RxCocoa
 
 class LocalDataManager {
-  static let shared: LocalDataManager = LocalDataManager()
+  
+  static let shared = LocalDataManager()
   
   //local
   private let resultProvider = Variable<[Repository]>([])
   private let bag = DisposeBag()
   
-  init() {
-    APIDataManager.getAllData()
+  func bindOutput(issueApi: IssueServiceRepresentable) {
+    IssueListFetcher().getAllData(issueApi: issueApi)
       .map({ (repoList) -> [Repository] in
         return repoList.sorted(by: { $0.created_at > $1.created_at })
       })
@@ -26,7 +27,7 @@ class LocalDataManager {
       .disposed(by: bag)
   }
   
-  func provider() -> Observable<[Repository]> {
+  func getProvider() -> Observable<[Repository]> {
     return resultProvider.asObservable()
   }
   
@@ -35,7 +36,12 @@ class LocalDataManager {
   }
   
   func createIssue(newIssue: Issue, repoIndex: Int) {
-    resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
+    if let _ = resultProvider.value[repoIndex].issuesDic {
+      resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
+    } else {
+      resultProvider.value[repoIndex].issuesDic = [Int:Issue]()
+      resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
+    }
   }
   
   func closeIssue(newIssue: Issue, repoIndex: Int) {
@@ -47,19 +53,47 @@ class LocalDataManager {
   }
   
   func fetchComments(repoIndex: Int, issue: Issue, comments: [Comment]) {
-    resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+    print("------fetchcomment==========")
+    if let _ = resultProvider.value[repoIndex].issuesDic {
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+    } else {
+      resultProvider.value[repoIndex].issuesDic = [Int:Issue]()
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+    }
   }
   
   func createComment(repoIndex: Int, issue: Issue, newComment: Comment) {
-    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+    if let _ = resultProvider.value[repoIndex].issuesDic {
+      if let _ = resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic {
+        resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+      } else {
+        resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic = [Int:Comment]()
+        resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+      }
+    } else {
+      resultProvider.value[repoIndex].issuesDic = [Int:Issue]()
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+    }
+    
   }
   
   func editComment(repoIndex: Int, issue: Issue, newComment: Comment) {
-    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.updateValue(newComment, forKey: newComment.id)
+    if newComment.body != "" {
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.updateValue(newComment, forKey: newComment.id)
+    }
   }
   
   func deleteComment(repoIndex: Int, issue: Issue, existingComment: Comment) {
     resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.removeValue(forKey: existingComment.id)
+  }
+  
+  //for test
+  func setRepoList(repoList: [Repository]) {
+    resultProvider.value = repoList
+  }
+  
+  func removeAll() {
+    resultProvider.value = []
   }
   
 }

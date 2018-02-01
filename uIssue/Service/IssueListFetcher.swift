@@ -1,5 +1,5 @@
 //
-//  APIDataManager.swift
+//  IssueListFetcher.swift
 //  uIssue
 //
 //  Created by junwoo on 2018. 1. 25..
@@ -10,13 +10,13 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class APIDataManager {
+class IssueListFetcher {
   
-  static func getAllData() -> Observable<[Repository]> {
+  func getAllData(issueApi: IssueServiceRepresentable) -> Observable<[Repository]> {
     
-    return IssueService.currentPage.asObservable()
-      .flatMap { (page) in
-        IssueService.fetchAllIssues(filter: .all, state: .open, sort: .created, page: page)
+    return issueApi.currentPage.asObservable()
+      .flatMap { (page) -> Observable<[Issue]> in
+        issueApi.fetchAllIssues(filter: .all, state: .open, sort: .created, page: page)
       }
       .map { issueArr -> [Repository] in
         

@@ -28,20 +28,28 @@ class IssueListViewViewModel {
   
   func bindOutput() {
     
-    LocalDataManager.shared.provider()
+    LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [])
       .map { [weak self] (repoList) in
         repoList.filter { $0.id == self?.selectedRepo.id }
-      }.map { $0.first! }
-      .map { Array($0.issuesDic!.values) }
+      }.map({ [weak self] (repoList) -> Repository in
+        if let repo = repoList.first {
+          return repo
+        }
+        return (self?.selectedRepo)!
+      })
+      .map({ (repo) -> [Issue] in
+        if let issueDic = repo.issuesDic {
+          return Array(issueDic.values)
+        }
+        return []
+      })
       .map({ (issueArr) -> [Issue] in
         return issueArr.sorted(by: { $0.created_at > $1.created_at })
       })
       .drive(issueList)
       .disposed(by: bag)
   }
-  
-  
   
 }
 
