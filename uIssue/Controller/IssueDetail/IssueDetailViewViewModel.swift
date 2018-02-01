@@ -24,7 +24,7 @@ class IssueDetailViewViewModel {
     self.repoIndex = repoIndex
     self.issueIndex = issueIndex
     selectedIssue = issue
-    requestFetchComments()
+    
     bindOutput()
   }
   
@@ -34,12 +34,20 @@ class IssueDetailViewViewModel {
       .map { [weak self] (repoList) -> Repository in
         return repoList[(self?.repoIndex)!]
       }
-      .map { Array($0.issuesDic!.values) }
+      .map({ (repo) -> [Issue] in
+        if let issueDic = repo.issuesDic {
+          return Array(issueDic.values)
+        }
+        return [Issue]()
+      })
       .map({ (issueArr) -> [Issue] in
         return issueArr.sorted(by: { $0.created_at > $1.created_at })
       })
       .map { [weak self] (issueArr) -> Issue in
-        return issueArr[(self?.issueIndex)!]
+        if issueArr != [] {
+          return issueArr[(self?.issueIndex)!]
+        }
+        return Issue()
     }.drive(issueDetail)
     .disposed(by: bag)
   }
@@ -84,7 +92,7 @@ class IssueDetailViewViewModel {
   func createComment(issue: Issue, newCommentBody: String, repoIndex: Int) -> Observable<Bool> {
     
     return issueApi.createComment(issue: issue, commentBody: newCommentBody)
-      .map({ [weak self] (newComment) -> Bool in
+      .map({ (newComment) -> Bool in
         if newComment.id != -1 {
           LocalDataManager.shared.createComment(repoIndex: repoIndex, issue: issue, newComment: newComment)
           return true
@@ -96,7 +104,7 @@ class IssueDetailViewViewModel {
   //코멘트 편집 api요청 성공하면 로컬 변경하기
   func editComment(issue: Issue, existingComment: Comment, repoIndex: Int, newCommentText: String) -> Observable<Bool> {
     return issueApi.editComment(issue: issue, comment: existingComment, newCommentText: newCommentText)
-      .map({ [weak self] (newComment) -> Bool in
+      .map({ (newComment) -> Bool in
         if newComment.id != -1 {
           LocalDataManager.shared.editComment(repoIndex: repoIndex, issue: issue, newComment: newComment)
           return true
@@ -108,7 +116,7 @@ class IssueDetailViewViewModel {
   
   func deleteComment(issue: Issue, existingComment: Comment, repoIndex: Int) -> Observable<Bool> {
     return issueApi.deleteComment(issue: issue, comment: existingComment)
-      .map({ [weak self] (success) -> Bool in
+      .map({ (success) -> Bool in
         if success {
           LocalDataManager.shared.deleteComment(repoIndex: repoIndex, issue: issue, existingComment: existingComment)
           return true

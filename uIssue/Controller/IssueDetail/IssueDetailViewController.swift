@@ -52,6 +52,7 @@ class IssueDetailViewController: UIViewController {
     super.viewDidLoad()
     setupView()
     bindUI()
+    viewModel.requestFetchComments()
   }
   
   func setupView() {

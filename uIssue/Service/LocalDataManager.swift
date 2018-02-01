@@ -36,7 +36,12 @@ class LocalDataManager {
   }
   
   func createIssue(newIssue: Issue, repoIndex: Int) {
-    resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
+    if let _ = resultProvider.value[repoIndex].issuesDic {
+      resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
+    } else {
+      resultProvider.value[repoIndex].issuesDic = [Int:Issue]()
+      resultProvider.value[repoIndex].issuesDic![newIssue.id] = newIssue
+    }
   }
   
   func closeIssue(newIssue: Issue, repoIndex: Int) {
@@ -48,11 +53,28 @@ class LocalDataManager {
   }
   
   func fetchComments(repoIndex: Int, issue: Issue, comments: [Comment]) {
-    resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+    print("------fetchcomment==========")
+    if let _ = resultProvider.value[repoIndex].issuesDic {
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+    } else {
+      resultProvider.value[repoIndex].issuesDic = [Int:Issue]()
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.setCommentsDic(comments: comments)
+    }
   }
   
   func createComment(repoIndex: Int, issue: Issue, newComment: Comment) {
-    resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+    if let _ = resultProvider.value[repoIndex].issuesDic {
+      if let _ = resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic {
+        resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+      } else {
+        resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic = [Int:Comment]()
+        resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+      }
+    } else {
+      resultProvider.value[repoIndex].issuesDic = [Int:Issue]()
+      resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+    }
+    
   }
   
   func editComment(repoIndex: Int, issue: Issue, newComment: Comment) {

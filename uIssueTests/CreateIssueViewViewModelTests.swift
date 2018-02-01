@@ -15,25 +15,55 @@ import RxBlocking
 
 class CreateIssueViewViewModelTests: XCTestCase {
   
+  var viewModel: CreateIssueViewViewModel!
+  var scheduler: TestScheduler!
+  var subscription: Disposable!
+  
+  override func setUp() {
+    super.setUp()
+    scheduler = TestScheduler(initialClock: 0)
+  }
+  
+  override func tearDown() {
+    super.tearDown()
+    viewModel = nil
+    LocalDataManager.shared.removeAll()
+    scheduler.scheduleAt(1000) {
+      //self.subscription.dispose()
+    }
+  }
   
   func createViewModel(repo: Repository, repoIndex: Int) -> CreateIssueViewViewModel {
     return CreateIssueViewViewModel(repo: repo, repoIndex: repoIndex, issueApi: TestAPIMock.shared)
   }
   
-  func test_createIssue() {
+  func test_createIssueCallCreateIssueAPI() {
+    LocalDataManager.shared.setRepoList(repoList: [Repository.test])
+    DispatchQueue.main.async {
+      TestAPIMock.shared.issueObjects.onNext(TestData().issue)
+    }
     
-//    LocalDataManager.shared.setRepoList(repoList: TestData().repoList)
-//
-//    let viewModel = createViewModel(repo: Repository.test, repoIndex: 0)
-//
-//    DispatchQueue.main.async {
-//      TestAPIMock.shared.issueObjects.onNext(TestData().issue)
-//    }
+    viewModel = createViewModel(repo: Repository.test, repoIndex: 0)
+//    let eee = expectation(description: "aaa")
 //    viewModel.createIssue(title: "title", newComment: "newComment")
-//    
-//    let emitted = try! LocalDataManager.shared.getProvider().take(1).toBlocking(timeout: 3).toArray()
-//    XCTAssertEqual(emitted[0], [])
-//    XCTAssertEqual(emitted[1][0].name, "name")
-//    XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "fetchAllIssues(filter:state:sort:page:)")
+//      .subscribe(onNext: { bool in
+//        if bool {
+//          XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "createIssue(title:comment:label:repo:)")
+//          eee.fulfill()
+//        } else {
+//          XCTFail()
+//        }
+//      })
+//    waitForExpectations(timeout: 3, handler: nil)
+    
+    let result = try! viewModel.createIssue(title: "title", newComment: "newComment").toBlocking().first()!
+    if result == true {
+      XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "createIssue(title:comment:label:repo:)")
+      let result = try! LocalDataManager.shared.getProvider().toBlocking().first()!
+      XCTAssertEqual(result[0].issuesDic?.count, 1)
+      
+    } else {
+      XCTFail()
+    }
   }
 }

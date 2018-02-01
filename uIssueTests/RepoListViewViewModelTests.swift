@@ -27,15 +27,15 @@ class RepoListViewViewModelTests: XCTestCase {
     LocalDataManager.shared.removeAll()
   }
   
-  private func createViewModel(issueApi: IssueServiceRepresentable, status: Driver<AuthService.Status>) -> RepoListViewViewModel {
-    return RepoListViewViewModel(issueApi: issueApi, statusDriver: status)
+  private func createViewModel(status: Driver<AuthService.Status>) -> RepoListViewViewModel {
+    return RepoListViewViewModel(issueApi: TestAPIMock.shared, statusDriver: status)
   }
   
   func test_fetchRepoListWhenStatusIsAuthorized() {
     TestAPIMock.shared.reset()
 
     let statusSubject = PublishSubject<AuthService.Status>()
-    viewModel = createViewModel(issueApi: TestAPIMock.shared, status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
+    viewModel = createViewModel(status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
     let repoList = viewModel.repoList.asObservable()
 
     DispatchQueue.main.async {

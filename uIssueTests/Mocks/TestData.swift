@@ -17,10 +17,21 @@ import RxBlocking
 class TestData {
   var issueArr: [Issue] = [Issue.test, Issue.test, Issue.test]
   var issue: Issue = Issue.test
+  var editedIssue: Issue = Issue(id: 1, title: "edited", body: "edited", user: User.test, assignees: [User.test], number: 1, repository: Repository.test, created_at: "1", labels: [IssueLabel.test], state: IssueService.State.open.rawValue, comments_url: "comments_url", commentsDic: nil)
   lazy var repoList: [Repository] = {
     return [
-      Repository(id: 1, name: "name1", owner: User.test, open_issues: 2, created_at: "1", issuesDic: [2:Issue.test]),
-      Repository(id: 2, name: "name2", owner: User.test, open_issues: 1, created_at: "2", issuesDic: [1:Issue.test])
+      Repository(id: 1, name: "name1", owner: User.test, open_issues: 2, created_at: "1", issuesDic: [1:Issue.test]),
+      Repository(id: 2, name: "name2", owner: User.test, open_issues: 1, created_at: "2", issuesDic: [1:Issue.test]),
     ]
   }()
+  
+  lazy var commentsList: [Comment] = {
+    return [
+      Comment(id: 1, user: User.test, created_at: "1", body: "body1"),
+      Comment(id: 2, user: User.test, created_at: "2", body: "body2"),
+      Comment(id: 3, user: User.test, created_at: "3", body: "body3")
+    ]
+  }()
+  
+  var comment: Comment = Comment(id: 1, user: User.test, created_at: "1", body: "new")
 }
