@@ -27,6 +27,7 @@
 		48512A1520204A4100ECBF31 /* LoginViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */; };
 		48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */; };
 		48512A1920204CAA00ECBF31 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1820204CAA00ECBF31 /* TestData.swift */; };
+		48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
@@ -73,6 +74,7 @@
 		48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModelTests.swift; sourceTree = "<group>"; };
 		48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewViewModelTests.swift; sourceTree = "<group>"; };
 		48512A1820204CAA00ECBF31 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
+		48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewViewModelTests.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 				48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */,
 				48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */,
 				48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */,
+				48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */,
 			);
 			path = uIssueTests;
 			sourceTree = "<group>";
@@ -577,6 +580,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */,
+				48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */,
 				48512A13202046DF00ECBF31 /* TestAPIMock.swift in Sources */,
 				48512A1920204CAA00ECBF31 /* TestData.swift in Sources */,
 				48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */,

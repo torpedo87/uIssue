@@ -65,4 +65,13 @@ class LocalDataManager {
     resultProvider.value[repoIndex].issuesDic![issue.id]?.commentsDic?.removeValue(forKey: existingComment.id)
   }
   
+  //for test
+  func setRepoList(repoList: [Repository]) {
+    resultProvider.value = repoList
+  }
+  
+  func removeAll() {
+    resultProvider.value = []
+  }
+  
 }

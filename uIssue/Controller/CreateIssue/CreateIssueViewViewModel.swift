@@ -24,6 +24,7 @@ class CreateIssueViewViewModel {
     self.issueApi = issueApi
     self.repoIndex = repoIndex
     selectedRepo = repo
+    
     validate = titleInput.asObservable()
       .map { (text) -> Bool in
         if text.isEmpty {

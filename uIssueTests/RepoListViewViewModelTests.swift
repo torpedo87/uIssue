@@ -15,6 +15,17 @@ import RxBlocking
 
 class RepoListViewViewModelTests: XCTestCase {
   
+  var viewModel: RepoListViewViewModel!
+  
+  override func setUp() {
+    super.setUp()
+  }
+  
+  override func tearDown() {
+    super.tearDown()
+    viewModel = nil
+    LocalDataManager.shared.removeAll()
+  }
   
   private func createViewModel(issueApi: IssueServiceRepresentable, status: Driver<AuthService.Status>) -> RepoListViewViewModel {
     return RepoListViewViewModel(issueApi: issueApi, statusDriver: status)
@@ -24,12 +35,12 @@ class RepoListViewViewModelTests: XCTestCase {
     TestAPIMock.shared.reset()
 
     let statusSubject = PublishSubject<AuthService.Status>()
-    let viewModel = createViewModel(issueApi: TestAPIMock.shared, status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
+    viewModel = createViewModel(issueApi: TestAPIMock.shared, status: statusSubject.asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("requestFail")))
     let repoList = viewModel.repoList.asObservable()
 
     DispatchQueue.main.async {
       statusSubject.onNext(.authorized)
-      TestAPIMock.shared.issueArrObjects.onNext(TestData.issueArr)
+      TestAPIMock.shared.issueArrObjects.onNext(TestData().issueArr)
     }
 
     let emitted = try! repoList.take(2).toBlocking(timeout: 3).toArray()

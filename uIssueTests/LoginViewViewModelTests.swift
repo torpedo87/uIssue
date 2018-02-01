@@ -31,6 +31,9 @@ class LoginViewViewModelTests: XCTestCase {
   
   override func tearDown() {
     super.tearDown()
+    viewModel = nil
+    scheduler = nil
+    LocalDataManager.shared.removeAll()
   }
   
   //helper
