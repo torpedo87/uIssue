@@ -1,5 +1,5 @@
 //
-//  CommentBox.swift
+//  CommentBoxView.swift
 //  uIssue
 //
 //  Created by junwoo on 2018. 1. 26..
@@ -10,7 +10,7 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-class CommentBox: UIView {
+class CommentBoxView: UIView {
   
   enum Mode {
     case normal
@@ -117,7 +117,7 @@ class CommentBox: UIView {
         if let _ = self?.issue {
           self?.viewModel.cancelEditIssue()
         } else {
-          self?.viewModel.cancelEditComment(newComment: (self?.comment)!)
+          self?.viewModel.cancelEditComment(existingComment: (self?.comment)!)
         }
         self?.mode.value = .normal
       })
@@ -127,7 +127,7 @@ class CommentBox: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
         if let comment = self?.comment {
-          return (self?.viewModel.deleteComment(issue: (self?.viewModel.selectedIssue)!, existingComment: comment, repoIndex: (self?.viewModel.repoIndex)!))!
+          return (self?.viewModel.deleteComment(existingComment: comment))!
         } else {
           return Observable.just(false)
         }
@@ -152,9 +152,9 @@ class CommentBox: UIView {
           return (self?.viewModel.editIssue(state: .open, newTitleText: issue.title, newCommentText: (self?.commentTextView.text)!, label: [.enhancement]))!
         } else {
           if self?.comment?.body != "" {
-            return (self?.viewModel.editComment(issue: (self?.viewModel.selectedIssue)!, existingComment: (self?.comment)!, repoIndex: (self?.viewModel.repoIndex)!, newCommentText: (self?.commentTextView.text)!))!
+            return (self?.viewModel.editComment(existingComment: (self?.comment)!, newCommentText: (self?.commentTextView.text)!))!
           } else {
-            return (self?.viewModel.createComment(issue: (self?.viewModel.selectedIssue)!, newCommentBody: (self?.commentTextView.text)!, repoIndex: (self?.viewModel.repoIndex)!))!
+            return (self?.viewModel.createComment(newCommentBody: (self?.commentTextView.text)!))!
           }
         }
       }.catchErrorJustReturn(false)

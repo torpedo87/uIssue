@@ -19,15 +19,16 @@ class TestData {
   var issue: Issue = Issue.test
   var editedIssue: Issue = Issue(id: 1, title: "edited", body: "edited", user: User.test, assignees: [User.test], number: 1, repository: Repository.test, created_at: "1", labels: [IssueLabel.test], state: IssueService.State.open.rawValue, comments_url: "comments_url", commentsDic: nil)
   lazy var issueWithComment: Issue = Issue(id: 1, title: "title", body: "body", user: User.test, assignees: [User.test], number: 1, repository: Repository.test, created_at: "1", labels: [IssueLabel.test], state: IssueService.State.open.rawValue, comments_url: "url", commentsDic: [1:comment])
-  lazy var repoListWithComment: [Repository] = {
+  
+  lazy var repoDictWithComment: [Int:Repository] = {
     return [
-      Repository(id: 1, name: "name1", owner: User.test, open_issues: 1, created_at: "1", issuesDic: [1:issueWithComment])
+      1:Repository(id: 1, name: "name1", owner: User.test, open_issues: 1, created_at: "1", issuesDic: [1:issueWithComment])
     ]
   }()
-  lazy var repoList: [Repository] = {
+  lazy var repoDict: [Int:Repository] = {
     return [
-      Repository(id: 1, name: "name1", owner: User.test, open_issues: 2, created_at: "1", issuesDic: [1:Issue.test]),
-      Repository(id: 2, name: "name2", owner: User.test, open_issues: 1, created_at: "2", issuesDic: [1:Issue.test]),
+      1:Repository(id: 1, name: "name1", owner: User.test, open_issues: 2, created_at: "1", issuesDic: [1:Issue.test]),
+      2:Repository(id: 2, name: "name2", owner: User.test, open_issues: 1, created_at: "2", issuesDic: [1:Issue.test]),
     ]
   }()
   

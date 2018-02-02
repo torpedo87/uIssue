@@ -33,34 +33,24 @@ class CreateIssueViewViewModelTests: XCTestCase {
     }
   }
   
-  func createViewModel(repo: Repository, repoIndex: Int) -> CreateIssueViewViewModel {
-    return CreateIssueViewViewModel(repo: repo, repoIndex: repoIndex, issueApi: TestAPIMock.shared)
+  func createViewModel(repoId: Int) -> CreateIssueViewViewModel {
+    return CreateIssueViewViewModel(repoId: repoId, issueApi: TestAPIMock.shared)
   }
   
   func test_createIssueCallCreateIssueAPI() {
-    LocalDataManager.shared.setRepoList(repoList: [Repository.test])
+    LocalDataManager.shared.setRepoDict(repoDict: TestData().repoDict)
+    
     DispatchQueue.main.async {
       TestAPIMock.shared.issueObjects.onNext(TestData().issue)
     }
     
-    viewModel = createViewModel(repo: Repository.test, repoIndex: 0)
-//    let eee = expectation(description: "aaa")
-//    viewModel.createIssue(title: "title", newComment: "newComment")
-//      .subscribe(onNext: { bool in
-//        if bool {
-//          XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "createIssue(title:comment:label:repo:)")
-//          eee.fulfill()
-//        } else {
-//          XCTFail()
-//        }
-//      })
-//    waitForExpectations(timeout: 3, handler: nil)
+    viewModel = createViewModel(repoId: 1)
     
     let result = try! viewModel.createIssue(title: "title", newComment: "newComment").toBlocking().first()!
     if result == true {
       XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "createIssue(title:comment:label:repo:)")
       let result = try! LocalDataManager.shared.getProvider().toBlocking().first()!
-      XCTAssertEqual(result[0].issuesDic?.count, 1)
+      XCTAssertEqual(result[1]?.issuesDic?.count, 1)
       
     } else {
       XCTFail()

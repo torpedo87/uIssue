@@ -22,9 +22,9 @@ class IssueDetailViewController: UIViewController {
     return txtField
   }()
   
-  private lazy var bodyTextView: CommentBox = {
+  private lazy var bodyTextView: CommentBoxView = {
     let issue = viewModel.selectedIssue
-    let txtView = CommentBox(comment: nil, issue: issue, viewModel: viewModel)
+    let txtView = CommentBoxView(comment: nil, issue: issue, viewModel: viewModel)
     return txtView
   }()
   private lazy var closeButton: UIButton = {
@@ -106,16 +106,16 @@ class IssueDetailViewController: UIViewController {
       .map({ (commentArr) -> [Comment] in
         return commentArr.sorted(by: { $0.created_at < $1.created_at })
       })
-      .observeOn(MainScheduler.instance)
-      .subscribe(onNext: { [weak self] commentArr in
-        var commentBoxArr = [CommentBox]()
+      .asDriver(onErrorJustReturn: [])
+      .drive(onNext: { [weak self] commentArr in
+        var commentBoxArr = [CommentBoxView]()
         for i in 0...commentArr.count {
-          var commentBox: CommentBox?
+          var commentBox: CommentBoxView?
           if i != commentArr.count {
-            commentBox = CommentBox(comment: commentArr[i], issue: nil, viewModel: (self?.viewModel)!)
+            commentBox = CommentBoxView(comment: commentArr[i], issue: nil, viewModel: (self?.viewModel)!)
           } else {
             let emptyComment = Comment(id: 1, user: (self?.viewModel.selectedIssue.repository?.owner)!, created_at: "", body: "")
-            commentBox = CommentBox(comment: emptyComment, issue: nil, viewModel: (self?.viewModel)!)
+            commentBox = CommentBoxView(comment: emptyComment, issue: nil, viewModel: (self?.viewModel)!)
             commentBox?.setEditMode()
           }
           self?.view.addSubview(commentBox!)

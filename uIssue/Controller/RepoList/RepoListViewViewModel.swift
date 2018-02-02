@@ -37,17 +37,21 @@ class RepoListViewViewModel {
       .disposed(by: bag)
     
     LocalDataManager.shared.getProvider()
+      .map { $0.filter { $0.value.issuesDic!.count > 0 } }
+      .map({ (repoDict) -> [Repository] in
+        return Array(repoDict.values).sorted(by: { $0.created_at > $1.created_at })
+      })
       .asDriver(onErrorJustReturn: [])
       .drive(repoList)
       .disposed(by: bag)
     
-    LocalDataManager.shared.getProvider()
-      .asDriver(onErrorJustReturn: [])
+    repoList.asDriver()
       .map { _ in false }
       .drive(running)
       .disposed(by: bag)
   }
   
-  
-  
+  func sortRepoListByCreated() {
+    repoList.value = repoList.value.sorted(by: { $0.created_at > $1.created_at })
+  }
 }

@@ -16,14 +16,14 @@ class CreateIssueViewViewModel {
   let titleInput = Variable<String>("")
   //output
   let validate: Driver<Bool>
-  private var selectedRepo: Repository!
-  private var repoIndex: Int!
+  private let repoId: Int!
   let issueApi: IssueServiceRepresentable
+  let selectedRepo: Repository!
   
-  init(repo: Repository, repoIndex: Int, issueApi: IssueServiceRepresentable = IssueService()) {
+  init(repoId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
-    self.repoIndex = repoIndex
-    selectedRepo = repo
+    self.repoId = repoId
+    self.selectedRepo = LocalDataManager.shared.getRepo(repoId: repoId)
     
     validate = titleInput.asObservable()
       .map { (text) -> Bool in
@@ -37,10 +37,11 @@ class CreateIssueViewViewModel {
   
   //이슈생성 api요청 성공하면 로컬 변경하기
   func createIssue(title: String, newComment: String) -> Observable<Bool> {
+    let repoId = self.repoId!
     return issueApi.createIssue(title: title, comment: newComment, label: [.enhancement], repo: selectedRepo)
-      .map({ [weak self] (newIssue) -> Bool in
+      .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
-          LocalDataManager.shared.createIssue(newIssue: newIssue, repoIndex: (self?.repoIndex)!)
+          LocalDataManager.shared.createIssue(repoId: repoId, createdIssue: newIssue)
           return true
         }
         return false

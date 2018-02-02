@@ -12,13 +12,13 @@ import RxCocoa
 
 class IssueListFetcher {
   
-  func getAllData(issueApi: IssueServiceRepresentable) -> Observable<[Repository]> {
+  func getAllData(issueApi: IssueServiceRepresentable) -> Observable<[Int:Repository]> {
     
     return issueApi.currentPage.asObservable()
       .flatMap { (page) -> Observable<[Issue]> in
         issueApi.fetchAllIssues(filter: .all, state: .open, sort: .created, page: page)
       }
-      .map { issueArr -> [Repository] in
+      .map { issueArr -> [Int:Repository] in
         
         var dict = [Repository:[Issue]]()
         for issue in issueArr {
@@ -29,11 +29,11 @@ class IssueListFetcher {
           }
         }
         
-        var resultRepoList = [Repository]()
+        var resultRepoList = [Int:Repository]()
         for (key, value) in dict {
           var tempRepo = key
           tempRepo.setIssuesDic(issueArr: value)
-          resultRepoList.append(tempRepo)
+          resultRepoList[tempRepo.id] = tempRepo
         }
         
         return resultRepoList
