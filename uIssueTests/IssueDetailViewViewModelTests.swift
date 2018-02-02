@@ -61,6 +61,7 @@ class IssueDetailViewViewModelTests: XCTestCase {
     }
   }
   
+  //구독이 남아있어서 에러남
   func test_closeIssue_changeLocal() {
 //    LocalDataManager.shared.setRepoDict(repoDict: TestData().repoDict)
 //    DispatchQueue.main.async {

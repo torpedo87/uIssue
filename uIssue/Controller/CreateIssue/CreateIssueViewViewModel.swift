@@ -38,7 +38,7 @@ class CreateIssueViewViewModel {
   //이슈생성 api요청 성공하면 로컬 변경하기
   func createIssue(title: String, newComment: String) -> Observable<Bool> {
     let repoId = self.repoId!
-    return issueApi.createIssue(title: title, comment: newComment, label: [.enhancement], repo: selectedRepo)
+    return issueApi.createIssue(title: title, body: newComment, label: [.enhancement], repo: selectedRepo)
       .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
           LocalDataManager.shared.createIssue(repoId: repoId, createdIssue: newIssue)

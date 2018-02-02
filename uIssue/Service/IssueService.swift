@@ -12,8 +12,8 @@ import RxSwift
 protocol IssueServiceRepresentable {
   var currentPage: Variable<Int> { get }
   func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]>
-  func createIssue(title: String, comment: String, label: [IssueService.Label], repo: Repository) -> Observable<Issue>
-  func editIssue(title: String, comment: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
+  func createIssue(title: String, body: String, label: [IssueService.Label], repo: Repository) -> Observable<Issue>
+  func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
   func fetchComments(issue: Issue) -> Observable<[Comment]>
   func createComment(issue: Issue, commentBody: String) -> Observable<Comment>
   func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment>
@@ -117,7 +117,7 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  func createIssue(title: String, comment: String, label: [Label], repo: Repository) -> Observable<Issue> {
+  func createIssue(title: String, body: String, label: [Label], repo: Repository) -> Observable<Issue> {
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     guard let url = URL(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/issues") else { fatalError() }
     
@@ -129,7 +129,7 @@ class IssueService: IssueServiceRepresentable {
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
         let bodyObject: [String: Any] = [
-          "body": comment,
+          "body": body,
           "labels": label.map{ $0.rawValue },
           "title": title,
           "assignee": repo.owner.login
@@ -165,7 +165,7 @@ class IssueService: IssueServiceRepresentable {
     
   }
   
-  func editIssue(title: String, comment: String, label: [Label], issue: Issue, state: State, repo: Repository) -> Observable<Issue> {
+  func editIssue(title: String, body: String, label: [Label], issue: Issue, state: State, repo: Repository) -> Observable<Issue> {
     guard let token = UserDefaults.loadToken()?.token else { fatalError() }
     let repoName = repo.name
     guard let url = URL(string: "https://api.github.com/repos/\(issue.user.login)/\(repoName)/issues/\(issue.number)") else { fatalError() }
@@ -178,7 +178,7 @@ class IssueService: IssueServiceRepresentable {
         request.addValue("application/json; charset=utf-8", forHTTPHeaderField: "Content-Type")
         
         let bodyObject: [String: Any] = [
-          "body": comment,
+          "body": body,
           "labels": label.map{ $0.rawValue },
           "title": title,
           "state": state.rawValue,

@@ -20,6 +20,7 @@ class CommentBoxView: UIView {
   enum Contents {
     case issueBody
     case commentBody
+    case newCommentBody
   }
   
   private var viewModel: IssueDetailViewViewModel!
@@ -29,17 +30,7 @@ class CommentBoxView: UIView {
   
   private var mode = Variable<Mode>(.normal)
   
-  private var contents: Driver<Contents> {
-    return Observable.create { [weak self] observer in
-      if let _ = self?.comment {
-        observer.onNext(.commentBody)
-      }
-      if let _ = self?.issue {
-        observer.onNext(.issueBody)
-      }
-      return Disposables.create()
-      }.asDriver(onErrorJustReturn: .commentBody)
-  }
+  private var contentsMode: Contents!
   
   private lazy var topView: UIView = {
     let view = UIView()
@@ -86,7 +77,8 @@ class CommentBoxView: UIView {
     return view
   }()
   
-  init(comment: Comment?, issue: Issue?, viewModel: IssueDetailViewViewModel) {
+  init(comment: Comment?, issue: Issue?, contentsMode: Contents, viewModel: IssueDetailViewViewModel) {
+    self.contentsMode = contentsMode
     self.viewModel = viewModel
     self.issue = issue
     self.comment = comment
@@ -98,38 +90,51 @@ class CommentBoxView: UIView {
   func bindUI() {
     
     commentTextView.rx.text.orEmpty.asDriver()
-      .drive(onNext: { [weak self] text in
-        if text.isEmpty {
-          self?.cancelButton.isEnabled = false
-          self?.saveButton.isEnabled = false
-        } else {
-          self?.cancelButton.isEnabled = true
-          self?.saveButton.isEnabled = true
-        }
+      .map({ (text) -> Bool in
+        return !text.isEmpty
       })
+      .drive(cancelButton.rx.isEnabled)
       .disposed(by: bag)
-    
+      
+    commentTextView.rx.text.orEmpty.asDriver()
+      .map({ (text) -> Bool in
+        return !text.isEmpty
+      })
+      .drive(saveButton.rx.isEnabled)
+      .disposed(by: bag)
     
     cancelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
-        if let _ = self?.issue {
+        switch (self?.contentsMode)! {
+        case .issueBody: do {
           self?.viewModel.cancelEditIssue()
-        } else {
+          }
+        case .commentBody: do {
           self?.viewModel.cancelEditComment(existingComment: (self?.comment)!)
+          }
+        case .newCommentBody: do {
+          self?.commentTextView.text = ""
+          }
         }
-        self?.mode.value = .normal
       })
       .disposed(by: bag)
     
     deleteButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
+      .observeOn(MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        if let comment = self?.comment {
-          return (self?.viewModel.deleteComment(existingComment: comment))!
-        } else {
+        switch (self?.contentsMode)! {
+        case .issueBody: do {
+          return (self?.viewModel.editIssue(state: IssueService.State.open, newTitleText: (self?.issue?.title)!, newBodyText: "", label: [.enhancement]))!
+          }
+        case .commentBody: do {
+          return (self?.viewModel.deleteComment(existingComment: (self?.comment)!))!
+          }
+        case .newCommentBody: do {
           return Observable.just(false)
+          }
         }
     }.asDriver(onErrorJustReturn: false)
     .drive()
@@ -148,19 +153,28 @@ class CommentBoxView: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        if let issue = self?.issue {
-          return (self?.viewModel.editIssue(state: .open, newTitleText: issue.title, newCommentText: (self?.commentTextView.text)!, label: [.enhancement]))!
-        } else {
-          if self?.comment?.body != "" {
-            return (self?.viewModel.editComment(existingComment: (self?.comment)!, newCommentText: (self?.commentTextView.text)!))!
-          } else {
-            return (self?.viewModel.createComment(newCommentBody: (self?.commentTextView.text)!))!
+        switch (self?.contentsMode)! {
+        case .issueBody: do {
+          return (self?.viewModel.editIssue(state: .open, newTitleText: (self?.issue)!.title, newBodyText: (self?.commentTextView.text)!, label: [.enhancement]))!
+          }
+        case .commentBody: do {
+          return (self?.viewModel.editComment(existingComment: (self?.comment)!, newCommentText: (self?.commentTextView.text)!))!
+          }
+        case .newCommentBody: do {
+          return (self?.viewModel.createComment(newCommentBody: (self?.commentTextView.text)!))!
           }
         }
-      }.catchErrorJustReturn(false)
-      .bind(onNext: { [weak self] (success) in
+      }.asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] (success) in
         if success {
-          self?.mode.value = .normal
+          switch (self?.contentsMode)! {
+          case .newCommentBody: do {
+            self?.commentTextView.text = ""
+            }
+          default: do {
+            self?.mode.value = .normal
+            }
+          }
         }
       })
       .disposed(by: bag)
@@ -191,22 +205,21 @@ class CommentBoxView: UIView {
       .disposed(by: bag)
     
     
-    //이슈 or 코멘트
-    contents.asDriver()
-      .drive(onNext: { [weak self] body in
-        switch body {
-        case .commentBody: do {
-          self?.userLabel.text = self?.comment!.user.login
-          self?.commentTextView.text = self?.comment!.body
-          }
-        case .issueBody: do {
-          self?.userLabel.text = self?.issue!.user.login
-          self?.commentTextView.text = self?.issue!.body
-          self?.topView.backgroundColor = UIColor.darkGray
-          }
-        }
-      })
-      .disposed(by: bag)
+    switch contentsMode! {
+    case .commentBody: do {
+      self.userLabel.text = self.comment!.user.login
+      self.commentTextView.text = self.comment!.body
+      }
+    case .issueBody: do {
+      self.userLabel.text = self.issue!.user.login
+      self.commentTextView.text = self.issue!.body
+      self.topView.backgroundColor = UIColor.darkGray
+      }
+    case .newCommentBody: do {
+      self.userLabel.text = "New Comment"
+      self.commentTextView.text = ""
+      }
+    }
   }
   
   required init?(coder aDecoder: NSCoder) {
@@ -268,4 +281,12 @@ class CommentBoxView: UIView {
   func setEditMode() {
     mode.value = .edit
   }
+  
+  func setEmpty() {
+    issue = nil
+    comment = nil
+    userLabel.text = nil
+    commentTextView.text = nil
+  }
+  
 }

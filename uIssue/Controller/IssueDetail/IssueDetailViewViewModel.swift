@@ -16,7 +16,7 @@ class IssueDetailViewViewModel {
   private let issueId: Int!
   private let repoId: Int!
   let issueDetail = Variable<Issue>(Issue())
-  private let commentList = Variable<[Comment]>([])
+  let commentList = Variable<[Comment]>([])
   private let issueApi: IssueServiceRepresentable
   
   init(repoId: Int, issueId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
@@ -41,6 +41,15 @@ class IssueDetailViewViewModel {
       })
     .drive(issueDetail)
     .disposed(by: bag)
+    
+    issueDetail.asDriver()
+      .map { (issue) -> [Comment] in
+        if let _ = issue.commentsDic {
+          return Array(issue.commentsDic!.values).sorted(by: { $0.created_at < $1.created_at })
+        }
+        return []
+    }.drive(commentList)
+    .disposed(by: bag)
   }
   
   //코멘트 요청 api 성공시 로컬 변경하기
@@ -54,11 +63,11 @@ class IssueDetailViewViewModel {
   }
   
   //이슈편집 api요청 성공하면 로컬 변경하기
-  func editIssue(state: IssueService.State, newTitleText: String, newCommentText: String,
+  func editIssue(state: IssueService.State, newTitleText: String, newBodyText: String,
                  label: [IssueService.Label]) -> Observable<Bool> {
     let selectedRepo = LocalDataManager.shared.getRepo(repoId: self.repoId)
     
-    return issueApi.editIssue(title: newTitleText, comment: newCommentText,
+    return issueApi.editIssue(title: newTitleText, body: newBodyText,
                                                   label: [.enhancement], issue: selectedIssue,
                                                   state: state,
                                                   repo: selectedRepo)
