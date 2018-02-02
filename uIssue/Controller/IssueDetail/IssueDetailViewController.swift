@@ -22,14 +22,22 @@ class IssueDetailViewController: UIViewController {
     return txtField
   }()
   
-  private lazy var bodyTextView: CommentBox = {
+  private lazy var bodyTextView: CommentBoxView = {
     let issue = viewModel.selectedIssue
-    let txtView = CommentBox(comment: nil, issue: issue, viewModel: viewModel)
-    return txtView
+    let commentBox = CommentBoxView(comment: nil, issue: issue, contentsMode: .issueBody, viewModel: viewModel)
+    return commentBox
   }()
+  
+  private lazy var newCommentView: CommentBoxView = {
+    let emptyComment = Comment(id: 1, user: (self.viewModel.selectedIssue.repository?.owner)!, created_at: "", body: "")
+    let commentBox = CommentBoxView(comment: emptyComment, issue: nil, contentsMode: .newCommentBody, viewModel: viewModel)
+    commentBox.setEditMode()
+    return commentBox
+  }()
+  
   private lazy var closeButton: UIButton = {
     let btn = UIButton()
-    btn.setTitle("Close issue", for: UIControlState.normal)
+    btn.setTitle("Close", for: UIControlState.normal)
     btn.backgroundColor = UIColor.red
     return btn
   }()
@@ -41,6 +49,12 @@ class IssueDetailViewController: UIViewController {
     return btn
   }()
   
+  private lazy var tableView: UITableView = {
+    let view = UITableView()
+    view.register(CommentCell.self, forCellReuseIdentifier: CommentCell.reuseIdentifier)
+    return view
+  }()
+  
   static func createWith(viewModel: IssueDetailViewViewModel) -> IssueDetailViewController {
     return {
       $0.viewModel = viewModel
@@ -50,9 +64,11 @@ class IssueDetailViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    viewModel.requestFetchComments()
     setupView()
     bindUI()
-    viewModel.requestFetchComments()
+    bindTableView()
   }
   
   func setupView() {
@@ -60,12 +76,14 @@ class IssueDetailViewController: UIViewController {
     view.backgroundColor = UIColor.white
     view.addSubview(titleTextField)
     view.addSubview(bodyTextView)
+    view.addSubview(newCommentView)
+    view.addSubview(tableView)
     view.addSubview(closeButton)
     
     titleTextField.snp.makeConstraints { (make) in
       make.top.equalToSuperview().offset(100)
-      make.left.equalToSuperview().offset(50)
-      make.right.equalToSuperview().offset(-50)
+      make.left.equalToSuperview().offset(80)
+      make.right.equalToSuperview().offset(-80)
       make.height.equalTo(50)
     }
     
@@ -74,10 +92,22 @@ class IssueDetailViewController: UIViewController {
       make.top.equalTo(titleTextField.snp.bottom).offset(10)
     }
     
+    tableView.snp.makeConstraints { (make) in
+      make.top.equalTo(bodyTextView.snp.bottom).offset(10)
+      make.left.right.equalToSuperview()
+      make.bottom.equalTo(newCommentView.snp.top).offset(-10)
+    }
+    
+    newCommentView.snp.makeConstraints { (make) in
+      make.left.right.equalTo(titleTextField)
+      make.bottom.equalTo(view).offset(-50)
+    }
+    
     closeButton.snp.makeConstraints { (make) in
-      make.width.equalTo(150)
-      make.height.equalTo(50)
-      make.right.bottom.equalToSuperview().offset(-20)
+      closeButton.sizeToFit()
+      make.centerY.equalTo(titleTextField)
+      make.left.equalTo(titleTextField.snp.right)
+      make.right.equalToSuperview()
     }
   }
   
@@ -86,7 +116,7 @@ class IssueDetailViewController: UIViewController {
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        return (self?.viewModel.editIssue(state: .closed, newTitleText: (self?.titleTextField.text!)!, newCommentText: (self?.bodyTextView.getText())!, label: [.enhancement]))!
+        return (self?.viewModel.editIssue(state: .closed, newTitleText: (self?.titleTextField.text!)!, newBodyText: (self?.bodyTextView.getText())!, label: [.enhancement]))!
       }
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in
@@ -95,46 +125,22 @@ class IssueDetailViewController: UIViewController {
         }
       }.disposed(by: bag)
     
-    
-    viewModel.issueDetail.asObservable()
-      .map({ (issue) -> [Comment] in
-        if let commentsDic = issue.commentsDic {
-          return Array(commentsDic.values)
-        }
-        return []
-      })
-      .map({ (commentArr) -> [Comment] in
-        return commentArr.sorted(by: { $0.created_at < $1.created_at })
-      })
-      .observeOn(MainScheduler.instance)
-      .subscribe(onNext: { [weak self] commentArr in
-        var commentBoxArr = [CommentBox]()
-        for i in 0...commentArr.count {
-          var commentBox: CommentBox?
-          if i != commentArr.count {
-            commentBox = CommentBox(comment: commentArr[i], issue: nil, viewModel: (self?.viewModel)!)
-          } else {
-            let emptyComment = Comment(id: 1, user: (self?.viewModel.selectedIssue.repository?.owner)!, created_at: "", body: "")
-            commentBox = CommentBox(comment: emptyComment, issue: nil, viewModel: (self?.viewModel)!)
-            commentBox?.setEditMode()
-          }
-          self?.view.addSubview(commentBox!)
-          commentBoxArr.append(commentBox!)
-        }
-        for i in 0..<commentBoxArr.count {
-          if i == 0 {
-            commentBoxArr[i].snp.makeConstraints({ (make) in
-              make.top.equalTo((self?.bodyTextView.snp.bottom)!).offset(10)
-              make.left.right.equalTo((self?.titleTextField)!)
-            })
-          } else {
-            commentBoxArr[i].snp.makeConstraints({ (make) in
-              make.top.equalTo(commentBoxArr[i-1].snp.bottom).offset(10)
-              make.left.right.equalTo((self?.titleTextField)!)
-            })
-          }
-        }
-      })
+  }
+  
+  func bindTableView() {
+    viewModel.commentList.asDriver()
+      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
       .disposed(by: bag)
+    
+    //datasource
+    viewModel.commentList.asObservable()
+      .observeOn(MainScheduler.instance)
+      .bind(to: tableView.rx.items) {
+        [weak self] (tableView: UITableView, index: Int, element: Comment) in
+        let cell = CommentCell(comment: element, viewModel: (self?.viewModel)!)
+        return cell
+      }
+      .disposed(by: bag)
+    
   }
 }

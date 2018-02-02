@@ -103,7 +103,7 @@ class RepoListViewController: UIViewController {
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedRepo = self?.viewModel.repoList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueList(selectedRepo!, indexPath.row), sender: self!)
+        Navigator.shared.show(destination: .issueList(selectedRepo!.id), sender: self!)
       })
       .disposed(by: bag)
 

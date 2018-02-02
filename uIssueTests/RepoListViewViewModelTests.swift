@@ -44,7 +44,7 @@ class RepoListViewViewModelTests: XCTestCase {
     }
 
     let emitted = try! repoList.take(2).toBlocking(timeout: 3).toArray()
-    XCTAssertEqual(emitted[0], [])
+    
     XCTAssertEqual(emitted[1][0].name, "name")
     XCTAssertEqual(TestAPIMock.shared.lastMethodCall, "fetchAllIssues(filter:state:sort:page:)")
   }

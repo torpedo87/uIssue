@@ -82,8 +82,8 @@ class IssueListViewController: UIViewController {
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] _ in
-        let selectedRepo = self?.viewModel.selectedRepo
-        Navigator.shared.show(destination: .createIssue(selectedRepo!, (self?.viewModel.repoIndex)!), sender: self!)
+        let repoId = self?.viewModel.repoId
+        Navigator.shared.show(destination: .createIssue(repoId!), sender: self!)
       })
       .disposed(by: bag)
   }
@@ -107,9 +107,10 @@ class IssueListViewController: UIViewController {
     tableView.rx
       .itemSelected
       .subscribe(onNext: { [weak self] indexPath in
+        let repoId = self?.viewModel.repoId
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedIssue = self?.viewModel.issueList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueDetail(selectedIssue!, indexPath.row, (self?.viewModel.repoIndex)!), sender: self!)
+        Navigator.shared.show(destination: .issueDetail(repoId!, selectedIssue!.id), sender: self!)
       })
       .disposed(by: bag)
   }

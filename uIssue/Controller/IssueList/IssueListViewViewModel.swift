@@ -14,41 +14,32 @@ class IssueListViewViewModel {
   private let bag = DisposeBag()
   
   //input
-  let selectedRepo: Repository!
-  let repoIndex: Int!
+  let repoId: Int!
   
   //output
   let issueList = Variable<[Issue]>([])
   
-  init(repo: Repository, repoIndex: Int) {
-    self.repoIndex = repoIndex
-    selectedRepo = repo
-    bindOutput()
+  init(repoId: Int) {
+    self.repoId = repoId
+    bindOutput(repoId: repoId)
   }
   
-  func bindOutput() {
-    
+  func bindOutput(repoId: Int) {
     LocalDataManager.shared.getProvider()
-      .asDriver(onErrorJustReturn: [])
-      .map { [weak self] (repoList) in
-        repoList.filter { $0.id == self?.selectedRepo.id }
-      }.map({ [weak self] (repoList) -> Repository in
-        if let repo = repoList.first {
-          return repo
-        }
-        return (self?.selectedRepo)!
-      })
-      .map({ (repo) -> [Issue] in
-        if let issueDic = repo.issuesDic {
-          return Array(issueDic.values)
+      .asDriver(onErrorJustReturn: [Int : Repository]())
+      .map { $0.filter { $0.value.issuesDic!.count > 0 } }
+      .map({ (repoDict) -> [Issue] in
+        if let issueDic = repoDict[repoId]?.issuesDic {
+          return Array(issueDic.values).sorted(by: { $0.created_at > $1.created_at })
         }
         return []
       })
-      .map({ (issueArr) -> [Issue] in
-        return issueArr.sorted(by: { $0.created_at > $1.created_at })
-      })
       .drive(issueList)
       .disposed(by: bag)
+  }
+  
+  func sortIssueListByCreated() {
+    issueList.value = issueList.value.sorted(by: { $0.created_at > $1.created_at })
   }
   
 }

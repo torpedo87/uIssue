@@ -27,23 +27,22 @@ class IssueListViewViewModelTests: XCTestCase {
     LocalDataManager.shared.removeAll()
   }
   
-  private func createViewModel(testRepo: Repository, repoIndex: Int) -> IssueListViewViewModel {
-    return IssueListViewViewModel(repo: testRepo, repoIndex: repoIndex)
+  private func createViewModel(repoId: Int) -> IssueListViewViewModel {
+    return IssueListViewViewModel(repoId: repoId)
   }
   
   func test_fetchIssueList() {
     
     //viewmodel 만들기
-    viewModel = createViewModel(testRepo: Repository.test, repoIndex: 0)
+    viewModel = createViewModel(repoId: 1)
     let issueList = viewModel.issueList.asObservable()
     
     //local 에 추가
     DispatchQueue.main.async {
-      LocalDataManager.shared.setRepoList(repoList: TestData().repoList)
+      LocalDataManager.shared.setRepoDict(repoDict: TestData().repoDict)
     }
     
-    let emitted = try! issueList.take(2).toBlocking(timeout: 3).toArray()
-    XCTAssertEqual(emitted[0], [])
-    //XCTAssertEqual(emitted[1][0].id, 1)
+    let emitted = try! issueList.skip(1).toBlocking().first()
+    XCTAssertEqual(emitted![0], Issue.test)
   }
 }
