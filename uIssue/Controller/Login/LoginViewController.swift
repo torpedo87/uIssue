@@ -121,11 +121,14 @@ class LoginViewController: UIViewController {
       .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("login error"))
       .drive(onNext: { [weak self] status in
         switch status {
-        case .authorized: Navigator.shared.show(destination: .repoList, sender: self!)
+        case .authorized: do {
+          Navigator.shared.show(destination: .repoList, sender: self!)
+          }
         case .unAuthorized(let value): self?.showErrorMsg(message: value)
         }
       })
       .disposed(by: bag)
+    
   }
   
   func showErrorMsg(message: String) {

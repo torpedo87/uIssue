@@ -37,6 +37,7 @@ class CommentCell: UITableViewCell {
   }
   
   override func prepareForReuse() {
-    commentView.setEmpty()
+    //commentView.setEmpty()
+    //commentView.removeFromSuperview()
   }
 }

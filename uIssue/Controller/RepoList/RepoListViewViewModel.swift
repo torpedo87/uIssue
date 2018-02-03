@@ -17,20 +17,30 @@ class RepoListViewViewModel {
   let repoList = Variable<[Repository]>([])
   let running = Variable<Bool>(true)
   let issueApi: IssueServiceRepresentable
+  let authApi: AuthServiceRepresentable
   let statusDriver: Driver<AuthService.Status>
   
   init(issueApi: IssueServiceRepresentable = IssueService(),
+       authApi: AuthServiceRepresentable = AuthService(),
        statusDriver: Driver<AuthService.Status> = AuthService().status) {
     self.statusDriver = statusDriver
     self.issueApi = issueApi
+    self.authApi = authApi
     bindOutput()
   }
   
   func bindOutput() {
     
-    statusDriver
-      .drive(onNext: { [weak self] status in
+    statusDriver.asObservable()
+      .flatMap({ [weak self] (status) -> Observable<Bool> in
         if status == .authorized {
+          return (self?.authApi)!.getUser()
+        }
+        return Observable.just(false)
+      })
+      .asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] bool in
+        if bool {
           LocalDataManager.shared.bindOutput(issueApi: (self?.issueApi)!)
         }
       })

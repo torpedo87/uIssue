@@ -15,17 +15,18 @@ struct Issue: Codable {
   let user: User
   let assignees: [User]
   let number: Int
-  let repository: Repository?
+  var repository: Repository?
   let created_at: String
   let labels: [IssueLabel]
   let state: String
   let comments_url: String
   var commentsDic: [Int:Comment]?
+  var isCommentsFetched: Bool?
   
   init(id: Int = -1, title: String = "", body: String? = nil, user: User = User(),
        assignees: [User] = [User()], number: Int = -1, repository: Repository? = nil,
        created_at: String = "", labels: [IssueLabel] = [IssueLabel()], state: String = "",
-       comments_url: String = "", commentsDic: [Int:Comment]? = nil) {
+       comments_url: String = "", commentsDic: [Int:Comment]? = nil, isCommentsFetched: Bool = false) {
     self.id = id
     self.title = title
     self.body = body
@@ -38,9 +39,11 @@ struct Issue: Codable {
     self.state = state
     self.comments_url = comments_url
     self.commentsDic = commentsDic
+    self.isCommentsFetched = isCommentsFetched
   }
   
   mutating func setCommentsDic(comments: [Comment]) {
+    self.isCommentsFetched = true
     self.commentsDic = [Int:Comment]()
     for comment in comments {
       self.commentsDic?[comment.id] = comment

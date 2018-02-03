@@ -27,11 +27,11 @@ class ListCell: UITableViewCell {
     addSubview(countLabel)
     
     titleLabel.snp.makeConstraints { (make) in
-      titleLabel.sizeToFit()
+      make.right.equalTo(countLabel.snp.left)
       make.left.top.bottom.equalToSuperview()
     }
     countLabel.snp.makeConstraints { (make) in
-      countLabel.sizeToFit()
+      make.width.equalTo(50)
       make.right.top.bottom.equalToSuperview()
     }
   }
@@ -42,7 +42,7 @@ class ListCell: UITableViewCell {
   
   func configureCell(viewModel: RepoListViewViewModel, index: Int) {
     titleLabel.text = viewModel.repoList.value[index].name
-    countLabel.text = "\(viewModel.repoList.value[index].issuesDic!.count)"
+    countLabel.text = "\(viewModel.repoList.value[index].issuesDic!.count) 개"
   }
   
   func configureCell(viewModel: IssueListViewViewModel, index: Int) {

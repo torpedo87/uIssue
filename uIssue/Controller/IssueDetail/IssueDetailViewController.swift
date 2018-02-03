@@ -29,7 +29,7 @@ class IssueDetailViewController: UIViewController {
   }()
   
   private lazy var newCommentView: CommentBoxView = {
-    let emptyComment = Comment(id: 1, user: (self.viewModel.selectedIssue.repository?.owner)!, created_at: "", body: "")
+    let emptyComment = Comment(id: 1, user: Me.shared.getUser()!, created_at: "", body: "")
     let commentBox = CommentBoxView(comment: emptyComment, issue: nil, contentsMode: .newCommentBody, viewModel: viewModel)
     commentBox.setEditMode()
     return commentBox
@@ -65,7 +65,10 @@ class IssueDetailViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    viewModel.requestFetchComments()
+    if viewModel.selectedIssue.isCommentsFetched == nil {
+      viewModel.requestFetchComments()
+    }
+    
     setupView()
     bindUI()
     bindTableView()

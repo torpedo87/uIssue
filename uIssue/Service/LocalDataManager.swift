@@ -33,11 +33,14 @@ class LocalDataManager {
   }
   
   func createIssue(repoId: Int, createdIssue: Issue) {
+    let repo = resultProvider.value[repoId]
+    var issueWithRepo = createdIssue
+    issueWithRepo.repository = repo
     if let _ = resultProvider.value[repoId]?.issuesDic {
-      resultProvider.value[repoId]?.issuesDic![createdIssue.id] = createdIssue
+      resultProvider.value[repoId]?.issuesDic![createdIssue.id] = issueWithRepo
     } else {
       resultProvider.value[repoId]?.issuesDic = [Int:Issue]()
-      resultProvider.value[repoId]?.issuesDic![createdIssue.id] = createdIssue
+      resultProvider.value[repoId]?.issuesDic![createdIssue.id] = issueWithRepo
     }
   }
   
@@ -46,7 +49,13 @@ class LocalDataManager {
   }
   
   func editIssue(repoId: Int, newIssue: Issue) {
-    resultProvider.value[repoId]?.issuesDic?.updateValue(newIssue, forKey: newIssue.id)
+    let repo = resultProvider.value[repoId]
+    let commetsDict = resultProvider.value[repoId]?.issuesDic?[newIssue.id]?.commentsDic
+    var issue = newIssue
+    issue.repository = repo
+    issue.commentsDic = commetsDict
+    issue.isCommentsFetched = true
+    resultProvider.value[repoId]?.issuesDic?.updateValue(issue, forKey: newIssue.id)
   }
   
   func fetchComments(repoId: Int, issue: Issue, comments: [Comment]) {

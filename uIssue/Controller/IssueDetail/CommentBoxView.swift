@@ -109,15 +109,16 @@ class CommentBoxView: UIView {
       .drive(onNext: { [weak self] _ in
         switch (self?.contentsMode)! {
         case .issueBody: do {
-          self?.viewModel.cancelEditIssue()
+          self?.commentTextView.text = self?.issue?.body
           }
         case .commentBody: do {
-          self?.viewModel.cancelEditComment(existingComment: (self?.comment)!)
+          self?.commentTextView.text = self?.comment?.body
           }
         case .newCommentBody: do {
           self?.commentTextView.text = ""
           }
         }
+        self?.mode.value = .normal
       })
       .disposed(by: bag)
     
@@ -137,7 +138,19 @@ class CommentBoxView: UIView {
           }
         }
     }.asDriver(onErrorJustReturn: false)
-    .drive()
+      .drive(onNext: { [weak self] bool in
+        if bool {
+          switch (self?.contentsMode)! {
+          case .issueBody: do {
+            self?.commentTextView.text = ""
+            }
+          case .newCommentBody: do {
+            self?.commentTextView.text = ""
+            }
+          default: break
+          }
+        }
+      })
     .disposed(by: bag)
     
     editButton.rx.tap

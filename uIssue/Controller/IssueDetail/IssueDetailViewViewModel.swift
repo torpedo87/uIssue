@@ -134,12 +134,4 @@ class IssueDetailViewViewModel {
         }
       })
   }
-  
-  func cancelEditIssue() {
-    LocalDataManager.shared.editIssue(repoId: repoId, newIssue: selectedIssue)
-  }
-  
-  func cancelEditComment(existingComment: Comment) {
-    LocalDataManager.shared.editComment(repoId: repoId, issue: selectedIssue, newComment: existingComment)
-  }
 }
