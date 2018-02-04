@@ -9,6 +9,7 @@ target 'uIssue' do
   pod 'SnapKit', '~> 4.0.0'
   pod 'RxSwift'
   pod 'RxCocoa'
+  pod 'Moya/RxSwift'
 
   target 'uIssueTests' do
     inherit! :search_paths

@@ -15,7 +15,6 @@ protocol AuthServiceRepresentable {
   var status: Driver<AuthService.Status> { get }
   func requestToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
   func removeToken(userId: String, userPassword: String) -> Observable<AuthService.Status>
-  func getUser() -> Observable<Bool>
 }
 
 class AuthService: AuthServiceRepresentable {
@@ -160,39 +159,5 @@ class AuthService: AuthServiceRepresentable {
       })
   }
   
-  func getUser() -> Observable<Bool> {
-    guard let token = UserDefaults.loadToken()?.token else { fatalError() }
-    guard let urlComponents = URLComponents(string: "https://api.github.com/user") else { fatalError() }
-    
-    let request: Observable<URLRequest> = Observable.create{ observer in
-      let request: URLRequest = {
-        var request = URLRequest(url: $0)
-        request.httpMethod = "GET"
-        request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        return request
-      }(urlComponents.url!)
-      
-      observer.onNext(request)
-      observer.onCompleted()
-      return Disposables.create()
-    }
-    
-    return request.flatMap{
-      URLSession.shared.rx.response(request: $0)
-      }
-      .map({ (response, data) -> Bool in
-        if 200 ..< 300 ~= response.statusCode {
-          let me = try! JSONDecoder().decode(User.self, from: data)
-          Me.shared.setUser(me: me)
-          return true
-        } else if 401 == response.statusCode {
-          throw AuthService.Errors.invalidUserInfo
-        } else {
-          throw AuthService.Errors.requestFail
-        }
-      })
-      .catchError({ (error) -> Observable<Bool> in
-        return Observable.just(false)
-      })
-  }
+  
 }
