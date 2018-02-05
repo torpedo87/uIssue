@@ -13,7 +13,7 @@ import Moya
 protocol IssueServiceRepresentable {
   var currentPage: Variable<Int> { get }
   func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]>
-  func createIssue(title: String, body: String, label: [IssueService.Label], repo: Repository) -> Observable<Issue>
+  func createIssue(title: String, body: String, label: [IssueService.Label], repo: Repository, users: [User]) -> Observable<Issue>
   func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
   func fetchComments(issue: Issue) -> Observable<[Comment]>
   func createComment(issue: Issue, commentBody: String) -> Observable<Comment>
@@ -116,8 +116,8 @@ class IssueService: IssueServiceRepresentable {
     
   }
   
-  func createIssue(title: String, body: String, label: [Label], repo: Repository) -> Observable<Issue> {
-    return self.provider.rx.request(.createIssue(title: title, body: body, label: label, repo: repo))
+  func createIssue(title: String, body: String, label: [Label], repo: Repository, users: [User]) -> Observable<Issue> {
+    return self.provider.rx.request(.createIssue(title: title, body: body, label: label, repo: repo, users: users))
       .asObservable()
       .map({ (result) -> Issue in
         let response = result.response!
@@ -131,6 +131,7 @@ class IssueService: IssueServiceRepresentable {
           throw AuthService.Errors.requestFail
         }
       }).catchError({ (error) -> Observable<Issue> in
+        print(error.localizedDescription)
         return Observable.just(Issue())
       })
   }

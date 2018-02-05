@@ -9,7 +9,6 @@
 import UIKit
 import RxSwift
 import RxCocoa
-import RxDataSources
 
 class CreateIssueViewController: UIViewController {
   
@@ -46,17 +45,33 @@ class CreateIssueViewController: UIViewController {
     return btn
   }()
   
-  private lazy var labelButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("Label", for: UIControlState.normal)
-    btn.backgroundColor = UIColor(hex: "3CC75A")
-    return btn
+  private lazy var labelLabel: UILabel = {
+    let view = UILabel()
+    view.text = "LABEL"
+    view.backgroundColor = UIColor(hex: "F1F8FF")
+    return view
   }()
   
-  private lazy var propertyTableView: UITableView = {
+  private lazy var userLabel: UILabel = {
+    let view = UILabel()
+    view.text = "ASSIGNEE"
+    view.backgroundColor = UIColor(hex: "F1F8FF")
+    return view
+  }()
+  
+  private lazy var labelTableView: UITableView = {
     let table = UITableView()
     table.register(UITableViewCell.self, forCellReuseIdentifier: "TableViewCell")
     table.rowHeight = 50
+    table.allowsMultipleSelection = true
+    return table
+  }()
+  
+  private lazy var assigneeTableView: UITableView = {
+    let table = UITableView()
+    table.register(UITableViewCell.self, forCellReuseIdentifier: "TableViewCell")
+    table.rowHeight = 50
+    table.allowsMultipleSelection = true
     return table
   }()
   
@@ -81,8 +96,10 @@ class CreateIssueViewController: UIViewController {
     view.addSubview(commetTextView)
     view.addSubview(submitButton)
     view.addSubview(cancelButton)
-    view.addSubview(propertyTableView)
-    view.addSubview(labelButton)
+    view.addSubview(labelLabel)
+    view.addSubview(userLabel)
+    view.addSubview(labelTableView)
+    view.addSubview(assigneeTableView)
     
     titleTextField.snp.makeConstraints { (make) in
       make.centerX.equalToSuperview()
@@ -110,16 +127,34 @@ class CreateIssueViewController: UIViewController {
       make.top.equalTo(commetTextView.snp.bottom).offset(10)
     }
     
-    propertyTableView.snp.makeConstraints { (make) in
+    labelLabel.snp.makeConstraints { (make) in
       make.top.equalTo(submitButton.snp.bottom).offset(10)
-      make.left.right.equalTo(titleTextField)
+      make.left.equalTo(titleTextField)
+      make.height.equalTo(50)
+      make.width.equalTo(userLabel)
+      make.right.equalTo(userLabel.snp.left).offset(-10)
+    }
+    
+    userLabel.snp.makeConstraints { (make) in
+      make.top.equalTo(submitButton.snp.bottom).offset(10)
+      make.right.equalTo(titleTextField)
+      make.centerY.equalTo(labelLabel)
+    }
+    
+    labelTableView.snp.makeConstraints { (make) in
+      make.top.equalTo(labelLabel.snp.bottom)
+      make.left.equalTo(titleTextField)
+      make.bottom.equalToSuperview().offset(-50)
+      make.width.equalTo(assigneeTableView)
+      make.right.equalTo(assigneeTableView.snp.left).offset(-10)
+    }
+    
+    assigneeTableView.snp.makeConstraints { (make) in
+      make.top.equalTo(userLabel.snp.bottom)
+      make.right.equalTo(titleTextField)
       make.bottom.equalToSuperview().offset(-50)
     }
     
-    labelButton.snp.makeConstraints { (make) in
-      make.width.height.equalTo(50)
-      make.left.bottom.equalToSuperview()
-    }
   }
   
   func bindUI() {
@@ -137,8 +172,13 @@ class CreateIssueViewController: UIViewController {
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        (self?.viewModel.createIssue(title: (self?.titleTextField.text)!, newComment: (self?.commetTextView.text)!, label: [.bug]))!
+        let labels = Array((self?.viewModel)!.labelDict.values)
+        let users = Array((self?.viewModel)!.userDict.values)
+        print("labels -----", labels)
+        print("users -----", users)
+        return (self?.viewModel.createIssue(title: (self?.titleTextField.text)!, newComment: (self?.commetTextView.text)!, label: labels, users: users))!
       }
+      .debug()
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in
         if success {
@@ -154,70 +194,76 @@ class CreateIssueViewController: UIViewController {
       })
       .disposed(by: bag)
     
-    labelButton.rx.tap
-      .throttle(0.5, scheduler: MainScheduler.instance)
-      .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        //self?.viewModel.addLabel(newLabel: .bug)
+  }
+  
+  func bindTableView() {
+    viewModel.labels.asDriver()
+      .drive(onNext: { [weak self] _ in self?.labelTableView.reloadData() })
+      .disposed(by: bag)
+    
+    //datasource
+    viewModel.labels.asObservable()
+      .bind(to: labelTableView.rx.items) {
+        (tableView: UITableView, index: Int, element: IssueService.Label) in
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell") else { return UITableViewCell() }
+        cell.textLabel?.text = element.rawValue
+        return cell
+      }
+      .disposed(by: bag)
+    
+    viewModel.assignees.asDriver()
+      .drive(onNext: { [weak self] _ in self?.assigneeTableView.reloadData() })
+      .disposed(by: bag)
+    
+    //datasource
+    viewModel.assignees.asObservable()
+      .bind(to: assigneeTableView.rx.items) {
+        (tableView: UITableView, index: Int, element: User) in
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TableViewCell") else { return UITableViewCell() }
+        cell.textLabel?.text = element.login
+        return cell
+      }
+      .disposed(by: bag)
+    
+    //delegate
+    labelTableView.rx
+      .itemSelected
+      .subscribe(onNext: { [weak self] indexPath in
+        let cell = self?.labelTableView.cellForRow(at: indexPath)
+        cell?.accessoryType = .checkmark
+        let label = self?.viewModel.labels.value[indexPath.row]
+        self?.viewModel.labelDict[indexPath.row] = label
+      })
+      .disposed(by: bag)
+    
+    labelTableView.rx
+      .itemDeselected
+      .subscribe(onNext: { [weak self] indexPath in
+        let cell = self?.labelTableView.cellForRow(at: indexPath)
+        cell?.accessoryType = .none
+        self?.viewModel.labelDict.removeValue(forKey: indexPath.row)
+      })
+      .disposed(by: bag)
+    
+    //delegate
+    assigneeTableView.rx
+      .itemSelected
+      .subscribe(onNext: { [weak self] indexPath in
+        let cell = self?.assigneeTableView.cellForRow(at: indexPath)
+        cell?.accessoryType = .checkmark
+        let user = self?.viewModel.assignees.value[indexPath.row]
+        self?.viewModel.userDict[indexPath.row] = user
+      })
+      .disposed(by: bag)
+    
+    assigneeTableView.rx
+      .itemDeselected
+      .subscribe(onNext: { [weak self] indexPath in
+        let cell = self?.assigneeTableView.cellForRow(at: indexPath)
+        cell?.accessoryType = .none
+        self?.viewModel.userDict.removeValue(forKey: indexPath.row)
       })
       .disposed(by: bag)
   }
   
-  func bindTableView() {
-    
-    let sections: [MultipleSectionModel] = [
-      .LabelSection(title: "Labels", items: transformLabelsToItem(labels: IssueService.Label.arr)),
-      .AssigneeSection(title: "Assignees", items: transformUsersToItem(users: viewModel.assignees.value))
-    ]
-    
-    let dataSource = CreateIssueViewController.dataSource()
-    
-    Observable.just(sections)
-      .bind(to: propertyTableView.rx.items(dataSource: dataSource))
-      .disposed(by: bag)
-  }
-  
-  func transformLabelsToItem(labels: [IssueService.Label]) -> [SectionItem] {
-    var tempArr = [SectionItem]()
-    for label in labels {
-      let item = SectionItem.LabelSectionItem(label: label)
-      tempArr.append(item)
-    }
-    return tempArr
-  }
-  
-  func transformUsersToItem(users: [User]) -> [SectionItem] {
-    var tempArr = [SectionItem]()
-    for user in users {
-      let item = SectionItem.AssigneeSectionItem(user: user)
-      tempArr.append(item)
-    }
-    return tempArr
-  }
-}
-
-extension CreateIssueViewController {
-  static func dataSource() -> RxTableViewSectionedReloadDataSource<MultipleSectionModel> {
-    return RxTableViewSectionedReloadDataSource<MultipleSectionModel>(
-      configureCell: { (dataSource, table, idxPath, _) in
-        switch dataSource[idxPath] {
-        case let .LabelSectionItem(label):
-          let cell: UITableViewCell = table.dequeueReusableCell(withIdentifier: "TableViewCell", for: idxPath)
-          cell.textLabel?.text = label.rawValue
-          
-          return cell
-        case let .AssigneeSectionItem(user):
-          let cell: UITableViewCell = table.dequeueReusableCell(withIdentifier: "TableViewCell", for: idxPath)
-          cell.textLabel?.text = user.login
-          
-          return cell
-        
-        }
-    },
-      titleForHeaderInSection: { dataSource, index in
-        let section = dataSource[index]
-        return section.title
-    }
-    )
-  }
 }

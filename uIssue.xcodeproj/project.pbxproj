@@ -12,7 +12,6 @@
 		4840CBCF2024753600517961 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4840CBCE2024753600517961 /* CommentCell.swift */; };
 		4843CFEE2026D7C800B70DCD /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFED2026D7C800B70DCD /* UIColor.swift */; };
 		4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */; };
-		4843CFFA2028B5E400B70DCD /* IssueProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFF92028B5E400B70DCD /* IssueProperty.swift */; };
 		48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F902011F32D003F5FBB /* LoginViewViewModel.swift */; };
 		48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */; };
 		48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */; };
@@ -66,7 +65,6 @@
 		4840CBCE2024753600517961 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		4843CFED2026D7C800B70DCD /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpViewController.swift; sourceTree = "<group>"; };
-		4843CFF92028B5E400B70DCD /* IssueProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueProperty.swift; sourceTree = "<group>"; };
 		48470F902011F32D003F5FBB /* LoginViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModel.swift; sourceTree = "<group>"; };
 		48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModel.swift; sourceTree = "<group>"; };
 		48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModelTests.swift; sourceTree = "<group>"; };
@@ -318,7 +316,6 @@
 				48E44AC51FF508E9008F9649 /* Issue.swift */,
 				48B83A16200F28BB00F2A490 /* Token.swift */,
 				48FFC1302025755F003CAA13 /* Me.swift */,
-				4843CFF92028B5E400B70DCD /* IssueProperty.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -599,7 +596,6 @@
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
 				48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */,
 				48FFC1312025755F003CAA13 /* Me.swift in Sources */,
-				4843CFFA2028B5E400B70DCD /* IssueProperty.swift in Sources */,
 				4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */,
 				48470FA82015F93F003F5FBB /* Navigator.swift in Sources */,
 				48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */,

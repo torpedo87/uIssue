@@ -25,6 +25,9 @@ class CreateIssueViewViewModel {
   let issueApi: IssueServiceRepresentable
   let selectedRepo: Repository!
   let assignees = Variable<[User]>([])
+  let labels = Variable<[IssueService.Label]>(IssueService.Label.arr)
+  var labelDict = [Int:IssueService.Label]()
+  var userDict = [Int:User]()
   
   init(repoId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -48,9 +51,9 @@ class CreateIssueViewViewModel {
   }
   
   //이슈생성 api요청 성공하면 로컬 변경하기
-  func createIssue(title: String, newComment: String, label: [IssueService.Label]) -> Observable<Bool> {
+  func createIssue(title: String, newComment: String, label: [IssueService.Label], users: [User]) -> Observable<Bool> {
     let repoId = self.repoId!
-    return issueApi.createIssue(title: title, body: newComment, label: label, repo: selectedRepo)
+    return issueApi.createIssue(title: title, body: newComment, label: label, repo: selectedRepo, users: users)
       .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
           LocalDataManager.shared.createIssue(repoId: repoId, createdIssue: newIssue)
