@@ -36,7 +36,4 @@ class CommentCell: UITableViewCell {
     fatalError("init(coder:) has not been implemented")
   }
   
-  override func prepareForReuse() {
-    commentView.setEmpty()
-  }
 }

@@ -10,6 +10,8 @@
 		2055F0B7BC0D3F735C840BA9 /* Pods_uIssue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7237C7F0E77AEB4EE858BDB2 /* Pods_uIssue.framework */; };
 		24F4C84D5167248291595973 /* Pods_uIssueTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */; };
 		4840CBCF2024753600517961 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4840CBCE2024753600517961 /* CommentCell.swift */; };
+		4843CFEE2026D7C800B70DCD /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFED2026D7C800B70DCD /* UIColor.swift */; };
+		4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */; };
 		48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F902011F32D003F5FBB /* LoginViewViewModel.swift */; };
 		48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */; };
 		48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */; };
@@ -45,6 +47,8 @@
 		48E44AC61FF508E9008F9649 /* Issue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC51FF508E9008F9649 /* Issue.swift */; };
 		48E44AC81FF50C9B008F9649 /* IssueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC71FF50C9B008F9649 /* IssueService.swift */; };
 		48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ACB1FF603D2008F9649 /* ListCell.swift */; };
+		48FFC1312025755F003CAA13 /* Me.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FFC1302025755F003CAA13 /* Me.swift */; };
+		48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FFC13220258794003CAA13 /* IssueAPI.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -59,6 +63,8 @@
 
 /* Begin PBXFileReference section */
 		4840CBCE2024753600517961 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
+		4843CFED2026D7C800B70DCD /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
+		4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpViewController.swift; sourceTree = "<group>"; };
 		48470F902011F32D003F5FBB /* LoginViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModel.swift; sourceTree = "<group>"; };
 		48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModel.swift; sourceTree = "<group>"; };
 		48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModelTests.swift; sourceTree = "<group>"; };
@@ -98,6 +104,8 @@
 		48E44AC51FF508E9008F9649 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
 		48E44AC71FF50C9B008F9649 /* IssueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueService.swift; sourceTree = "<group>"; };
 		48E44ACB1FF603D2008F9649 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
+		48FFC1302025755F003CAA13 /* Me.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Me.swift; sourceTree = "<group>"; };
+		48FFC13220258794003CAA13 /* IssueAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueAPI.swift; sourceTree = "<group>"; };
 		49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_uIssueTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5996FB856E01B05D8E6C253F /* Pods-uIssueTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uIssueTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-uIssueTests/Pods-uIssueTests.release.xcconfig"; sourceTree = "<group>"; };
 		6B5DE9CC3A79555DEC794AB6 /* Pods-uIssue.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-uIssue.release.xcconfig"; path = "Pods/Target Support Files/Pods-uIssue/Pods-uIssue.release.xcconfig"; sourceTree = "<group>"; };
@@ -135,6 +143,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		4843CFF42028229D00B70DCD /* View */ = {
+			isa = PBXGroup;
+			children = (
+				48B96ED2201B156D003DDF35 /* CommentBoxView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		48470FA22015DDCB003F5FBB /* Login */ = {
 			isa = PBXGroup;
 			children = (
@@ -159,6 +175,7 @@
 			children = (
 				48470F9C20138936003F5FBB /* IssueListViewViewModel.swift */,
 				48470F9A20135092003F5FBB /* IssueListViewController.swift */,
+				4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */,
 			);
 			path = IssueList;
 			sourceTree = "<group>";
@@ -194,7 +211,6 @@
 			children = (
 				48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */,
 				48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */,
-				48B96ED2201B156D003DDF35 /* CommentBoxView.swift */,
 				4840CBCE2024753600517961 /* CommentCell.swift */,
 			);
 			path = IssueDetail;
@@ -232,6 +248,7 @@
 		48A313E41FF3956D00201F6E /* uIssue */ = {
 			isa = PBXGroup;
 			children = (
+				4843CFF42028229D00B70DCD /* View */,
 				48E44AC21FF4F117008F9649 /* Extensions */,
 				48A314091FF3963C00201F6E /* Resources */,
 				48A314081FF3961B00201F6E /* Model */,
@@ -288,6 +305,7 @@
 				48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */,
 				48A3140E1FF3A07B00201F6E /* AuthService.swift */,
 				48E44AC71FF50C9B008F9649 /* IssueService.swift */,
+				48FFC13220258794003CAA13 /* IssueAPI.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -297,6 +315,7 @@
 			children = (
 				48E44AC51FF508E9008F9649 /* Issue.swift */,
 				48B83A16200F28BB00F2A490 /* Token.swift */,
+				48FFC1302025755F003CAA13 /* Me.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -315,6 +334,7 @@
 			isa = PBXGroup;
 			children = (
 				48E44AC31FF4F12C008F9649 /* Userdefaults.swift */,
+				4843CFED2026D7C800B70DCD /* UIColor.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -462,13 +482,23 @@
 			);
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-uIssue/Pods-uIssue-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
+				"${BUILT_PRODUCTS_DIR}/Differentiator/Differentiator.framework",
+				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
+				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
+				"${BUILT_PRODUCTS_DIR}/RxDataSources/RxDataSources.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/SnapKit/SnapKit.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Differentiator.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxDataSources.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SnapKit.framework",
 			);
@@ -555,6 +585,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */,
+				4843CFEE2026D7C800B70DCD /* UIColor.swift in Sources */,
 				48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */,
 				48470FBB201719BA003F5FBB /* IssueDetailViewViewModel.swift in Sources */,
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
@@ -563,6 +594,9 @@
 				48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */,
 				48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */,
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
+				48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */,
+				48FFC1312025755F003CAA13 /* Me.swift in Sources */,
+				4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */,
 				48470FA82015F93F003F5FBB /* Navigator.swift in Sources */,
 				48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,

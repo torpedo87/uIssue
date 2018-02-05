@@ -13,25 +13,38 @@ import RxCocoa
 class IssueListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: IssueListViewViewModel!
+  private lazy var topView: UIView = {
+    let view = UIView()
+    view.backgroundColor = UIColor(hex: "F6F8FA")
+    return view
+  }()
+
+  private lazy var stateButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("STATE ▽", for: UIControlState.normal)
+    btn.setTitle("STATE △", for: UIControlState.selected)
+    btn.setTitleColor(UIColor.darkGray, for: UIControlState.normal)
+    return btn
+  }()
+  
+  private lazy var sortButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("SORT ▽", for: UIControlState.normal)
+    btn.setTitle("SORT △", for: UIControlState.selected)
+    btn.setTitleColor(UIColor.darkGray, for: UIControlState.normal)
+    return btn
+  }()
+  
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
     view.rowHeight = 50
     return view
   }()
-  private lazy var settingBarButtonItem: UIBarButtonItem = {
-    let item = UIBarButtonItem(image: UIImage(named: "setting"),
-                               style: .plain,
-                               target: self,
-                               action: nil)
+  
+  private lazy var addBarButtonItem: UIBarButtonItem = {
+    let item = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.add, target: self, action: nil)
     return item
-  }()
-  private lazy var newIssueButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("+", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.red
-    btn.layer.cornerRadius = 25
-    return btn
   }()
   
   static func createWith(viewModel: IssueListViewViewModel) -> IssueListViewController {
@@ -50,37 +63,57 @@ class IssueListViewController: UIViewController {
   
   func setupView() {
     title = "Issue List"
-    navigationItem.rightBarButtonItem = settingBarButtonItem
+    navigationItem.rightBarButtonItem = addBarButtonItem
     view.backgroundColor = UIColor.white
+    view.addSubview(topView)
+    topView.addSubview(stateButton)
+    topView.addSubview(sortButton)
     view.addSubview(tableView)
-    view.addSubview(newIssueButton)
+    
+    topView.snp.makeConstraints { (make) in
+      make.top.equalToSuperview().offset(85)
+      make.left.right.equalToSuperview()
+      make.height.equalTo(50)
+    }
+    
+    stateButton.snp.makeConstraints { (make) in
+      stateButton.sizeToFit()
+      make.left.top.bottom.equalTo(topView)
+    }
+    
+    sortButton.snp.makeConstraints { (make) in
+      sortButton.sizeToFit()
+      make.right.top.bottom.equalTo(topView)
+    }
     
     tableView.snp.makeConstraints({ (make) in
       make.left.right.bottom.equalToSuperview()
-      make.top.equalToSuperview().offset(50)
+      make.top.equalTo(topView.snp.bottom)
     })
     
-    newIssueButton.snp.makeConstraints({ (make) in
-      make.width.height.equalTo(50)
-      make.right.bottom.equalToSuperview().offset(-30)
-    })
   }
   
   func bindUI() {
     
-    settingBarButtonItem.rx.tap
+    stateButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .map{ _ in true }
-      .asDriver(onErrorJustReturn: false)
+      .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
-        Navigator.shared.show(destination: .setting, sender: self!)
+        self?.presentPopUp(sender: (self?.stateButton)!, mode: .state)
       })
       .disposed(by: bag)
     
-    newIssueButton.rx.tap
+    sortButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .map{ _ in true }
-      .asDriver(onErrorJustReturn: false)
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { [weak self] _ in
+        self?.presentPopUp(sender: (self?.sortButton)!, mode: .sort)
+      })
+      .disposed(by: bag)
+    
+    addBarButtonItem.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
         let repoId = self?.viewModel.repoId
         Navigator.shared.show(destination: .createIssue(repoId!), sender: self!)
@@ -115,4 +148,20 @@ class IssueListViewController: UIViewController {
       .disposed(by: bag)
   }
   
+  func presentPopUp(sender: UIButton, mode: PopUpViewController.PopUpMode) {
+    let popUpViewController = PopUpViewController.createWith(viewModel: viewModel, mode: mode)
+    popUpViewController.modalPresentationStyle = .popover
+    popUpViewController.preferredContentSize = CGSize(width: 150, height: 100)
+    let popOver = popUpViewController.popoverPresentationController
+    popOver?.delegate = self
+    popOver?.sourceView = sender
+    present(popUpViewController, animated: true, completion: nil)
+  }
+  
+}
+
+extension IssueListViewController: UIPopoverPresentationControllerDelegate {
+  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+    return .none
+  }
 }

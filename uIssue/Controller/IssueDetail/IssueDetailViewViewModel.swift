@@ -12,7 +12,6 @@ import RxCocoa
 
 class IssueDetailViewViewModel {
   private let bag = DisposeBag()
-  let selectedIssue: Issue!
   private let issueId: Int!
   private let repoId: Int!
   let issueDetail = Variable<Issue>(Issue())
@@ -23,12 +22,12 @@ class IssueDetailViewViewModel {
     self.issueApi = issueApi
     self.repoId = repoId
     self.issueId = issueId
-    self.selectedIssue = LocalDataManager.shared.getRepo(repoId: repoId).issuesDic![issueId]
     
     bindOutput(repoId: repoId, issueId: issueId)
   }
   
   func bindOutput(repoId: Int, issueId: Int) {
+    
     LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [Int : Repository]())
       .map { $0.filter { $0.value.issuesDic!.count > 0 } }
@@ -54,10 +53,10 @@ class IssueDetailViewViewModel {
   
   //코멘트 요청 api 성공시 로컬 변경하기
   func requestFetchComments() {
-    issueApi.fetchComments(issue: selectedIssue)
+    issueApi.fetchComments(issue: issueDetail.value)
       .asDriver(onErrorJustReturn: [])
       .drive(onNext: { [weak self] (comments) in
-        LocalDataManager.shared.fetchComments(repoId: (self?.repoId)!, issue: (self?.selectedIssue)!, comments: comments)
+        LocalDataManager.shared.fetchComments(repoId: (self?.repoId)!, issue: (self?.issueDetail.value)!, comments: comments)
       })
       .disposed(by: bag)
   }
@@ -68,7 +67,7 @@ class IssueDetailViewViewModel {
     let selectedRepo = LocalDataManager.shared.getRepo(repoId: self.repoId)
     
     return issueApi.editIssue(title: newTitleText, body: newBodyText,
-                                                  label: [.enhancement], issue: selectedIssue,
+                              label: label, issue: issueDetail.value,
                                                   state: state,
                                                   repo: selectedRepo)
       .map({ [weak self] (editedIssue) -> Bool in
@@ -92,7 +91,7 @@ class IssueDetailViewViewModel {
   //코멘트 생성 api 요청 성공시 로컬 변경하기
   func createComment(newCommentBody: String) -> Observable<Bool> {
     let repoId = self.repoId!
-    let selectedIssue = self.selectedIssue!
+    let selectedIssue = issueDetail.value
     
     return issueApi.createComment(issue: selectedIssue, commentBody: newCommentBody)
       .map({ (newComment) -> Bool in
@@ -106,7 +105,7 @@ class IssueDetailViewViewModel {
   
   //코멘트 편집 api요청 성공하면 로컬 변경하기
   func editComment(existingComment: Comment, newCommentText: String) -> Observable<Bool> {
-    let selectedIssue = self.selectedIssue!
+    let selectedIssue = issueDetail.value
     let repoId = self.repoId!
     
     return issueApi.editComment(issue: selectedIssue, comment: existingComment, newCommentText: newCommentText)
@@ -121,7 +120,7 @@ class IssueDetailViewViewModel {
   }
   
   func deleteComment(existingComment: Comment) -> Observable<Bool> {
-    let selectedIssue = self.selectedIssue!
+    let selectedIssue = issueDetail.value
     let repoId = self.repoId!
     
     return issueApi.deleteComment(issue: selectedIssue, comment: existingComment)
@@ -133,13 +132,5 @@ class IssueDetailViewViewModel {
           return false
         }
       })
-  }
-  
-  func cancelEditIssue() {
-    LocalDataManager.shared.editIssue(repoId: repoId, newIssue: selectedIssue)
-  }
-  
-  func cancelEditComment(existingComment: Comment) {
-    LocalDataManager.shared.editComment(repoId: repoId, issue: selectedIssue, newComment: existingComment)
   }
 }

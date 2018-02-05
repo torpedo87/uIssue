@@ -28,9 +28,16 @@ class RepoListViewViewModel {
   
   func bindOutput() {
     
-    statusDriver
-      .drive(onNext: { [weak self] status in
+    statusDriver.asObservable()
+      .flatMap({ [weak self] (status) -> Observable<Bool> in
         if status == .authorized {
+          return (self?.issueApi)!.getUser()
+        }
+        return Observable.just(false)
+      })
+      .asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] bool in
+        if bool {
           LocalDataManager.shared.bindOutput(issueApi: (self?.issueApi)!)
         }
       })
@@ -51,7 +58,4 @@ class RepoListViewViewModel {
       .disposed(by: bag)
   }
   
-  func sortRepoListByCreated() {
-    repoList.value = repoList.value.sorted(by: { $0.created_at > $1.created_at })
-  }
 }

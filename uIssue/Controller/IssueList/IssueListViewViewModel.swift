@@ -18,6 +18,7 @@ class IssueListViewViewModel {
   
   //output
   let issueList = Variable<[Issue]>([])
+  let tempList = Variable<[Issue]>([])
   
   init(repoId: Int) {
     self.repoId = repoId
@@ -34,14 +35,31 @@ class IssueListViewViewModel {
         }
         return []
       })
+      .drive(tempList)
+      .disposed(by: bag)
+    
+    tempList.asDriver()
+      .map({ (issueArr) -> [Issue] in
+        issueArr.filter { $0.state == "open" }
+      })
       .drive(issueList)
       .disposed(by: bag)
   }
   
-  func sortIssueListByCreated() {
-    issueList.value = issueList.value.sorted(by: { $0.created_at > $1.created_at })
+  func filterByState(state: IssueService.State) {
+    if state == .all {
+      issueList.value = tempList.value
+    } else {
+      issueList.value = tempList.value.filter { $0.state == state.rawValue }
+    }
   }
   
+  func sortBySort(sort: IssueService.Sort) {
+    switch sort {
+    case .created: issueList.value = issueList.value.sorted(by: { $0.created_at > $1.created_at })
+    case .updated: issueList.value = issueList.value.sorted(by: { $0.updated_at > $1.updated_at })
+    }
+  }
 }
 
 

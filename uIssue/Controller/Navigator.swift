@@ -51,6 +51,10 @@ class Navigator {
   }
   
   private func show(target: UIViewController, sender: UIViewController) {
+    if let _ = target as? CreateIssueViewController {
+      sender.present(target, animated: true, completion: nil)
+      return
+    }
     if let nav = sender as? UINavigationController {
       nav.pushViewController(target, animated: false)
       return

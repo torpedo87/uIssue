@@ -158,4 +158,6 @@ class AuthService: AuthServiceRepresentable {
         return Observable.just(Status.unAuthorized(error.localizedDescription))
       })
   }
+  
+  
 }

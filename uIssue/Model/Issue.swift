@@ -15,17 +15,19 @@ struct Issue: Codable {
   let user: User
   let assignees: [User]
   let number: Int
-  let repository: Repository?
+  var repository: Repository?
   let created_at: String
+  let updated_at: String
   let labels: [IssueLabel]
   let state: String
   let comments_url: String
   var commentsDic: [Int:Comment]?
+  var isCommentsFetched: Bool?
   
   init(id: Int = -1, title: String = "", body: String? = nil, user: User = User(),
-       assignees: [User] = [User()], number: Int = -1, repository: Repository? = nil,
-       created_at: String = "", labels: [IssueLabel] = [IssueLabel()], state: String = "",
-       comments_url: String = "", commentsDic: [Int:Comment]? = nil) {
+       assignees: [User] = [], number: Int = -1, repository: Repository? = nil,
+       created_at: String = "", updated_at: String = "", labels: [IssueLabel] = [], state: String = "",
+       comments_url: String = "", commentsDic: [Int:Comment]? = nil, isCommentsFetched: Bool = false) {
     self.id = id
     self.title = title
     self.body = body
@@ -34,13 +36,16 @@ struct Issue: Codable {
     self.number = number
     self.repository = repository
     self.created_at = created_at
+    self.updated_at = updated_at
     self.labels = labels
     self.state = state
     self.comments_url = comments_url
     self.commentsDic = commentsDic
+    self.isCommentsFetched = isCommentsFetched
   }
   
   mutating func setCommentsDic(comments: [Comment]) {
+    self.isCommentsFetched = true
     self.commentsDic = [Int:Comment]()
     for comment in comments {
       self.commentsDic?[comment.id] = comment
@@ -100,6 +105,7 @@ struct Repository: Codable {
   let open_issues: Int
   let created_at: String
   var issuesDic: [Int:Issue]?
+  var assignees: [User]?
   
   mutating func setIssuesDic(issueArr: [Issue]) {
     self.issuesDic = [Int:Issue]()
@@ -108,7 +114,14 @@ struct Repository: Codable {
     }
   }
   
-  static let test = Repository(id: 1, name: "name", owner: User.test, open_issues: 1, created_at: "1", issuesDic: nil)
+  mutating func setAssignees(userArr: [User]) {
+    self.assignees = [User]()
+    for user in userArr {
+      self.assignees?.append(user)
+    }
+  }
+  
+  static let test = Repository(id: 1, name: "name", owner: User.test, open_issues: 1, created_at: "1", issuesDic: nil, assignees: nil)
 }
 
 extension Issue: Equatable {

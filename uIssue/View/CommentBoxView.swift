@@ -34,7 +34,7 @@ class CommentBoxView: UIView {
   
   private lazy var topView: UIView = {
     let view = UIView()
-    view.backgroundColor = UIColor.lightGray
+    view.backgroundColor = UIColor(hex: "F1F8FF")
     return view
   }()
   
@@ -45,29 +45,33 @@ class CommentBoxView: UIView {
   
   private lazy var editButton: UIButton = {
     let btn = UIButton()
+    btn.layer.cornerRadius = 10
     btn.setTitle("EDIT", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.red
+    btn.backgroundColor = UIColor(hex: "3CC75A")
     return btn
   }()
   
   private lazy var saveButton: UIButton = {
     let btn = UIButton()
+    btn.layer.cornerRadius = 10
     btn.setTitle("SAVE", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.red
+    btn.backgroundColor = UIColor(hex: "3CC75A")
     return btn
   }()
   
   private lazy var cancelButton: UIButton = {
     let btn = UIButton()
+    btn.layer.cornerRadius = 10
     btn.setTitle("CANCEL", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.red
+    btn.backgroundColor = UIColor(hex: "3CC75A")
     return btn
   }()
   
   private lazy var deleteButton: UIButton = {
     let btn = UIButton()
+    btn.layer.cornerRadius = 10
     btn.setTitle("DELETE", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.red
+    btn.backgroundColor = UIColor(hex: "3CC75A")
     return btn
   }()
   
@@ -109,15 +113,16 @@ class CommentBoxView: UIView {
       .drive(onNext: { [weak self] _ in
         switch (self?.contentsMode)! {
         case .issueBody: do {
-          self?.viewModel.cancelEditIssue()
+          self?.commentTextView.text = self?.issue?.body
           }
         case .commentBody: do {
-          self?.viewModel.cancelEditComment(existingComment: (self?.comment)!)
+          self?.commentTextView.text = self?.comment?.body
           }
         case .newCommentBody: do {
           self?.commentTextView.text = ""
           }
         }
+        self?.mode.value = .normal
       })
       .disposed(by: bag)
     
@@ -125,19 +130,38 @@ class CommentBoxView: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        switch (self?.contentsMode)! {
-        case .issueBody: do {
-          return (self?.viewModel.editIssue(state: IssueService.State.open, newTitleText: (self?.issue?.title)!, newBodyText: "", label: [.enhancement]))!
+        if let issue = self?.viewModel.issueDetail.value {
+          let issueState = IssueService().transformStrToState(stateString: issue.state)
+          let issueLabel = IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
+          switch (self?.contentsMode)! {
+          case .issueBody: do {
+            return (self?.viewModel.editIssue(state: issueState!, newTitleText: issue.title, newBodyText: "", label: issueLabel))!
+            }
+          case .commentBody: do {
+            return (self?.viewModel.deleteComment(existingComment: (self?.comment)!))!
+            }
+          case .newCommentBody: do {
+            return Observable.just(false)
+            }
           }
-        case .commentBody: do {
-          return (self?.viewModel.deleteComment(existingComment: (self?.comment)!))!
-          }
-        case .newCommentBody: do {
+        } else {
           return Observable.just(false)
+        }
+        
+    }.asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [weak self] bool in
+        if bool {
+          switch (self?.contentsMode)! {
+          case .issueBody: do {
+            self?.commentTextView.text = ""
+            }
+          case .newCommentBody: do {
+            self?.commentTextView.text = ""
+            }
+          default: break
           }
         }
-    }.asDriver(onErrorJustReturn: false)
-    .drive()
+      })
     .disposed(by: bag)
     
     editButton.rx.tap
@@ -186,7 +210,7 @@ class CommentBoxView: UIView {
         switch modeValue {
         case .edit: do {
           self?.commentTextView.isUserInteractionEnabled = true
-          self?.commentTextView.backgroundColor = UIColor.yellow
+          self?.commentTextView.backgroundColor = UIColor(hex: "FCFCA8")
           self?.editButton.isHidden = true
           self?.deleteButton.isHidden = true
           self?.saveButton.isHidden = false
@@ -213,7 +237,6 @@ class CommentBoxView: UIView {
     case .issueBody: do {
       self.userLabel.text = self.issue!.user.login
       self.commentTextView.text = self.issue!.body
-      self.topView.backgroundColor = UIColor.darkGray
       }
     case .newCommentBody: do {
       self.userLabel.text = "New Comment"
@@ -254,23 +277,26 @@ class CommentBoxView: UIView {
     
     editButton.snp.makeConstraints { (make) in
       editButton.sizeToFit()
-      make.right.top.bottom.equalTo(topView)
+      make.right.equalTo(topView).offset(-10)
+      make.centerY.equalTo(topView)
     }
     
     saveButton.snp.makeConstraints { (make) in
       saveButton.sizeToFit()
-      make.edges.equalTo(editButton)
+      make.right.equalTo(topView).offset(-10)
+      make.centerY.equalTo(topView)
     }
     
     cancelButton.snp.makeConstraints { (make) in
       cancelButton.sizeToFit()
-      make.top.bottom.equalTo(topView)
-      make.right.equalTo(editButton.snp.left).offset(-5)
+      make.right.equalTo(saveButton.snp.left).offset(-5)
+      make.centerY.equalTo(saveButton)
     }
     
     deleteButton.snp.makeConstraints { (make) in
       deleteButton.sizeToFit()
-      make.edges.equalTo(cancelButton)
+      make.right.equalTo(editButton.snp.left).offset(-5)
+      make.centerY.equalTo(editButton)
     }
   }
   
@@ -280,13 +306,6 @@ class CommentBoxView: UIView {
   
   func setEditMode() {
     mode.value = .edit
-  }
-  
-  func setEmpty() {
-    issue = nil
-    comment = nil
-    userLabel.text = nil
-    commentTextView.text = nil
   }
   
 }
