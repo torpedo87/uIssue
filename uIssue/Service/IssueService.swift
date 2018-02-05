@@ -20,6 +20,7 @@ protocol IssueServiceRepresentable {
   func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment>
   func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool>
   func getUser() -> Observable<Bool>
+  func getAssignees(repo: Repository) -> Observable<[User]>
 }
 
 class IssueService: IssueServiceRepresentable {
@@ -41,12 +42,13 @@ class IssueService: IssueServiceRepresentable {
     case open
     case closed
     case all
+    static let arr: [State] = [.open, .closed, .all]
   }
   
   enum Sort: String {
     case created
     case updated
-    case comments
+    static let arr: [Sort] = [.created, .updated]
   }
   
   enum Label: String {
@@ -59,6 +61,29 @@ class IssueService: IssueServiceRepresentable {
     case model
     case question
     case wontfix
+    static let arr: [Label] = [.bug, .duplicate, .enhancement, .goodFirstIssue, .helpWanted, .invalid, .model, .question, .wontfix]
+  }
+  
+  func transformIssueLabelToLabel(issueLabelArr: [IssueLabel]) -> [Label] {
+    let strArr: [String] = issueLabelArr.map { $0.name }
+    var tempArr = [Label]()
+    for str in strArr {
+      for label in Label.arr {
+        if str == label.rawValue {
+          tempArr.append(label)
+        }
+      }
+    }
+    return tempArr
+  }
+  
+  func transformStrToState(stateString: String) -> State? {
+    for state in State.arr {
+      if stateString == state.rawValue {
+        return state
+      }
+    }
+    return nil
   }
   
   func fetchAllIssues(filter: Filter, state: State, sort: Sort, page: Int) -> Observable<[Issue]> {
@@ -112,7 +137,7 @@ class IssueService: IssueServiceRepresentable {
   
   
   
-  func editIssue(title: String, body: String, label: [Label], issue: Issue, state: State, repo: Repository) -> Observable<Issue> {
+  func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue> {
     
     return self.provider.rx.request(.editIssue(title: title, body: body, label: label, issue: issue, state: state, repo: repo))
       .asObservable()
@@ -229,6 +254,25 @@ class IssueService: IssueServiceRepresentable {
         }
       }).catchError({ (error) -> Observable<Bool> in
         return Observable.just(false)
+      })
+  }
+  
+  func getAssignees(repo: Repository) -> Observable<[User]> {
+    return self.provider.rx.request(.getAssignees(repo: repo))
+      .asObservable()
+      .map({ (result) -> [User] in
+        let response = result.response!
+        let data = result.data
+        if 200 ..< 300 ~= response.statusCode {
+          let users = try! JSONDecoder().decode([User].self, from: data)
+          return users
+        } else if 401 == response.statusCode {
+          throw AuthService.Errors.invalidUserInfo
+        } else {
+          throw AuthService.Errors.requestFail
+        }
+      }).catchError({ (error) -> Observable<[User]> in
+        return Observable.just([])
       })
   }
   

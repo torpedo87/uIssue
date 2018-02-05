@@ -19,6 +19,7 @@ enum IssueAPI {
   case editComment(issue: Issue, comment: Comment, newCommentText: String)
   case deleteComment(issue: Issue, comment: Comment)
   case getUser()
+  case getAssignees(repo: Repository)
 }
 
 extension IssueAPI: TargetType {
@@ -53,12 +54,14 @@ extension IssueAPI: TargetType {
       return "/repos/\(issue.repository!.owner.login)/\(issue.repository!.name)/issues/\(issue.number)/comments"
     case .editComment(let issue, let comment, _), .deleteComment(let issue, let comment):
       return "/repos/\(issue.repository!.owner.login)/\(issue.repository!.name)/issues/comments/\(comment.id)"
+    case .getAssignees(let repo):
+      return "/repos/\(repo.owner.login)/\(repo.name)/assignees"
     }
   }
   
   var method: Moya.Method {
     switch self {
-    case .fetchAllIssues, .fetchComments, .getUser:
+    case .fetchAllIssues, .fetchComments, .getUser, .getAssignees:
       return .get
     case .createIssue, .createComment:
       return .post
@@ -71,17 +74,17 @@ extension IssueAPI: TargetType {
   
   var task: Task {
     switch self {
-    case .fetchComments, .deleteComment, .getUser:
+    case .fetchComments, .deleteComment, .getUser, .getAssignees:
       return .requestPlain
       
     case let .fetchAllIssues(filter, state, sort, page):
       return .requestParameters(parameters: ["sort": sort.rawValue, "state": state.rawValue, "filter": filter.rawValue, "page": "\(page)"], encoding: URLEncoding.queryString)
       
-    case let .createIssue(title, body, label, repo):
-      return .requestParameters(parameters: ["body": body, "labels": label.map{ $0.rawValue }, "title": title, "assignee": repo.owner.login], encoding: JSONEncoding.default)
+    case let .createIssue(title, body, label, _):
+      return .requestParameters(parameters: ["body": body, "labels": label.map{ $0.rawValue }, "title": title, "assignee": Me.shared.getUser()!.login], encoding: JSONEncoding.default)
       
     case let .editIssue(title, body, label, _, state, _):
-      return .requestParameters(parameters: ["body": body, "labels": label.map{ $0.rawValue }, "title": title, "state": state.rawValue], encoding: JSONEncoding.default)
+      return .requestParameters(parameters: ["body": body, "labels": label, "title": title, "state": state], encoding: JSONEncoding.default)
     case let .createComment(_, commentBody):
       return .requestParameters(parameters: ["body": commentBody], encoding: JSONEncoding.default)
     case let .editComment(_, _, newCommentText):

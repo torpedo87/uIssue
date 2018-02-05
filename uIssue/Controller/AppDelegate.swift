@@ -20,6 +20,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     window?.rootViewController = SplashViewController()
     window?.makeKeyAndVisible()
     
+    let navigationBarAppearace = UINavigationBar.appearance()
+    navigationBarAppearace.barTintColor = UIColor(hex: "FEDF32")
+    
     return true
     
   }

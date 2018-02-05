@@ -16,7 +16,7 @@ class IssueListFetcher {
     
     return issueApi.currentPage.asObservable()
       .flatMap { (page) -> Observable<[Issue]> in
-        issueApi.fetchAllIssues(filter: .all, state: .open, sort: .created, page: page)
+        issueApi.fetchAllIssues(filter: .all, state: .all, sort: .created, page: page)
       }
       .map { issueArr -> [Int:Repository] in
         

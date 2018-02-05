@@ -16,14 +16,13 @@ class IssueDetailViewController: UIViewController {
   
   private lazy var titleTextField: UITextField = {
     let txtField = UITextField()
-    txtField.layer.borderWidth = 1.0
-    txtField.layer.borderColor = UIColor.black.cgColor
-    txtField.text = viewModel.selectedIssue.title
+    txtField.text = viewModel.issueDetail.value.title
+    txtField.font = UIFont.systemFont(ofSize: 25)
     return txtField
   }()
   
   private lazy var bodyTextView: CommentBoxView = {
-    let issue = viewModel.selectedIssue
+    let issue = viewModel.issueDetail.value
     let commentBox = CommentBoxView(comment: nil, issue: issue, contentsMode: .issueBody, viewModel: viewModel)
     return commentBox
   }()
@@ -34,25 +33,17 @@ class IssueDetailViewController: UIViewController {
     commentBox.setEditMode()
     return commentBox
   }()
-  
-  private lazy var closeButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("Close", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.red
-    return btn
-  }()
-  
-  private lazy var editButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("Edit", for: UIControlState.normal)
-    btn.backgroundColor = UIColor.green
-    return btn
-  }()
-  
+
   private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(CommentCell.self, forCellReuseIdentifier: CommentCell.reuseIdentifier)
     return view
+  }()
+  
+  private lazy var closeButton: UIButton = {
+    let btn = UIButton()
+    btn.backgroundColor = UIColor(hex: "3CC75A")
+    return btn
   }()
   
   static func createWith(viewModel: IssueDetailViewViewModel) -> IssueDetailViewController {
@@ -65,7 +56,7 @@ class IssueDetailViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    if viewModel.selectedIssue.isCommentsFetched == nil {
+    if viewModel.issueDetail.value.isCommentsFetched == nil {
       viewModel.requestFetchComments()
     }
     
@@ -77,49 +68,64 @@ class IssueDetailViewController: UIViewController {
   func setupView() {
     title = "Issue Detail"
     view.backgroundColor = UIColor.white
+    view.addSubview(closeButton)
     view.addSubview(titleTextField)
     view.addSubview(bodyTextView)
     view.addSubview(newCommentView)
     view.addSubview(tableView)
-    view.addSubview(closeButton)
     
     titleTextField.snp.makeConstraints { (make) in
-      make.top.equalToSuperview().offset(100)
-      make.left.equalToSuperview().offset(80)
-      make.right.equalToSuperview().offset(-80)
-      make.height.equalTo(50)
+      make.top.equalToSuperview().offset(85)
+      make.left.right.equalToSuperview()
+      make.height.equalTo(100)
     }
     
     bodyTextView.snp.makeConstraints { (make) in
-      make.left.right.equalTo(titleTextField)
-      make.top.equalTo(titleTextField.snp.bottom).offset(10)
+      make.left.right.equalToSuperview()
+      make.top.equalTo(titleTextField.snp.bottom)
     }
     
     tableView.snp.makeConstraints { (make) in
-      make.top.equalTo(bodyTextView.snp.bottom).offset(10)
+      make.top.equalTo(bodyTextView.snp.bottom)
       make.left.right.equalToSuperview()
       make.bottom.equalTo(newCommentView.snp.top).offset(-10)
     }
     
     newCommentView.snp.makeConstraints { (make) in
       make.left.right.equalTo(titleTextField)
-      make.bottom.equalTo(view).offset(-50)
+      make.bottom.equalTo(closeButton.snp.top).offset(-10)
     }
     
     closeButton.snp.makeConstraints { (make) in
       closeButton.sizeToFit()
-      make.centerY.equalTo(titleTextField)
-      make.left.equalTo(titleTextField.snp.right)
-      make.right.equalToSuperview()
+      make.right.equalTo(titleTextField)
+      make.bottom.equalTo(view).offset(-50)
     }
   }
   
   func bindUI() {
     
+    viewModel.issueDetail.asDriver()
+      .drive(onNext: { [weak self] issue in
+        if issue.state == "closed" {
+          self?.closeButton.setTitle("REOPEN ISSUE", for: UIControlState.normal)
+        } else {
+          self?.closeButton.setTitle("CLOSE ISSUE", for: UIControlState.normal)
+        }
+      }).disposed(by: bag)
+    
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        return (self?.viewModel.editIssue(state: .closed, newTitleText: (self?.titleTextField.text!)!, newBodyText: (self?.bodyTextView.getText())!, label: [.enhancement]))!
+        if let issue = self?.viewModel.issueDetail.value {
+          let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
+          if issue.state == "closed" {
+            return (self?.viewModel.editIssue(state: .open, newTitleText: issue.title, newBodyText: issue.body!, label: labels))!
+          } else {
+            return (self?.viewModel.editIssue(state: .closed, newTitleText: issue.title, newBodyText: issue.body!, label: labels))!
+          }
+        }
+        return Observable.just(false)
       }
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in
