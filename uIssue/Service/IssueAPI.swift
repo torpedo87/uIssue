@@ -84,7 +84,7 @@ extension IssueAPI: TargetType {
       return .requestParameters(parameters: ["body": body, "labels": label.map{ $0.rawValue }, "title": title, "assignees": users.map{ $0.login }], encoding: JSONEncoding.default)
       
     case let .editIssue(title, body, label, _, state, _):
-      return .requestParameters(parameters: ["body": body, "labels": label, "title": title, "state": state], encoding: JSONEncoding.default)
+      return .requestParameters(parameters: ["body": body, "labels": label.map{ $0.rawValue }, "title": title, "state": state.rawValue], encoding: JSONEncoding.default)
     case let .createComment(_, commentBody):
       return .requestParameters(parameters: ["body": commentBody], encoding: JSONEncoding.default)
     case let .editComment(_, _, newCommentText):

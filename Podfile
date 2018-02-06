@@ -10,7 +10,7 @@ target 'uIssue' do
   pod 'RxSwift'
   pod 'RxCocoa'
   pod 'Moya/RxSwift'
-  pod 'RxDataSources', '~> 3.0'
+  pod 'Kingfisher', '~> 4.0'
 
   target 'uIssueTests' do
     inherit! :search_paths

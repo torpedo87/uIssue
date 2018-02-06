@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import Kingfisher
 
 class CommentBoxView: UIView {
   
@@ -35,6 +36,12 @@ class CommentBoxView: UIView {
   private lazy var topView: UIView = {
     let view = UIView()
     view.backgroundColor = UIColor(hex: "F1F8FF")
+    return view
+  }()
+  
+  private lazy var avatarImageView: UIImageView = {
+    let view = UIImageView()
+    view.contentMode = .scaleAspectFit
     return view
   }()
   
@@ -231,14 +238,21 @@ class CommentBoxView: UIView {
     
     switch contentsMode! {
     case .commentBody: do {
+      let imgUrl = URL(string: self.comment!.user.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = self.comment!.user.login
       self.commentTextView.text = self.comment!.body
       }
     case .issueBody: do {
+      let imgUrl = URL(string: self.issue!.user.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = self.issue!.user.login
       self.commentTextView.text = self.issue!.body
       }
     case .newCommentBody: do {
+      let me = Me.shared.getUser()
+      let imgUrl = URL(string: me!.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = "New Comment"
       self.commentTextView.text = ""
       }
@@ -253,6 +267,7 @@ class CommentBoxView: UIView {
     layer.borderWidth = 1.0
     layer.borderColor = UIColor.black.cgColor
     addSubview(topView)
+    topView.addSubview(avatarImageView)
     topView.addSubview(userLabel)
     topView.addSubview(saveButton)
     topView.addSubview(editButton)
@@ -265,6 +280,11 @@ class CommentBoxView: UIView {
       make.height.equalTo(50)
     }
     
+    avatarImageView.snp.makeConstraints { (make) in
+      make.left.top.bottom.equalTo(topView)
+      make.width.equalTo(50)
+    }
+    
     commentTextView.snp.makeConstraints { (make) in
       make.left.bottom.right.equalToSuperview()
       make.top.equalTo(topView.snp.bottom)
@@ -272,7 +292,8 @@ class CommentBoxView: UIView {
     
     userLabel.snp.makeConstraints { (make) in
       userLabel.sizeToFit()
-      make.left.top.bottom.equalTo(topView)
+      make.top.bottom.equalTo(topView)
+      make.left.equalTo(avatarImageView.snp.right).offset(5)
     }
     
     editButton.snp.makeConstraints { (make) in
