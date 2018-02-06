@@ -10,12 +10,13 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-struct Property {
-  var labels: [IssueService.Label]
-  var assignees: [User]
+protocol PropertySettable {
+  
+  var labelItems: Variable<[LabelItem]> { get }
+  var assigneeItems: Variable<[AssigneeItem]> { get }
 }
 
-class CreateIssueViewViewModel {
+class CreateIssueViewViewModel: PropertySettable {
   private let bag = DisposeBag()
   //input
   let titleInput = Variable<String>("")
@@ -24,10 +25,8 @@ class CreateIssueViewViewModel {
   private let repoId: Int!
   let issueApi: IssueServiceRepresentable
   let selectedRepo: Repository!
-  let assignees = Variable<[User]>([])
-  let labels = Variable<[IssueService.Label]>(IssueService.Label.arr)
-  var labelDict = [Int:IssueService.Label]()
-  var userDict = [Int:User]()
+  let labelItems = Variable<[LabelItem]>(IssueService().transformLabelToItem(labels: IssueService.Label.arr))
+  let assigneeItems = Variable<[AssigneeItem]>([])
   
   init(repoId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -44,9 +43,11 @@ class CreateIssueViewViewModel {
     
     
     issueApi.getAssignees(repo: selectedRepo)
+      .map({ (users) -> [AssigneeItem] in
+        return IssueService().transformUserToItem(users: users)
+      })
       .asDriver(onErrorJustReturn: [])
-      .debug()
-      .drive(assignees)
+      .drive(assigneeItems)
       .disposed(by: bag)
   }
   

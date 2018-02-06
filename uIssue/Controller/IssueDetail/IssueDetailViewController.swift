@@ -40,6 +40,11 @@ class IssueDetailViewController: UIViewController {
     return view
   }()
   
+  private lazy var propertyView: IssuePropertyView = {
+    let view = IssuePropertyView(viewModel: viewModel)
+    return view
+  }()
+  
   private lazy var closeButton: UIButton = {
     let btn = UIButton()
     btn.backgroundColor = UIColor(hex: "3CC75A")
@@ -68,16 +73,18 @@ class IssueDetailViewController: UIViewController {
   func setupView() {
     title = "Issue Detail"
     view.backgroundColor = UIColor.white
-    view.addSubview(closeButton)
+    
     view.addSubview(titleTextField)
     view.addSubview(bodyTextView)
     view.addSubview(newCommentView)
     view.addSubview(tableView)
+    view.addSubview(propertyView)
+    view.addSubview(closeButton)
     
     titleTextField.snp.makeConstraints { (make) in
       make.top.equalToSuperview().offset(85)
       make.left.right.equalToSuperview()
-      make.height.equalTo(100)
+      make.height.equalTo(50)
     }
     
     bodyTextView.snp.makeConstraints { (make) in
@@ -88,17 +95,24 @@ class IssueDetailViewController: UIViewController {
     tableView.snp.makeConstraints { (make) in
       make.top.equalTo(bodyTextView.snp.bottom)
       make.left.right.equalToSuperview()
-      make.bottom.equalTo(newCommentView.snp.top).offset(-10)
+      make.height.equalTo(200)
+    }
+    
+    propertyView.snp.makeConstraints { (make) in
+      make.left.right.equalToSuperview()
+      make.height.equalTo(200)
+      make.top.equalTo(tableView.snp.bottom).offset(10)
     }
     
     newCommentView.snp.makeConstraints { (make) in
-      make.left.right.equalTo(titleTextField)
+      make.top.equalTo(propertyView.snp.bottom).offset(10)
+      make.left.right.equalToSuperview()
       make.bottom.equalTo(closeButton.snp.top).offset(-10)
     }
     
     closeButton.snp.makeConstraints { (make) in
       closeButton.sizeToFit()
-      make.right.equalTo(titleTextField)
+      make.right.equalToSuperview()
       make.bottom.equalTo(view).offset(-50)
     }
   }

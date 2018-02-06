@@ -77,6 +77,76 @@ class IssueService: IssueServiceRepresentable {
     return tempArr
   }
   
+  func transformLabelToItem(labels: [Label]) -> [LabelItem] {
+    var items = [LabelItem]()
+    for label in labels {
+      let item = LabelItem(label: label, isChecked: false)
+      items.append(item)
+    }
+    return items
+  }
+  
+  func transformUserToItem(users: [User]) -> [AssigneeItem] {
+    var items = [AssigneeItem]()
+    for user in users {
+      let item = AssigneeItem(user: user, isChecked: false)
+      items.append(item)
+    }
+    return items
+  }
+  
+  func checkUser(user: User, items: [AssigneeItem], check: Bool?) -> [AssigneeItem] {
+    var newItems = items
+    for i in 0..<items.count {
+      if items[i].user == user {
+        var item = items[i]
+        if let _ = check {
+          item.isChecked = check!
+        } else {
+          item.isChecked = !item.isChecked
+        }
+        newItems[i] = item
+      }
+    }
+    return newItems
+  }
+  
+  func checkLabel(label: Label, items: [LabelItem], check: Bool?) -> [LabelItem] {
+    var newItems = items
+    for i in 0..<items.count {
+      if items[i].label.rawValue == label.rawValue {
+        var item = items[i]
+        if let _ = check {
+          item.isChecked = check!
+        } else {
+          item.isChecked = !item.isChecked
+        }
+        newItems[i] = item
+      }
+    }
+    return newItems
+  }
+  
+  func getCheckedUsers(items: [AssigneeItem]) -> [User] {
+    var arr = [User]()
+    for item in items {
+      if item.isChecked {
+        arr.append(item.user)
+      }
+    }
+    return arr
+  }
+  
+  func getCheckedLabels(items: [LabelItem]) -> [Label] {
+    var arr = [Label]()
+    for item in items {
+      if item.isChecked {
+        arr.append(item.label)
+      }
+    }
+    return arr
+  }
+  
   func transformStrToState(stateString: String) -> State? {
     for state in State.arr {
       if stateString == state.rawValue {

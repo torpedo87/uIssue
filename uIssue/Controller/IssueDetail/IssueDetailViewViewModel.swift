@@ -10,13 +10,16 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-class IssueDetailViewViewModel {
+class IssueDetailViewViewModel: PropertySettable {
+  
   private let bag = DisposeBag()
   private let issueId: Int!
   private let repoId: Int!
   let issueDetail = Variable<Issue>(Issue())
   let commentList = Variable<[Comment]>([])
   private let issueApi: IssueServiceRepresentable
+  let labelItems = Variable<[LabelItem]>(IssueService().transformLabelToItem(labels: IssueService.Label.arr))
+  let assigneeItems = Variable<[AssigneeItem]>([])
   
   init(repoId: Int, issueId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -24,6 +27,7 @@ class IssueDetailViewViewModel {
     self.issueId = issueId
     
     bindOutput(repoId: repoId, issueId: issueId)
+    
   }
   
   func bindOutput(repoId: Int, issueId: Int) {
@@ -49,6 +53,31 @@ class IssueDetailViewViewModel {
         return []
     }.drive(commentList)
     .disposed(by: bag)
+    
+    //레퍼지토리 사용자 가져오기
+    issueApi.getAssignees(repo: LocalDataManager.shared.getRepo(repoId: repoId))
+      .map({ (users) -> [AssigneeItem] in
+        return IssueService().transformUserToItem(users: users)
+      })
+      .asDriver(onErrorJustReturn: [])
+      .drive(assigneeItems)
+      .disposed(by: bag)
+    
+    //이슈의 라벨, 사용자 체크
+    issueDetail.asDriver()
+      .drive(onNext: { [weak self] issue in
+        let issueLabels = issue.labels
+        let assignees = issue.assignees
+        let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels)
+        for label in labels {
+          self?.labelItems.value = IssueService().checkLabel(label: label, items: (self?.labelItems.value)!, check: true)
+        }
+        
+        for assignee in assignees {
+          self?.assigneeItems.value = IssueService().checkUser(user: assignee, items: (self?.assigneeItems.value)!, check: true)
+        } 
+        
+      }).disposed(by: bag)
   }
   
   //코멘트 요청 api 성공시 로컬 변경하기

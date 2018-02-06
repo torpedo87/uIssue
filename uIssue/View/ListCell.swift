@@ -54,4 +54,24 @@ class ListCell: UITableViewCell {
   func configureCell(list: [String], index: Int) {
     titleLabel.text = list[index]
   }
+  
+  func configureLabelCell(viewModel: PropertySettable, index: Int) {
+    let item = viewModel.labelItems.value[index]
+    titleLabel.text = item.label.rawValue
+    if item.isChecked {
+      accessoryType = .checkmark
+    } else {
+      accessoryType = .none
+    }
+  }
+  
+  func configureAssigneeCell(viewModel: PropertySettable, index: Int) {
+    let item = viewModel.assigneeItems.value[index]
+    titleLabel.text = item.user.login
+    if item.isChecked {
+      accessoryType = .checkmark
+    } else {
+      accessoryType = .none
+    }
+  }
 }

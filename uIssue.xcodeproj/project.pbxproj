@@ -12,6 +12,7 @@
 		4840CBCF2024753600517961 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4840CBCE2024753600517961 /* CommentCell.swift */; };
 		4843CFEE2026D7C800B70DCD /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFED2026D7C800B70DCD /* UIColor.swift */; };
 		4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */; };
+		4843CFFC20294BED00B70DCD /* IssuePropertyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFFB20294BED00B70DCD /* IssuePropertyView.swift */; };
 		48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F902011F32D003F5FBB /* LoginViewViewModel.swift */; };
 		48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */; };
 		48470F99201341E1003F5FBB /* RepoListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */; };
@@ -65,6 +66,7 @@
 		4840CBCE2024753600517961 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		4843CFED2026D7C800B70DCD /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpViewController.swift; sourceTree = "<group>"; };
+		4843CFFB20294BED00B70DCD /* IssuePropertyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePropertyView.swift; sourceTree = "<group>"; };
 		48470F902011F32D003F5FBB /* LoginViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModel.swift; sourceTree = "<group>"; };
 		48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModel.swift; sourceTree = "<group>"; };
 		48470F98201341E1003F5FBB /* RepoListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewViewModelTests.swift; sourceTree = "<group>"; };
@@ -147,6 +149,9 @@
 			isa = PBXGroup;
 			children = (
 				48B96ED2201B156D003DDF35 /* CommentBoxView.swift */,
+				4843CFFB20294BED00B70DCD /* IssuePropertyView.swift */,
+				4840CBCE2024753600517961 /* CommentCell.swift */,
+				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -163,7 +168,6 @@
 		48470FA32015DDDB003F5FBB /* RepoList */ = {
 			isa = PBXGroup;
 			children = (
-				48E44ACB1FF603D2008F9649 /* ListCell.swift */,
 				48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */,
 				48470F94201244CB003F5FBB /* RepoListViewViewModel.swift */,
 			);
@@ -211,7 +215,6 @@
 			children = (
 				48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */,
 				48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */,
-				4840CBCE2024753600517961 /* CommentCell.swift */,
 			);
 			path = IssueDetail;
 			sourceTree = "<group>";
@@ -595,6 +598,7 @@
 				48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */,
 				48FFC1312025755F003CAA13 /* Me.swift in Sources */,
 				4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */,
+				4843CFFC20294BED00B70DCD /* IssuePropertyView.swift in Sources */,
 				48470FA82015F93F003F5FBB /* Navigator.swift in Sources */,
 				48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
