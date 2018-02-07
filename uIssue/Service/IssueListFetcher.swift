@@ -37,6 +37,6 @@ class IssueListFetcher {
         }
         
         return resultRepoList
-    }
+      }
   }
 }

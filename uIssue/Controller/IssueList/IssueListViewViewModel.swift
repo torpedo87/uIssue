@@ -44,6 +44,16 @@ class IssueListViewViewModel {
       })
       .drive(issueList)
       .disposed(by: bag)
+    
+    
+    //로컬 레퍼지토리에 asssignee 넣기
+    let selectedRepo = LocalDataManager.shared.getRepo(repoId: repoId)
+    IssueService().getAssignees(repo: selectedRepo)
+      .asDriver(onErrorJustReturn: [])
+      .drive(onNext: { users in
+        LocalDataManager.shared.setAssigneesDic(repoId: repoId, assignees: users)
+      })
+      .disposed(by: bag)
   }
   
   func filterByState(state: IssueService.State) {

@@ -105,7 +105,7 @@ struct Repository: Codable {
   let open_issues: Int
   let created_at: String
   var issuesDic: [Int:Issue]?
-  var assignees: [User]?
+  var assigneesDic: [Int:User]?
   
   mutating func setIssuesDic(issueArr: [Issue]) {
     self.issuesDic = [Int:Issue]()
@@ -114,14 +114,14 @@ struct Repository: Codable {
     }
   }
   
-  mutating func setAssignees(userArr: [User]) {
-    self.assignees = [User]()
+  mutating func setassigneesDic(userArr: [User]) {
+    self.assigneesDic = [Int:User]()
     for user in userArr {
-      self.assignees?.append(user)
+      self.assigneesDic![user.id] = user
     }
   }
   
-  static let test = Repository(id: 1, name: "name", owner: User.test, open_issues: 1, created_at: "1", issuesDic: nil, assignees: nil)
+  static let test = Repository(id: 1, name: "name", owner: User.test, open_issues: 1, created_at: "1", issuesDic: nil, assigneesDic: nil)
 }
 
 extension Issue: Equatable {

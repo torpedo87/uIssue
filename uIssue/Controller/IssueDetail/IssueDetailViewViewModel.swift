@@ -18,8 +18,8 @@ class IssueDetailViewViewModel: PropertySettable {
   let issueDetail = Variable<Issue>(Issue())
   let commentList = Variable<[Comment]>([])
   private let issueApi: IssueServiceRepresentable
-  let labelItems = Variable<[LabelItem]>(IssueService().transformLabelToItem(labels: IssueService.Label.arr))
-  let assigneeItems = Variable<[AssigneeItem]>([])
+  let labelItemsDict = Variable<[String:LabelItem]>([String:LabelItem]())
+  let assigneeItemsDict = Variable<[String:AssigneeItem]>([String:AssigneeItem]())
   
   init(repoId: Int, issueId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -54,30 +54,34 @@ class IssueDetailViewViewModel: PropertySettable {
     }.drive(commentList)
     .disposed(by: bag)
     
-    //레퍼지토리 사용자 가져오기
-    issueApi.getAssignees(repo: LocalDataManager.shared.getRepo(repoId: repoId))
-      .map({ (users) -> [AssigneeItem] in
-        return IssueService().transformUserToItem(users: users)
+    
+    //로컬에서 레퍼지토리 사용자명단 가져오기
+    LocalDataManager.shared.getProvider()
+      .map({ [weak self] (dict) -> [String:AssigneeItem] in
+        let repo = dict[repoId]
+        var users = [User]()
+        if let _ = repo?.assigneesDic {
+          users = Array(repo!.assigneesDic!.values)
+        }
+        let itemDict = IssuePropertyItemService().changeAssigneeArrToDict(arr: users)
+        let assignees = repo?.issuesDic![issueId]?.assignees
+        return (self?.itemCheck(assignees: assignees!, dict: itemDict))!
       })
-      .asDriver(onErrorJustReturn: [])
-      .drive(assigneeItems)
+      .asDriver(onErrorJustReturn: [String:AssigneeItem]())
+      .drive(assigneeItemsDict)
       .disposed(by: bag)
     
-    //이슈의 라벨, 사용자 체크
-    issueDetail.asDriver()
-      .drive(onNext: { [weak self] issue in
-        let issueLabels = issue.labels
-        let assignees = issue.assignees
-        let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels)
-        for label in labels {
-          self?.labelItems.value = IssueService().checkLabel(label: label, items: (self?.labelItems.value)!, check: true)
-        }
-        
-        for assignee in assignees {
-          self?.assigneeItems.value = IssueService().checkUser(user: assignee, items: (self?.assigneeItems.value)!, check: true)
-        } 
-        
-      }).disposed(by: bag)
+    LocalDataManager.shared.getProvider()
+      .map { [weak self] (dict) -> [String:LabelItem] in
+        let allLabels = IssueService.Label.arr
+        let itemDict = IssuePropertyItemService().changeLabelArrToDict(arr: allLabels)
+        let issueLabels = dict[repoId]?.issuesDic![issueId]?.labels
+        return (self?.itemCheck(issueLabels: issueLabels!, dict: itemDict))!
+      }
+      .asDriver(onErrorJustReturn: [String : LabelItem]())
+      .drive(labelItemsDict)
+      .disposed(by: bag)
+    
   }
   
   //코멘트 요청 api 성공시 로컬 변경하기
@@ -92,13 +96,13 @@ class IssueDetailViewViewModel: PropertySettable {
   
   //이슈편집 api요청 성공하면 로컬 변경하기
   func editIssue(state: IssueService.State, newTitleText: String, newBodyText: String,
-                 label: [IssueService.Label]) -> Observable<Bool> {
+                 label: [IssueService.Label], assignees: [User]) -> Observable<Bool> {
     let selectedRepo = LocalDataManager.shared.getRepo(repoId: self.repoId)
     
     return issueApi.editIssue(title: newTitleText, body: newBodyText,
                               label: label, issue: issueDetail.value,
                                                   state: state,
-                                                  repo: selectedRepo)
+                                                  repo: selectedRepo, assignees: assignees)
       .map({ [weak self] (editedIssue) -> Bool in
         if editedIssue.id != -1 {
           switch state {
@@ -161,5 +165,23 @@ class IssueDetailViewViewModel: PropertySettable {
           return false
         }
       })
+  }
+  
+  func itemCheck(assignees: [User], dict: [String:AssigneeItem]) -> [String:AssigneeItem] {
+    var tempDict = dict
+    for assignee in assignees {
+      tempDict[assignee.login]?.setIsChecked(check: true)
+    }
+    
+    return tempDict
+  }
+  
+  func itemCheck(issueLabels: [IssueLabel], dict: [String:LabelItem]) -> [String:LabelItem] {
+    let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels)
+    var tempDict = dict
+    for label in labels {
+      tempDict[label.rawValue]?.setIsChecked(check: true)
+    }
+    return tempDict
   }
 }

@@ -14,7 +14,7 @@ protocol IssueServiceRepresentable {
   var currentPage: Variable<Int> { get }
   func fetchAllIssues(filter: IssueService.Filter, state: IssueService.State, sort: IssueService.Sort, page: Int) -> Observable<[Issue]>
   func createIssue(title: String, body: String, label: [IssueService.Label], repo: Repository, users: [User]) -> Observable<Issue>
-  func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue>
+  func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository, assignees: [User]) -> Observable<Issue>
   func fetchComments(issue: Issue) -> Observable<[Comment]>
   func createComment(issue: Issue, commentBody: String) -> Observable<Comment>
   func editComment(issue: Issue, comment: Comment, newCommentText: String) -> Observable<Comment>
@@ -64,96 +64,26 @@ class IssueService: IssueServiceRepresentable {
     static let arr: [Label] = [.bug, .duplicate, .enhancement, .goodFirstIssue, .helpWanted, .invalid, .model, .question, .wontfix]
   }
   
-  func transformIssueLabelToLabel(issueLabelArr: [IssueLabel]) -> [Label] {
+  func transformStrToState(stateString: String) -> IssueService.State? {
+    for state in IssueService.State.arr {
+      if stateString == state.rawValue {
+        return state
+      }
+    }
+    return nil
+  }
+  
+  func transformIssueLabelToLabel(issueLabelArr: [IssueLabel]) -> [IssueService.Label] {
     let strArr: [String] = issueLabelArr.map { $0.name }
-    var tempArr = [Label]()
+    var tempArr = [IssueService.Label]()
     for str in strArr {
-      for label in Label.arr {
+      for label in IssueService.Label.arr {
         if str == label.rawValue {
           tempArr.append(label)
         }
       }
     }
     return tempArr
-  }
-  
-  func transformLabelToItem(labels: [Label]) -> [LabelItem] {
-    var items = [LabelItem]()
-    for label in labels {
-      let item = LabelItem(label: label, isChecked: false)
-      items.append(item)
-    }
-    return items
-  }
-  
-  func transformUserToItem(users: [User]) -> [AssigneeItem] {
-    var items = [AssigneeItem]()
-    for user in users {
-      let item = AssigneeItem(user: user, isChecked: false)
-      items.append(item)
-    }
-    return items
-  }
-  
-  func checkUser(user: User, items: [AssigneeItem], check: Bool?) -> [AssigneeItem] {
-    var newItems = items
-    for i in 0..<items.count {
-      if items[i].user == user {
-        var item = items[i]
-        if let _ = check {
-          item.isChecked = check!
-        } else {
-          item.isChecked = !item.isChecked
-        }
-        newItems[i] = item
-      }
-    }
-    return newItems
-  }
-  
-  func checkLabel(label: Label, items: [LabelItem], check: Bool?) -> [LabelItem] {
-    var newItems = items
-    for i in 0..<items.count {
-      if items[i].label.rawValue == label.rawValue {
-        var item = items[i]
-        if let _ = check {
-          item.isChecked = check!
-        } else {
-          item.isChecked = !item.isChecked
-        }
-        newItems[i] = item
-      }
-    }
-    return newItems
-  }
-  
-  func getCheckedUsers(items: [AssigneeItem]) -> [User] {
-    var arr = [User]()
-    for item in items {
-      if item.isChecked {
-        arr.append(item.user)
-      }
-    }
-    return arr
-  }
-  
-  func getCheckedLabels(items: [LabelItem]) -> [Label] {
-    var arr = [Label]()
-    for item in items {
-      if item.isChecked {
-        arr.append(item.label)
-      }
-    }
-    return arr
-  }
-  
-  func transformStrToState(stateString: String) -> State? {
-    for state in State.arr {
-      if stateString == state.rawValue {
-        return state
-      }
-    }
-    return nil
   }
   
   func fetchAllIssues(filter: Filter, state: State, sort: Sort, page: Int) -> Observable<[Issue]> {
@@ -208,9 +138,9 @@ class IssueService: IssueServiceRepresentable {
   
   
   
-  func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository) -> Observable<Issue> {
+  func editIssue(title: String, body: String, label: [IssueService.Label], issue: Issue, state: IssueService.State, repo: Repository, assignees: [User]) -> Observable<Issue> {
     
-    return self.provider.rx.request(.editIssue(title: title, body: body, label: label, issue: issue, state: state, repo: repo))
+    return self.provider.rx.request(.editIssue(title: title, body: body, label: label, issue: issue, state: state, repo: repo, assignees: assignees))
       .asObservable()
       .map({ (result) -> Issue in
         let response = result.response!
@@ -224,6 +154,7 @@ class IssueService: IssueServiceRepresentable {
           throw AuthService.Errors.requestFail
         }
       }).catchError({ (error) -> Observable<Issue> in
+        print(error.localizedDescription)
         return Observable.just(Issue())
       })
     
@@ -328,24 +259,61 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
+//  func getAssignees(repo: Repository) -> Observable<[User]> {
+//    return self.provider.rx.request(.getAssignees(repo: repo))
+//      .asObservable()
+//      .map({ (result) -> [User] in
+//        let response = result.response!
+//        let data = result.data
+//        if 200 ..< 300 ~= response.statusCode {
+//          let users = try! JSONDecoder().decode([User].self, from: data)
+//          return users
+//        } else if 401 == response.statusCode {
+//          throw AuthService.Errors.invalidUserInfo
+//        } else {
+//          throw AuthService.Errors.requestFail
+//        }
+//      }).catchError({ (error) -> Observable<[User]> in
+//        return Observable.just([])
+//      })
+//  }
+  
   func getAssignees(repo: Repository) -> Observable<[User]> {
-    return self.provider.rx.request(.getAssignees(repo: repo))
-      .asObservable()
-      .map({ (result) -> [User] in
-        let response = result.response!
-        let data = result.data
+    guard let urlComponents = URLComponents(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/assignees") else { fatalError() }
+    
+    let request: Observable<URLRequest> = Observable.create{ observer in
+      let request: URLRequest = {
+        var request = URLRequest(url: $0)
+        request.httpMethod = "GET"
+        
+        return request
+      }(urlComponents.url!)
+      
+      observer.onNext(request)
+      observer.onCompleted()
+      return Disposables.create()
+    }
+    
+    return request.flatMap{
+      URLSession.shared.rx.response(request: $0)
+      }
+      .map({ (response, data) -> [User] in
         if 200 ..< 300 ~= response.statusCode {
           let users = try! JSONDecoder().decode([User].self, from: data)
+          
           return users
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
         } else {
           throw AuthService.Errors.requestFail
         }
-      }).catchError({ (error) -> Observable<[User]> in
+      })
+      .catchError({ (error) -> Observable<[User]> in
         return Observable.just([])
       })
   }
+  
+  
   
   //helper
   func getLastPageFromLinkHeader(link: String) -> Int {

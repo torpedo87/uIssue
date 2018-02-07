@@ -133,8 +133,10 @@ class CreateIssueViewController: UIViewController {
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
-        let checkedLabels = IssueService().getCheckedLabels(items: (self?.viewModel.labelItems.value)!)
-        let checkedUsers = IssueService().getCheckedUsers(items: (self?.viewModel.assigneeItems.value)!)
+        let checkedLabelItems = Array((self?.viewModel)!.labelItemsDict.value.filter { $0.value.isChecked }.values)
+        let checkedLabels = checkedLabelItems.map { $0.label }
+        let checkedAssigneeItems = Array((self?.viewModel)!.assigneeItemsDict.value.filter { $0.value.isChecked }.values)
+        let checkedUsers = checkedAssigneeItems.map{ $0.user }
         return (self?.viewModel.createIssue(title: (self?.titleTextField.text)!, newComment: (self?.commetTextView.text)!, label: checkedLabels, users: checkedUsers))!
       }
       .debug()

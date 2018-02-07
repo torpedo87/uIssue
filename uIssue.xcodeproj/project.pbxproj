@@ -27,6 +27,7 @@
 		48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */; };
 		48470FBB201719BA003F5FBB /* IssueDetailViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */; };
 		48470FBD20184EC8003F5FBB /* LocalDataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48470FBC20184EC8003F5FBB /* LocalDataManager.swift */; };
+		484A4D08202A02F400F1022B /* IssuePropertyItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 484A4D07202A02F400F1022B /* IssuePropertyItem.swift */; };
 		48512A13202046DF00ECBF31 /* TestAPIMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A12202046DF00ECBF31 /* TestAPIMock.swift */; };
 		48512A1520204A4100ECBF31 /* LoginViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */; };
 		48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */; };
@@ -39,6 +40,7 @@
 		48A313F01FF3956D00201F6E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EE1FF3956D00201F6E /* LaunchScreen.storyboard */; };
 		48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140A1FF3983600201F6E /* LoginViewController.swift */; };
 		48A3140F1FF3A07B00201F6E /* AuthService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A3140E1FF3A07B00201F6E /* AuthService.swift */; };
+		48A9C9C4202AF3ED003EAFCD /* IssuePropertyItemService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A9C9C3202AF3ED003EAFCD /* IssuePropertyItemService.swift */; };
 		48B83A17200F28BB00F2A490 /* Token.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A16200F28BB00F2A490 /* Token.swift */; };
 		48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A18200F66FA00F2A490 /* SettingViewController.swift */; };
 		48B96ED12019F7C6003DDF35 /* IssueListFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */; };
@@ -81,6 +83,7 @@
 		48470FB8201719AB003F5FBB /* IssueDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewController.swift; sourceTree = "<group>"; };
 		48470FBA201719BA003F5FBB /* IssueDetailViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewViewModel.swift; sourceTree = "<group>"; };
 		48470FBC20184EC8003F5FBB /* LocalDataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalDataManager.swift; sourceTree = "<group>"; };
+		484A4D07202A02F400F1022B /* IssuePropertyItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePropertyItem.swift; sourceTree = "<group>"; };
 		48512A12202046DF00ECBF31 /* TestAPIMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAPIMock.swift; sourceTree = "<group>"; };
 		48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModelTests.swift; sourceTree = "<group>"; };
 		48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewViewModelTests.swift; sourceTree = "<group>"; };
@@ -97,6 +100,7 @@
 		48A313FC1FF3956D00201F6E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		48A3140A1FF3983600201F6E /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		48A3140E1FF3A07B00201F6E /* AuthService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthService.swift; sourceTree = "<group>"; };
+		48A9C9C3202AF3ED003EAFCD /* IssuePropertyItemService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePropertyItemService.swift; sourceTree = "<group>"; };
 		48B83A16200F28BB00F2A490 /* Token.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Token.swift; sourceTree = "<group>"; };
 		48B83A18200F66FA00F2A490 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListFetcher.swift; sourceTree = "<group>"; };
@@ -309,6 +313,7 @@
 				48A3140E1FF3A07B00201F6E /* AuthService.swift */,
 				48E44AC71FF50C9B008F9649 /* IssueService.swift */,
 				48FFC13220258794003CAA13 /* IssueAPI.swift */,
+				48A9C9C3202AF3ED003EAFCD /* IssuePropertyItemService.swift */,
 			);
 			path = Service;
 			sourceTree = "<group>";
@@ -319,6 +324,7 @@
 				48E44AC51FF508E9008F9649 /* Issue.swift */,
 				48B83A16200F28BB00F2A490 /* Token.swift */,
 				48FFC1302025755F003CAA13 /* Me.swift */,
+				484A4D07202A02F400F1022B /* IssuePropertyItem.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -592,6 +598,7 @@
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
 				48470FAA20162E21003F5FBB /* SplashViewController.swift in Sources */,
 				4840CBCF2024753600517961 /* CommentCell.swift in Sources */,
+				48A9C9C4202AF3ED003EAFCD /* IssuePropertyItemService.swift in Sources */,
 				48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */,
 				48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */,
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
@@ -603,6 +610,7 @@
 				48470FB62017069E003F5FBB /* CreateIssueViewViewModel.swift in Sources */,
 				48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */,
 				48470FA12015DDC1003F5FBB /* SettingViewViewModel.swift in Sources */,
+				484A4D08202A02F400F1022B /* IssuePropertyItem.swift in Sources */,
 				48B96ED12019F7C6003DDF35 /* IssueListFetcher.swift in Sources */,
 				48E44AC81FF50C9B008F9649 /* IssueService.swift in Sources */,
 				48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */,

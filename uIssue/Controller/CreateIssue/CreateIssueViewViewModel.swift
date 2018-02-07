@@ -10,12 +10,6 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-protocol PropertySettable {
-  
-  var labelItems: Variable<[LabelItem]> { get }
-  var assigneeItems: Variable<[AssigneeItem]> { get }
-}
-
 class CreateIssueViewViewModel: PropertySettable {
   private let bag = DisposeBag()
   //input
@@ -25,8 +19,9 @@ class CreateIssueViewViewModel: PropertySettable {
   private let repoId: Int!
   let issueApi: IssueServiceRepresentable
   let selectedRepo: Repository!
-  let labelItems = Variable<[LabelItem]>(IssueService().transformLabelToItem(labels: IssueService.Label.arr))
-  let assigneeItems = Variable<[AssigneeItem]>([])
+  
+  let labelItemsDict = Variable<[String:LabelItem]>([String:LabelItem]())
+  let assigneeItemsDict = Variable<[String:AssigneeItem]>([String:AssigneeItem]())
   
   init(repoId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -41,13 +36,30 @@ class CreateIssueViewViewModel: PropertySettable {
         return true
     }.asDriver(onErrorJustReturn: false)
     
-    
-    issueApi.getAssignees(repo: selectedRepo)
-      .map({ (users) -> [AssigneeItem] in
-        return IssueService().transformUserToItem(users: users)
+    //레퍼지토리 사용자 가져오기
+    LocalDataManager.shared.getProvider()
+      .asDriver(onErrorJustReturn: [Int : Repository]())
+      .map({ (dict) -> [User] in
+        let repo = dict[repoId]
+        if let _ = repo?.assigneesDic {
+          return Array(repo!.assigneesDic!.values)
+        } else {
+          return []
+        }
       })
-      .asDriver(onErrorJustReturn: [])
-      .drive(assigneeItems)
+      .map({ (users) -> [String:AssigneeItem] in
+        return IssuePropertyItemService().changeAssigneeArrToDict(arr: users)
+      })
+      .asDriver(onErrorJustReturn: [String:AssigneeItem]())
+      .drive(assigneeItemsDict)
+      .disposed(by: bag)
+    
+    Observable.just(IssueService.Label.arr)
+      .map { (labels) -> [String:LabelItem] in
+        return IssuePropertyItemService().changeLabelArrToDict(arr: labels)
+      }
+      .asDriver(onErrorJustReturn: [String : LabelItem]())
+      .drive(labelItemsDict)
       .disposed(by: bag)
   }
   

@@ -10,14 +10,10 @@ import UIKit
 import RxSwift
 import RxCocoa
 
-struct LabelItem {
-  var label: IssueService.Label
-  var isChecked: Bool
-}
-
-struct AssigneeItem {
-  var user: User
-  var isChecked: Bool
+protocol PropertySettable {
+  
+  var labelItemsDict: Variable<[String:LabelItem]> { get }
+  var assigneeItemsDict: Variable<[String:AssigneeItem]> { get }
 }
 
 class IssuePropertyView: UIView {
@@ -76,74 +72,120 @@ class IssuePropertyView: UIView {
       make.top.left.equalToSuperview()
       make.height.equalTo(50)
       make.width.equalTo(userLabel)
-      make.right.equalTo(userLabel.snp.left).offset(-10)
+      make.right.equalTo(userLabel.snp.left)
     }
     
     userLabel.snp.makeConstraints { (make) in
       make.top.right.equalToSuperview()
-      make.centerY.equalTo(labelLabel)
+      make.width.height.equalTo(labelLabel)
     }
     
     labelTableView.snp.makeConstraints { (make) in
       make.top.equalTo(labelLabel.snp.bottom)
-      make.left.bottom.equalToSuperview()
+      make.left.equalToSuperview()
       make.width.equalTo(assigneeTableView)
-      make.right.equalTo(assigneeTableView.snp.left).offset(-10)
+      make.right.equalTo(assigneeTableView.snp.left)
+      make.height.equalTo(100)
     }
     
     assigneeTableView.snp.makeConstraints { (make) in
       make.top.equalTo(userLabel.snp.bottom)
-      make.right.bottom.equalToSuperview()
+      make.right.equalToSuperview()
+      make.height.equalTo(labelTableView)
     }
   }
   
   func bindTableView() {
-    viewModel.labelItems.asDriver()
+    viewModel.labelItemsDict.asDriver()
       .drive(onNext: { [weak self] _ in self?.labelTableView.reloadData() })
       .disposed(by: bag)
     
+    viewModel.assigneeItemsDict.asDriver()
+      .drive(onNext: { [weak self] _ in self?.assigneeTableView.reloadData() })
+      .disposed(by: bag)
+    
+    
     //datasource
-    viewModel.labelItems.asObservable()
+    viewModel.labelItemsDict.asObservable()
+      .map({ (dict) -> [LabelItem] in
+        return Array(dict.values)
+      })
       .bind(to: labelTableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: LabelItem) in
+        (tableView: UITableView, index: Int, element: LabelItem) in
         let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
-        cell.configureLabelCell(viewModel: (self?.viewModel)!, index: index)
+        cell.configureLabelCell(item: element)
         return cell
       }
       .disposed(by: bag)
     
-    viewModel.assigneeItems.asDriver()
-      .drive(onNext: { [weak self] _ in self?.assigneeTableView.reloadData() })
-      .disposed(by: bag)
-    
-    //datasource
-    viewModel.assigneeItems.asObservable()
+    viewModel.assigneeItemsDict.asObservable()
+      .map({ (dict) -> [AssigneeItem] in
+        return Array(dict.values)
+      })
+      .debug("-----------------------------------------------")
       .bind(to: assigneeTableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: AssigneeItem) in
+        (tableView: UITableView, index: Int, element: AssigneeItem) in
         let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
-        cell.configureAssigneeCell(viewModel: (self?.viewModel)!, index: index)
+        cell.configureAssigneeCell(item: element)
         return cell
       }
       .disposed(by: bag)
     
     //delegate
     labelTableView.rx
-      .itemSelected
-      .subscribe(onNext: { [weak self] indexPath in
-        let item = self?.viewModel.labelItems.value[indexPath.row]
-        let items = self?.viewModel.labelItems.value
-        self?.viewModel.labelItems.value = IssueService().checkLabel(label: item!.label, items: items!, check: nil)
+      .modelSelected(LabelItem.self)
+      .observeOn(MainScheduler.instance)
+      .flatMap({ [weak self] model -> Observable<Bool> in
+        if let viewmodel = self?.viewModel as? IssueDetailViewViewModel {
+          let issue = viewmodel.issueDetail.value
+          var checkedDict = self?.viewModel.labelItemsDict.value.filter{ $0.value.isChecked }
+          
+          //빼기
+          if model.isChecked {
+            checkedDict?.removeValue(forKey: model.label.rawValue)
+            //추가
+          } else {
+            checkedDict![model.label.rawValue] = model
+          }
+          let updatedLabels = Array(checkedDict!.values).map{ $0.label }
+          let state = IssueService().transformStrToState(stateString: issue.state)
+          
+          return viewmodel.editIssue(state: state!, newTitleText: issue.title, newBodyText: issue.body!, label: updatedLabels, assignees: issue.assignees)
+        } else {
+          self?.viewModel.labelItemsDict.value[model.label.rawValue]?.toggleIsChecked()
+          return Observable.just(false)
+        }
       })
+      .subscribe()
       .disposed(by: bag)
+      
     
     //delegate
     assigneeTableView.rx
-      .itemSelected
-      .subscribe(onNext: { [weak self] indexPath in
-        let item = self?.viewModel.assigneeItems.value[indexPath.row]
-        let items = self?.viewModel.assigneeItems.value
-        self?.viewModel.assigneeItems.value = IssueService().checkUser(user: item!.user, items: items!, check: nil)
+      .modelSelected(AssigneeItem.self)
+      .observeOn(MainScheduler.instance)
+      .flatMap({ [weak self] model -> Observable<Bool> in
+        if let viewmodel = self?.viewModel as? IssueDetailViewViewModel {
+          let issue = viewmodel.issueDetail.value
+          var checkedDict = self?.viewModel.assigneeItemsDict.value.filter{ $0.value.isChecked }
+          
+          //빼기
+          if model.isChecked {
+            checkedDict?.removeValue(forKey: model.user.login)
+            //추가
+          } else {
+            checkedDict![model.user.login] = model
+          }
+          let updatedUsers = Array(checkedDict!.values).map{ $0.user }
+          let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
+          let state = IssueService().transformStrToState(stateString: issue.state)
+          return viewmodel.editIssue(state: state!, newTitleText: issue.title, newBodyText: issue.body!, label: labels, assignees: updatedUsers)
+        } else {
+          self?.viewModel.assigneeItemsDict.value[model.user.login]?.toggleIsChecked()
+          return Observable.just(false)
+        }
       })
+      .subscribe()
       .disposed(by: bag)
     
   }

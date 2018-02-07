@@ -19,6 +19,7 @@ class CommentBoxView: UIView {
   }
   
   enum Contents {
+    case issueTitle
     case issueBody
     case commentBody
     case newCommentBody
@@ -128,6 +129,8 @@ class CommentBoxView: UIView {
         case .newCommentBody: do {
           self?.commentTextView.text = ""
           }
+        case .issueTitle:
+          self?.commentTextView.text = self?.issue?.title
         }
         self?.mode.value = .normal
       })
@@ -142,19 +145,18 @@ class CommentBoxView: UIView {
           let issueLabel = IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
           switch (self?.contentsMode)! {
           case .issueBody: do {
-            return (self?.viewModel.editIssue(state: issueState!, newTitleText: issue.title, newBodyText: "", label: issueLabel))!
+            return (self?.viewModel.editIssue(state: issueState!, newTitleText: issue.title, newBodyText: "", label: issueLabel, assignees: issue.assignees))!
             }
           case .commentBody: do {
             return (self?.viewModel.deleteComment(existingComment: (self?.comment)!))!
             }
-          case .newCommentBody: do {
+          default: do {
             return Observable.just(false)
             }
           }
         } else {
           return Observable.just(false)
         }
-        
     }.asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] bool in
         if bool {
@@ -184,9 +186,11 @@ class CommentBoxView: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
+        let checkedUserItems = Array((self?.viewModel)!.assigneeItemsDict.value.filter{ $0.value.isChecked })
+        let assignees = checkedUserItems.map{ $0.value.user }
         switch (self?.contentsMode)! {
         case .issueBody: do {
-          return (self?.viewModel.editIssue(state: .open, newTitleText: (self?.issue)!.title, newBodyText: (self?.commentTextView.text)!, label: [.enhancement]))!
+          return (self?.viewModel.editIssue(state: .open, newTitleText: (self?.issue)!.title, newBodyText: (self?.commentTextView.text)!, label: [.enhancement], assignees: assignees))!
           }
         case .commentBody: do {
           return (self?.viewModel.editComment(existingComment: (self?.comment)!, newCommentText: (self?.commentTextView.text)!))!
@@ -194,6 +198,8 @@ class CommentBoxView: UIView {
         case .newCommentBody: do {
           return (self?.viewModel.createComment(newCommentBody: (self?.commentTextView.text)!))!
           }
+        case .issueTitle:
+          return (self?.viewModel.editIssue(state: .open, newTitleText: (self?.commentTextView.text)!, newBodyText: (self?.issue)!.body!, label: [.enhancement], assignees: assignees))!
         }
       }.asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] (success) in
@@ -255,6 +261,12 @@ class CommentBoxView: UIView {
       self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = "New Comment"
       self.commentTextView.text = ""
+      }
+    case .issueTitle: do {
+      self.userLabel.font = UIFont.systemFont(ofSize: 30)
+      self.commentTextView.font = UIFont.systemFont(ofSize: 30)
+      self.userLabel.text = "#\(self.issue!.number) Title"
+      self.commentTextView.text = self.issue!.title
       }
     }
   }

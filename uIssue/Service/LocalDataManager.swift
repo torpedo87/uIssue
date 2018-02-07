@@ -93,6 +93,16 @@ class LocalDataManager {
     resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic?.removeValue(forKey: existingComment.id)
   }
   
+  func setAssigneesDic(repoId: Int, assignees: [User]) {
+    if let _ = resultProvider.value[repoId]?.assigneesDic {
+      resultProvider.value[repoId]?.setassigneesDic(userArr: assignees)
+    } else {
+      resultProvider.value[repoId]?.assigneesDic = [Int:User]()
+      resultProvider.value[repoId]?.setassigneesDic(userArr: assignees)
+    }
+    
+  }
+  
   //for test
   func setRepoDict(repoDict: [Int:Repository]) {
     resultProvider.value = repoDict

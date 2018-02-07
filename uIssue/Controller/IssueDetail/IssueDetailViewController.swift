@@ -14,11 +14,10 @@ class IssueDetailViewController: UIViewController {
   private var viewModel: IssueDetailViewViewModel!
   private let bag = DisposeBag()
   
-  private lazy var titleTextField: UITextField = {
-    let txtField = UITextField()
-    txtField.text = viewModel.issueDetail.value.title
-    txtField.font = UIFont.systemFont(ofSize: 25)
-    return txtField
+  private lazy var titleTextView: CommentBoxView = {
+    let issue = viewModel.issueDetail.value
+    let commentBox = CommentBoxView(comment: nil, issue: issue, contentsMode: .issueTitle, viewModel: viewModel)
+    return commentBox
   }()
   
   private lazy var bodyTextView: CommentBoxView = {
@@ -36,6 +35,7 @@ class IssueDetailViewController: UIViewController {
 
   private lazy var tableView: UITableView = {
     let view = UITableView()
+    view.tableFooterView = UIView()
     view.register(CommentCell.self, forCellReuseIdentifier: CommentCell.reuseIdentifier)
     return view
   }()
@@ -74,42 +74,41 @@ class IssueDetailViewController: UIViewController {
     title = "Issue Detail"
     view.backgroundColor = UIColor.white
     
-    view.addSubview(titleTextField)
+    view.addSubview(titleTextView)
     view.addSubview(bodyTextView)
     view.addSubview(newCommentView)
     view.addSubview(tableView)
     view.addSubview(propertyView)
     view.addSubview(closeButton)
     
-    titleTextField.snp.makeConstraints { (make) in
+    titleTextView.snp.makeConstraints { (make) in
       make.top.equalToSuperview().offset(85)
       make.left.right.equalToSuperview()
-      make.height.equalTo(50)
     }
-    
+
     bodyTextView.snp.makeConstraints { (make) in
       make.left.right.equalToSuperview()
-      make.top.equalTo(titleTextField.snp.bottom)
+      make.top.equalTo(titleTextView.snp.bottom)
     }
-    
+
     tableView.snp.makeConstraints { (make) in
       make.top.equalTo(bodyTextView.snp.bottom)
       make.left.right.equalToSuperview()
       make.height.equalTo(200)
     }
-    
+
     propertyView.snp.makeConstraints { (make) in
       make.left.right.equalToSuperview()
       make.height.equalTo(200)
-      make.top.equalTo(tableView.snp.bottom).offset(10)
+      make.top.equalTo(tableView.snp.bottom)
     }
-    
+
     newCommentView.snp.makeConstraints { (make) in
-      make.top.equalTo(propertyView.snp.bottom).offset(10)
+      newCommentView.sizeToFit()
+      make.top.equalTo(propertyView.snp.bottom)
       make.left.right.equalToSuperview()
-      make.bottom.equalTo(closeButton.snp.top).offset(-10)
     }
-    
+
     closeButton.snp.makeConstraints { (make) in
       closeButton.sizeToFit()
       make.right.equalToSuperview()
@@ -134,9 +133,9 @@ class IssueDetailViewController: UIViewController {
         if let issue = self?.viewModel.issueDetail.value {
           let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
           if issue.state == "closed" {
-            return (self?.viewModel.editIssue(state: .open, newTitleText: issue.title, newBodyText: issue.body!, label: labels))!
+            return (self?.viewModel.editIssue(state: .open, newTitleText: issue.title, newBodyText: issue.body!, label: labels, assignees: issue.assignees))!
           } else {
-            return (self?.viewModel.editIssue(state: .closed, newTitleText: issue.title, newBodyText: issue.body!, label: labels))!
+            return (self?.viewModel.editIssue(state: .closed, newTitleText: issue.title, newBodyText: issue.body!, label: labels, assignees: issue.assignees))!
           }
         }
         return Observable.just(false)

@@ -32,7 +32,7 @@ class ListCell: UITableViewCell {
       make.left.top.bottom.equalToSuperview()
     }
     countLabel.snp.makeConstraints { (make) in
-      make.width.equalTo(80)
+      countLabel.sizeToFit()
       make.right.top.bottom.equalToSuperview()
     }
   }
@@ -55,8 +55,7 @@ class ListCell: UITableViewCell {
     titleLabel.text = list[index]
   }
   
-  func configureLabelCell(viewModel: PropertySettable, index: Int) {
-    let item = viewModel.labelItems.value[index]
+  func configureLabelCell(item: LabelItem) {
     titleLabel.text = item.label.rawValue
     if item.isChecked {
       accessoryType = .checkmark
@@ -65,8 +64,7 @@ class ListCell: UITableViewCell {
     }
   }
   
-  func configureAssigneeCell(viewModel: PropertySettable, index: Int) {
-    let item = viewModel.assigneeItems.value[index]
+  func configureAssigneeCell(item: AssigneeItem) {
     titleLabel.text = item.user.login
     if item.isChecked {
       accessoryType = .checkmark
