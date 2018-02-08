@@ -14,8 +14,8 @@ class RepoListViewViewModel {
   private let bag = DisposeBag()
   
   //output
-  let repoList = Variable<[Repository]>([])
-  let running = Variable<Bool>(true)
+  let repoList = BehaviorRelay<[Repository]>(value: [])
+  let running = BehaviorRelay<Bool>(value: true)
   let issueApi: IssueServiceRepresentable
   let statusDriver: Driver<AuthService.Status>
   
@@ -46,7 +46,8 @@ class RepoListViewViewModel {
     LocalDataManager.shared.getProvider()
       .map { $0.filter { $0.value.issuesDic!.count > 0 } }
       .map({ (repoDict) -> [Repository] in
-        return Array(repoDict.values).sorted(by: { $0.created_at > $1.created_at })
+        return Array(repoDict.values)
+          .sorted(by: { $0.created_at > $1.created_at })
       })
       .asDriver(onErrorJustReturn: [])
       .drive(repoList)

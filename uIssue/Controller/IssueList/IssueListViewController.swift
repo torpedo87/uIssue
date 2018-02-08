@@ -37,17 +37,22 @@ class IssueListViewController: UIViewController {
   
   private lazy var tableView: UITableView = {
     let view = UITableView()
-    view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
+    view.register(ListCell.self,
+                  forCellReuseIdentifier: ListCell.reuseIdentifier)
     view.rowHeight = 50
     return view
   }()
   
   private lazy var addBarButtonItem: UIBarButtonItem = {
-    let item = UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.add, target: self, action: nil)
+    let item =
+      UIBarButtonItem(barButtonSystemItem: UIBarButtonSystemItem.add,
+                      target: self,
+                      action: nil)
     return item
   }()
   
-  static func createWith(viewModel: IssueListViewViewModel) -> IssueListViewController {
+  static func createWith(
+    viewModel: IssueListViewViewModel) -> IssueListViewController {
     return {
       $0.viewModel = viewModel
       return $0
@@ -116,7 +121,8 @@ class IssueListViewController: UIViewController {
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
         let repoId = self?.viewModel.repoId
-        Navigator.shared.show(destination: .createIssue(repoId!), sender: self!)
+        Navigator.shared.show(destination: .createIssue(repoId!),
+                              sender: self!)
       })
       .disposed(by: bag)
   }
@@ -130,7 +136,8 @@ class IssueListViewController: UIViewController {
     viewModel.issueList.asObservable()
       .bind(to: tableView.rx.items) {
         [weak self] (tableView: UITableView, index: Int, element: Issue) in
-        let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
+        let cell = ListCell(style: .default,
+                            reuseIdentifier: ListCell.reuseIdentifier)
         cell.configureCell(viewModel: (self?.viewModel)!, index: index)
         return cell
       }
@@ -143,13 +150,15 @@ class IssueListViewController: UIViewController {
         let repoId = self?.viewModel.repoId
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedIssue = self?.viewModel.issueList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueDetail(repoId!, selectedIssue!.id), sender: self!)
+        Navigator.shared.show(destination: .issueDetail(repoId!, selectedIssue!.id),
+                              sender: self!)
       })
       .disposed(by: bag)
   }
   
   func presentPopUp(sender: UIButton, mode: PopUpViewController.PopUpMode) {
-    let popUpViewController = PopUpViewController.createWith(viewModel: viewModel, mode: mode)
+    let popUpViewController =
+      PopUpViewController.createWith(viewModel: viewModel, mode: mode)
     popUpViewController.modalPresentationStyle = .popover
     popUpViewController.preferredContentSize = CGSize(width: 150, height: 100)
     let popOver = popUpViewController.popoverPresentationController
@@ -161,7 +170,8 @@ class IssueListViewController: UIViewController {
 }
 
 extension IssueListViewController: UIPopoverPresentationControllerDelegate {
-  func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+  func adaptivePresentationStyle(
+    for controller: UIPresentationController) -> UIModalPresentationStyle {
     return .none
   }
 }

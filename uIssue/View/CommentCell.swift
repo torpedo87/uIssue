@@ -16,7 +16,10 @@ class CommentCell: UITableViewCell {
   var comment: Comment!
   var viewModel: IssueDetailViewViewModel!
   private lazy var commentView: CommentBoxView = {
-    let view = CommentBoxView(comment: comment, issue: nil, contentsMode: CommentBoxView.Contents.commentBody, viewModel: viewModel)
+    let view = CommentBoxView(comment: comment,
+                              issue: nil,
+                              contentsMode: CommentBoxView.Contents.commentBody,
+                              viewModel: viewModel)
     return view
   }()
   

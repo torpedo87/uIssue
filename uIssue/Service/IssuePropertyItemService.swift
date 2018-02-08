@@ -46,5 +46,16 @@ class IssuePropertyItemService {
     return items
   }
   
+  func updateLabelWhenToggled(dict: [String:LabelItem], item: LabelItem) -> [String:LabelItem] {
+    var tempDict = dict
+    tempDict[item.label.rawValue]?.isChecked = !(dict[item.label.rawValue]?.isChecked)!
+    return tempDict
+  }
+  
+  func updateAssigneeWhenToggled(dict: [String:AssigneeItem], item: AssigneeItem) -> [String:AssigneeItem] {
+    var tempDict = dict
+    tempDict[item.user.login]?.isChecked = !(dict[item.user.login]?.isChecked)!
+    return tempDict
+  }
   
 }

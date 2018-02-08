@@ -15,13 +15,14 @@ class RepoListViewController: UIViewController {
   private var viewModel: RepoListViewViewModel!
   private lazy var tableView: UITableView = {
     let view = UITableView()
-    view.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
+    view.register(ListCell.self,
+                  forCellReuseIdentifier: ListCell.reuseIdentifier)
     view.rowHeight = 50
     return view
   }()
   
-  private lazy var settingBarButtonItem: UIBarButtonItem = {
-    let item = UIBarButtonItem(image: UIImage(named: "setting"),
+  private lazy var logoutBarButtonItem: UIBarButtonItem = {
+    let item = UIBarButtonItem(title: "LOGOUT",
                                style: .plain,
                                target: self,
                                action: nil)
@@ -35,7 +36,8 @@ class RepoListViewController: UIViewController {
     return spinner
   }()
   
-  static func createWith(viewModel: RepoListViewViewModel) -> RepoListViewController {
+  static func createWith(
+    viewModel: RepoListViewViewModel) -> RepoListViewController {
     return {
       $0.viewModel = viewModel
       return $0
@@ -51,7 +53,7 @@ class RepoListViewController: UIViewController {
   
   func setupView() {
     title = "Repository List"
-    navigationItem.rightBarButtonItem = settingBarButtonItem
+    navigationItem.rightBarButtonItem = logoutBarButtonItem
     view.backgroundColor = UIColor.white
     view.addSubview(tableView)
     view.addSubview(activityIndicator)
@@ -73,7 +75,7 @@ class RepoListViewController: UIViewController {
       .drive(activityIndicator.rx.isAnimating)
       .disposed(by:bag)
     
-    settingBarButtonItem.rx.tap
+    logoutBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .map{ _ in true }
       .asDriver(onErrorJustReturn: false)
@@ -91,8 +93,12 @@ class RepoListViewController: UIViewController {
     //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: Repository) in
-        let cell = ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
+        [weak self] (
+        tableView: UITableView,
+        index: Int,
+        element: Repository) in
+        let cell =
+          ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
         cell.configureCell(viewModel: (self?.viewModel)!, index: index)
         return cell
     }
@@ -103,7 +109,8 @@ class RepoListViewController: UIViewController {
       .subscribe(onNext: { [weak self] indexPath in
         self?.tableView.deselectRow(at: indexPath, animated: true)
         let selectedRepo = self?.viewModel.repoList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueList(selectedRepo!.id), sender: self!)
+        Navigator.shared.show(destination: .issueList(selectedRepo!.id),
+                              sender: self!)
       })
       .disposed(by: bag)
 

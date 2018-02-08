@@ -26,8 +26,9 @@ struct Issue: Codable {
   
   init(id: Int = -1, title: String = "", body: String? = nil, user: User = User(),
        assignees: [User] = [], number: Int = -1, repository: Repository? = nil,
-       created_at: String = "", updated_at: String = "", labels: [IssueLabel] = [], state: String = "",
-       comments_url: String = "", commentsDic: [Int:Comment]? = nil, isCommentsFetched: Bool = false) {
+       created_at: String = "", updated_at: String = "", labels: [IssueLabel] = [],
+       state: String = "", comments_url: String = "", commentsDic: [Int:Comment]? = nil,
+       isCommentsFetched: Bool = false) {
     self.id = id
     self.title = title
     self.body = body
@@ -52,7 +53,13 @@ struct Issue: Codable {
     }
   }
   
-  static let test = Issue(id: 1, title: "title", body: "body", user: User.test, assignees: [User.test], number: 1, repository: Repository.test, created_at: "1", labels: [IssueLabel.test], state: IssueService.State.open.rawValue, comments_url: "comments_url", commentsDic: nil)
+  static let test =
+    Issue(id: 1, title: "title", body: "body", user: User.test,
+                          assignees: [User.test], number: 1,
+                          repository: Repository.test, created_at: "1",
+                          labels: [IssueLabel.test],
+                          state: IssueService.State.open.rawValue,
+                          comments_url: "comments_url", commentsDic: nil)
 }
 
 struct Comment: Codable {
@@ -121,7 +128,9 @@ struct Repository: Codable {
     }
   }
   
-  static let test = Repository(id: 1, name: "name", owner: User.test, open_issues: 1, created_at: "1", issuesDic: nil, assigneesDic: nil)
+  static let test = Repository(id: 1, name: "name", owner: User.test,
+                               open_issues: 1, created_at: "1", issuesDic: nil,
+                               assigneesDic: nil)
 }
 
 extension Issue: Equatable {

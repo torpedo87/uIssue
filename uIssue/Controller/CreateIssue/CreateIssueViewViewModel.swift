@@ -13,15 +13,17 @@ import RxCocoa
 class CreateIssueViewViewModel: PropertySettable {
   private let bag = DisposeBag()
   //input
-  let titleInput = Variable<String>("")
+  let titleInput = BehaviorRelay<String>(value: "")
   //output
   let validate: Driver<Bool>
   private let repoId: Int!
   let issueApi: IssueServiceRepresentable
   let selectedRepo: Repository!
   
-  let labelItemsDict = Variable<[String:LabelItem]>([String:LabelItem]())
-  let assigneeItemsDict = Variable<[String:AssigneeItem]>([String:AssigneeItem]())
+  let labelItemsDict =
+    BehaviorRelay<[String:LabelItem]>(value: [String:LabelItem]())
+  let assigneeItemsDict =
+    BehaviorRelay<[String:AssigneeItem]>(value: [String:AssigneeItem]())
   
   init(repoId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -64,12 +66,20 @@ class CreateIssueViewViewModel: PropertySettable {
   }
   
   //이슈생성 api요청 성공하면 로컬 변경하기
-  func createIssue(title: String, newComment: String, label: [IssueService.Label], users: [User]) -> Observable<Bool> {
+  func createIssue(title: String,
+                   newComment: String,
+                   label: [IssueService.Label],
+                   users: [User]) -> Observable<Bool> {
     let repoId = self.repoId!
-    return issueApi.createIssue(title: title, body: newComment, label: label, repo: selectedRepo, users: users)
+    return issueApi.createIssue(title: title,
+                                body: newComment,
+                                label: label,
+                                repo: selectedRepo,
+                                users: users)
       .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
-          LocalDataManager.shared.createIssue(repoId: repoId, createdIssue: newIssue)
+          LocalDataManager.shared.createIssue(repoId: repoId,
+                                              createdIssue: newIssue)
           return true
         }
         return false
