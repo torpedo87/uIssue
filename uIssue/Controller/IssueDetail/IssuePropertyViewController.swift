@@ -12,11 +12,11 @@ import RxCocoa
 
 class IssuePropertyViewController: UIViewController {
   
-  private var viewModel: IssueDetailViewViewModel!
+  private var viewModel: PropertySettable!
   private let bag = DisposeBag()
   
   static func createWith(
-    viewModel: IssueDetailViewViewModel) -> IssuePropertyViewController {
+    viewModel: PropertySettable) -> IssuePropertyViewController {
     return {
       $0.viewModel = viewModel
       return $0

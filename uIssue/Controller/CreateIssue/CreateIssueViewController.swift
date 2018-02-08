@@ -44,11 +44,16 @@ class CreateIssueViewController: UIViewController {
   
   private lazy var submitButton: UIButton = {
     let btn = UIButton()
+    btn.backgroundColor = UIColor(hex: "3CC75A")
     btn.setTitle("Submit new issue", for: UIControlState.normal)
-    btn.setTitleColor(UIColor.black, for: UIControlState.normal)
-    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     btn.setTitle("Enter title", for: UIControlState.disabled)
     btn.isEnabled = false
+    return btn
+  }()
+  
+  private lazy var settingButton: UIButton = {
+    let btn = UIButton()
+    btn.setImage(UIImage(named: "setting"), for: UIControlState.normal)
     return btn
   }()
   
@@ -74,11 +79,12 @@ class CreateIssueViewController: UIViewController {
   func setupView() {
     view.addSubview(topView)
     topView.addSubview(cancelButton)
-    topView.addSubview(submitButton)
+    topView.addSubview(settingButton)
     view.backgroundColor = UIColor.white
     view.addSubview(titleTextField)
     view.addSubview(commetTextView)
     view.addSubview(propertyView)
+    view.addSubview(submitButton)
     
     topView.snp.makeConstraints { (make) in
       make.left.top.right.equalToSuperview()
@@ -105,18 +111,17 @@ class CreateIssueViewController: UIViewController {
       make.bottom.equalTo(topView).offset(-5)
     }
     
-    submitButton.snp.makeConstraints { (make) in
+    settingButton.snp.makeConstraints { (make) in
       submitButton.sizeToFit()
       make.right.equalTo(topView).offset(-10)
       make.bottom.equalTo(topView).offset(-5)
     }
     
-    propertyView.snp.makeConstraints { (make) in
-      make.left.right.equalTo(commetTextView)
-      make.top.equalTo(commetTextView.snp.bottom).offset(10)
-      make.bottom.equalToSuperview().offset(-50)
+    submitButton.snp.makeConstraints { (make) in
+      submitButton.sizeToFit()
+      make.top.equalTo(commetTextView.snp.bottom).offset(50)
+      make.right.equalToSuperview().offset(-20)
     }
-    
   }
   
   func bindUI() {
@@ -128,6 +133,14 @@ class CreateIssueViewController: UIViewController {
     //뷰모델에서 가공된 결과를 받아서 바인딩
     viewModel.validate
       .drive(submitButton.rx.isEnabled)
+      .disposed(by: bag)
+    
+    settingButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { [weak self] _ in
+        self?.presentPropertyViewController()
+      })
       .disposed(by: bag)
     
     
@@ -165,4 +178,25 @@ class CreateIssueViewController: UIViewController {
     
   }
   
+  func presentPropertyViewController() {
+    let issuePropertyViewController =
+      IssuePropertyViewController.createWith(viewModel: viewModel)
+    issuePropertyViewController.modalPresentationStyle = .popover
+    issuePropertyViewController.preferredContentSize =
+      CGSize(width: UIScreen.main.bounds.width - 20, height: 500)
+    let popOver = issuePropertyViewController.popoverPresentationController
+    popOver?.delegate = self
+    popOver?.sourceView = view
+    popOver?.sourceRect = CGRect(origin: view.center, size: CGSize.zero)
+    popOver?.permittedArrowDirections = UIPopoverArrowDirection(rawValue: 0)
+    present(issuePropertyViewController, animated: true, completion: nil)
+  }
+  
+}
+
+extension CreateIssueViewController: UIPopoverPresentationControllerDelegate {
+  func adaptivePresentationStyle(
+    for controller: UIPresentationController) -> UIModalPresentationStyle {
+    return .none
+  }
 }
