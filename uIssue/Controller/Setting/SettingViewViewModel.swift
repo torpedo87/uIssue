@@ -12,8 +12,8 @@ import RxCocoa
 class SettingViewViewModel {
   
   //input
-  let idTextInput = Variable<String>("")
-  let pwdTextInput = Variable<String>("")
+  let idTextInput = BehaviorRelay<String>(value: "")
+  let pwdTextInput = BehaviorRelay<String>(value: "")
   
   //output
   let validate: Driver<Bool>

@@ -20,7 +20,8 @@ extension UserDefaults {
   }
   
   static func loadToken() -> Token? {
-    guard let dict = UserDefaults.standard.dictionary(forKey: "token") else { return nil }
+    guard let dict =
+      UserDefaults.standard.dictionary(forKey: "token") else { return nil }
     if let id = dict["id"] as? Int, let token = dict["token"] as? String {
       let newToken = Token(id: id, token: token)
       return newToken

@@ -15,7 +15,7 @@ class LocalDataManager {
   static let shared = LocalDataManager()
   
   //local
-  private let resultProvider = Variable<[Int:Repository]>([Int:Repository]())
+  private let resultProvider = BehaviorRelay<[Int:Repository]>(value: [Int:Repository]())
   private let bag = DisposeBag()
   
   func bindOutput(issueApi: IssueServiceRepresentable) {
@@ -36,16 +36,21 @@ class LocalDataManager {
     let repo = resultProvider.value[repoId]
     var issueWithRepo = createdIssue
     issueWithRepo.repository = repo
+    var tempDict = resultProvider.value
     if let _ = resultProvider.value[repoId]?.issuesDic {
-      resultProvider.value[repoId]?.issuesDic![createdIssue.id] = issueWithRepo
+      tempDict[repoId]?.issuesDic![createdIssue.id] = issueWithRepo
+      resultProvider.accept(tempDict)
     } else {
-      resultProvider.value[repoId]?.issuesDic = [Int:Issue]()
-      resultProvider.value[repoId]?.issuesDic![createdIssue.id] = issueWithRepo
+      tempDict[repoId]?.issuesDic = [Int:Issue]()
+      tempDict[repoId]?.issuesDic![createdIssue.id] = issueWithRepo
+      resultProvider.accept(tempDict)
     }
   }
   
   func closeIssue(repoId: Int, existingIssue: Issue) {
-    resultProvider.value[repoId]?.issuesDic?.removeValue(forKey: existingIssue.id)
+    var tempDict = resultProvider.value
+    tempDict[repoId]?.issuesDic?.removeValue(forKey: existingIssue.id)
+    resultProvider.accept(tempDict)
   }
   
   func editIssue(repoId: Int, newIssue: Issue) {
@@ -55,51 +60,84 @@ class LocalDataManager {
     issue.repository = repo
     issue.commentsDic = commetsDict
     issue.isCommentsFetched = true
-    resultProvider.value[repoId]?.issuesDic?.updateValue(issue, forKey: newIssue.id)
+    var tempDict = resultProvider.value
+    tempDict[repoId]?.issuesDic?.updateValue(issue, forKey: newIssue.id)
+    resultProvider.accept(tempDict)
   }
   
   func fetchComments(repoId: Int, issue: Issue, comments: [Comment]) {
-
+    var tempDict = resultProvider.value
     if let _ = resultProvider.value[repoId]?.issuesDic {
-      resultProvider.value[repoId]?.issuesDic![issue.id]?.setCommentsDic(comments: comments)
+      tempDict[repoId]?.issuesDic![issue.id]?
+        .setCommentsDic(comments: comments)
+      resultProvider.accept(tempDict)
     } else {
-      resultProvider.value[repoId]?.issuesDic = [Int:Issue]()
-      resultProvider.value[repoId]?.issuesDic![issue.id]?.setCommentsDic(comments: comments)
+      tempDict[repoId]?.issuesDic = [Int:Issue]()
+      tempDict[repoId]?.issuesDic![issue.id]?
+        .setCommentsDic(comments: comments)
+      resultProvider.accept(tempDict)
     }
   }
   
   func createComment(repoId: Int, issue: Issue, newComment: Comment) {
+    var tempDict = resultProvider.value
     if let _ = resultProvider.value[repoId]?.issuesDic {
       if let _ = resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic {
-        resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+        tempDict[repoId]?.issuesDic![issue.id]?.commentsDic![newComment.id]
+          = newComment
+        resultProvider.accept(tempDict)
       } else {
-        resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic = [Int:Comment]()
-        resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+        tempDict[repoId]?.issuesDic![issue.id]?.commentsDic
+          = [Int:Comment]()
+        tempDict[repoId]?.issuesDic![issue.id]?.commentsDic![newComment.id]
+          = newComment
+        resultProvider.accept(tempDict)
       }
     } else {
-      resultProvider.value[repoId]?.issuesDic = [Int:Issue]()
-      resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic![newComment.id] = newComment
+      tempDict[repoId]?.issuesDic = [Int:Issue]()
+      tempDict[repoId]?.issuesDic![issue.id]?.commentsDic![newComment.id]
+        = newComment
+      resultProvider.accept(tempDict)
     }
     
   }
   
   func editComment(repoId: Int, issue: Issue, newComment: Comment) {
+    var tempDict = resultProvider.value
     if newComment.body != "" {
-      resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic?.updateValue(newComment, forKey: newComment.id)
+      tempDict[repoId]?.issuesDic![issue.id]?.commentsDic?
+        .updateValue(newComment, forKey: newComment.id)
+      resultProvider.accept(tempDict)
     }
   }
   
   func deleteComment(repoId: Int, issue: Issue, existingComment: Comment) {
-    resultProvider.value[repoId]?.issuesDic![issue.id]?.commentsDic?.removeValue(forKey: existingComment.id)
+    var tempDict = resultProvider.value
+    tempDict[repoId]?.issuesDic![issue.id]?.commentsDic?
+      .removeValue(forKey: existingComment.id)
+    resultProvider.accept(tempDict)
+  }
+  
+  func setAssigneesDic(repoId: Int, assignees: [User]) {
+    var tempDict = resultProvider.value
+    if let _ = resultProvider.value[repoId]?.assigneesDic {
+      tempDict[repoId]?.setassigneesDic(userArr: assignees)
+      resultProvider.accept(tempDict)
+    } else {
+      tempDict[repoId]?.assigneesDic = [Int:User]()
+      tempDict[repoId]?.setassigneesDic(userArr: assignees)
+      resultProvider.accept(tempDict)
+    }
+    
   }
   
   //for test
   func setRepoDict(repoDict: [Int:Repository]) {
-    resultProvider.value = repoDict
+    resultProvider.accept(repoDict)
   }
   
   func removeAll() {
-    resultProvider.value = [Int:Repository]()
+    resultProvider.accept([Int:Repository]())
   }
   
 }

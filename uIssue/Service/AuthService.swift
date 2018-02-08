@@ -52,7 +52,8 @@ class AuthService: AuthServiceRepresentable {
   
   func requestToken(userId: String, userPassword: String) -> Observable<Status> {
     
-    guard let url = URL(string: "https://api.github.com/authorizations") else { fatalError() }
+    guard let url =
+      URL(string: "https://api.github.com/authorizations") else { fatalError() }
     
     //rx 는 시퀀스이므로 request부터 Observable 형태로 감시하는 건가보다
     //Observable<URLRequest>
@@ -60,7 +61,8 @@ class AuthService: AuthServiceRepresentable {
       let request: URLRequest = {
         var request = URLRequest(url: $0)
         let userInfoString = userId + ":" + userPassword
-        guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
+        guard let userInfoData =
+          userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
         let base64EncodedCredential = userInfoData.base64EncodedString()
         let authString = "Basic \(base64EncodedCredential)"
         request.httpMethod = "POST"
@@ -115,13 +117,15 @@ class AuthService: AuthServiceRepresentable {
   
   func removeToken(userId: String, userPassword: String) -> Observable<Status> {
     guard let tokenId = UserDefaults.loadToken()?.id else { fatalError() }
-    guard let url = URL(string: "https://api.github.com/authorizations/\(tokenId)") else { fatalError() }
+    guard let url =
+      URL(string: "https://api.github.com/authorizations/\(tokenId)") else { fatalError() }
     
     let request: Observable<URLRequest> = Observable.create { (observer) -> Disposable in
       let request: URLRequest = {
         var request = URLRequest(url: $0)
         let userInfoString = userId + ":" + userPassword
-        guard let userInfoData = userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
+        guard let userInfoData =
+          userInfoString.data(using: String.Encoding.utf8) else { fatalError() }
         let base64EncodedCredential = userInfoData.base64EncodedString()
         let authString = "Basic \(base64EncodedCredential)"
         request.httpMethod = "DELETE"

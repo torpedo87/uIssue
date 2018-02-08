@@ -14,7 +14,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
   var window: UIWindow?
 
-  func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+  func application(
+    _ application: UIApplication,
+    didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
     
     window = UIWindow(frame: UIScreen.main.bounds)
     window?.rootViewController = SplashViewController()
@@ -22,7 +24,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     let navigationBarAppearace = UINavigationBar.appearance()
     navigationBarAppearace.barTintColor = UIColor(hex: "FEDF32")
-    
+    navigationBarAppearace.tintColor = UIColor(hex: "157EFB")
     return true
     
   }

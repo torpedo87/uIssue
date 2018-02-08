@@ -9,6 +9,7 @@
 import UIKit
 import RxSwift
 import RxCocoa
+import Kingfisher
 
 class CommentBoxView: UIView {
   
@@ -18,6 +19,7 @@ class CommentBoxView: UIView {
   }
   
   enum Contents {
+    case issueTitle
     case issueBody
     case commentBody
     case newCommentBody
@@ -27,14 +29,19 @@ class CommentBoxView: UIView {
   private let bag = DisposeBag()
   private var comment: Comment?
   private var issue: Issue?
-  
-  private var mode = Variable<Mode>(.normal)
+  private var mode = BehaviorRelay<Mode>(value: .normal)
   
   private var contentsMode: Contents!
   
   private lazy var topView: UIView = {
     let view = UIView()
     view.backgroundColor = UIColor(hex: "F1F8FF")
+    return view
+  }()
+  
+  private lazy var avatarImageView: UIImageView = {
+    let view = UIImageView()
+    view.contentMode = .scaleAspectFit
     return view
   }()
   
@@ -45,33 +52,33 @@ class CommentBoxView: UIView {
   
   private lazy var editButton: UIButton = {
     let btn = UIButton()
-    btn.layer.cornerRadius = 10
     btn.setTitle("EDIT", for: UIControlState.normal)
-    btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private lazy var saveButton: UIButton = {
     let btn = UIButton()
-    btn.layer.cornerRadius = 10
     btn.setTitle("SAVE", for: UIControlState.normal)
-    btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private lazy var cancelButton: UIButton = {
     let btn = UIButton()
-    btn.layer.cornerRadius = 10
     btn.setTitle("CANCEL", for: UIControlState.normal)
-    btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private lazy var deleteButton: UIButton = {
     let btn = UIButton()
-    btn.layer.cornerRadius = 10
     btn.setTitle("DELETE", for: UIControlState.normal)
-    btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
@@ -81,7 +88,8 @@ class CommentBoxView: UIView {
     return view
   }()
   
-  init(comment: Comment?, issue: Issue?, contentsMode: Contents, viewModel: IssueDetailViewViewModel) {
+  init(comment: Comment?, issue: Issue?, contentsMode: Contents,
+       viewModel: IssueDetailViewViewModel) {
     self.contentsMode = contentsMode
     self.viewModel = viewModel
     self.issue = issue
@@ -113,7 +121,7 @@ class CommentBoxView: UIView {
       .drive(onNext: { [weak self] _ in
         switch (self?.contentsMode)! {
         case .issueBody: do {
-          self?.commentTextView.text = self?.issue?.body
+          self?.commentTextView.text = self?.viewModel.issueDetail.value.body
           }
         case .commentBody: do {
           self?.commentTextView.text = self?.comment?.body
@@ -121,8 +129,10 @@ class CommentBoxView: UIView {
         case .newCommentBody: do {
           self?.commentTextView.text = ""
           }
+        case .issueTitle:
+          self?.commentTextView.text = self?.issue?.title
         }
-        self?.mode.value = .normal
+        self?.mode.accept(.normal)
       })
       .disposed(by: bag)
     
@@ -131,23 +141,28 @@ class CommentBoxView: UIView {
       .observeOn(MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
         if let issue = self?.viewModel.issueDetail.value {
-          let issueState = IssueService().transformStrToState(stateString: issue.state)
-          let issueLabel = IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
+          let issueState =
+            IssueService().transformStrToState(stateString: issue.state)
+          let issueLabel =
+            IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
           switch (self?.contentsMode)! {
           case .issueBody: do {
-            return (self?.viewModel.editIssue(state: issueState!, newTitleText: issue.title, newBodyText: "", label: issueLabel))!
+            return (self?.viewModel.editIssue(state: issueState!,
+                                              newTitleText: issue.title,
+                                              newBodyText: "",
+                                              label: issueLabel,
+                                              assignees: issue.assignees))!
             }
           case .commentBody: do {
             return (self?.viewModel.deleteComment(existingComment: (self?.comment)!))!
             }
-          case .newCommentBody: do {
+          default: do {
             return Observable.just(false)
             }
           }
         } else {
           return Observable.just(false)
         }
-        
     }.asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] bool in
         if bool {
@@ -168,7 +183,7 @@ class CommentBoxView: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
-        self?.mode.value = .edit
+        self?.mode.accept(.edit)
       })
       .disposed(by: bag)
     
@@ -177,16 +192,32 @@ class CommentBoxView: UIView {
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
+        
+        let assignees = self?.viewModel.issueDetail.value.assignees
+        let issueLabels = self?.viewModel.issueDetail.value.labels
+        let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels!)
         switch (self?.contentsMode)! {
         case .issueBody: do {
-          return (self?.viewModel.editIssue(state: .open, newTitleText: (self?.issue)!.title, newBodyText: (self?.commentTextView.text)!, label: [.enhancement]))!
+          
+          return (self?.viewModel.editIssue(state: .open,
+                                            newTitleText: (self?.issue)!.title,
+                                            newBodyText: (self?.commentTextView.text)!,
+                                            label: labels,
+                                            assignees: assignees!))!
           }
         case .commentBody: do {
-          return (self?.viewModel.editComment(existingComment: (self?.comment)!, newCommentText: (self?.commentTextView.text)!))!
+          return (self?.viewModel.editComment(existingComment: (self?.comment)!,
+                                              newCommentText: (self?.commentTextView.text)!))!
           }
         case .newCommentBody: do {
           return (self?.viewModel.createComment(newCommentBody: (self?.commentTextView.text)!))!
           }
+        case .issueTitle:
+          return (self?.viewModel.editIssue(state: .open,
+                                            newTitleText: (self?.commentTextView.text)!,
+                                            newBodyText: (self?.issue)!.body!,
+                                            label: labels,
+                                            assignees: assignees!))!
         }
       }.asDriver(onErrorJustReturn: false)
       .drive(onNext: { [weak self] (success) in
@@ -196,7 +227,7 @@ class CommentBoxView: UIView {
             self?.commentTextView.text = ""
             }
           default: do {
-            self?.mode.value = .normal
+            self?.mode.accept(.normal)
             }
           }
         }
@@ -231,16 +262,29 @@ class CommentBoxView: UIView {
     
     switch contentsMode! {
     case .commentBody: do {
+      let imgUrl = URL(string: self.comment!.user.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = self.comment!.user.login
       self.commentTextView.text = self.comment!.body
       }
     case .issueBody: do {
+      let imgUrl = URL(string: self.issue!.user.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = self.issue!.user.login
       self.commentTextView.text = self.issue!.body
       }
     case .newCommentBody: do {
-      self.userLabel.text = "New Comment"
+      let me = Me.shared.getUser()
+      let imgUrl = URL(string: me!.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
+      self.userLabel.text = me!.login
       self.commentTextView.text = ""
+      }
+    case .issueTitle: do {
+      self.userLabel.font = UIFont.systemFont(ofSize: 30)
+      self.commentTextView.font = UIFont.systemFont(ofSize: 30)
+      self.userLabel.text = "#\(self.issue!.number) Title"
+      self.commentTextView.text = self.issue!.title
       }
     }
   }
@@ -253,6 +297,7 @@ class CommentBoxView: UIView {
     layer.borderWidth = 1.0
     layer.borderColor = UIColor.black.cgColor
     addSubview(topView)
+    topView.addSubview(avatarImageView)
     topView.addSubview(userLabel)
     topView.addSubview(saveButton)
     topView.addSubview(editButton)
@@ -265,6 +310,11 @@ class CommentBoxView: UIView {
       make.height.equalTo(50)
     }
     
+    avatarImageView.snp.makeConstraints { (make) in
+      make.left.top.bottom.equalTo(topView)
+      make.width.equalTo(50)
+    }
+    
     commentTextView.snp.makeConstraints { (make) in
       make.left.bottom.right.equalToSuperview()
       make.top.equalTo(topView.snp.bottom)
@@ -272,7 +322,8 @@ class CommentBoxView: UIView {
     
     userLabel.snp.makeConstraints { (make) in
       userLabel.sizeToFit()
-      make.left.top.bottom.equalTo(topView)
+      make.top.bottom.equalTo(topView)
+      make.left.equalTo(avatarImageView.snp.right).offset(5)
     }
     
     editButton.snp.makeConstraints { (make) in
@@ -305,7 +356,7 @@ class CommentBoxView: UIView {
   }
   
   func setEditMode() {
-    mode.value = .edit
+    mode.accept(.edit)
   }
   
 }

@@ -10,24 +10,20 @@ import Foundation
 import RxSwift
 import RxCocoa
 
-struct Property {
-  var labels: [IssueService.Label]
-  var assignees: [User]
-}
-
-class CreateIssueViewViewModel {
+class CreateIssueViewViewModel: PropertySettable {
   private let bag = DisposeBag()
   //input
-  let titleInput = Variable<String>("")
+  let titleInput = BehaviorRelay<String>(value: "")
   //output
   let validate: Driver<Bool>
   private let repoId: Int!
   let issueApi: IssueServiceRepresentable
   let selectedRepo: Repository!
-  let assignees = Variable<[User]>([])
-  let labels = Variable<[IssueService.Label]>(IssueService.Label.arr)
-  var labelDict = [Int:IssueService.Label]()
-  var userDict = [Int:User]()
+  
+  let labelItemsDict =
+    BehaviorRelay<[String:LabelItem]>(value: [String:LabelItem]())
+  let assigneeItemsDict =
+    BehaviorRelay<[String:AssigneeItem]>(value: [String:AssigneeItem]())
   
   init(repoId: Int, issueApi: IssueServiceRepresentable = IssueService()) {
     self.issueApi = issueApi
@@ -42,21 +38,48 @@ class CreateIssueViewViewModel {
         return true
     }.asDriver(onErrorJustReturn: false)
     
+    //레퍼지토리 사용자 가져오기
+    LocalDataManager.shared.getProvider()
+      .asDriver(onErrorJustReturn: [Int : Repository]())
+      .map({ (dict) -> [User] in
+        let repo = dict[repoId]
+        if let _ = repo?.assigneesDic {
+          return Array(repo!.assigneesDic!.values)
+        } else {
+          return []
+        }
+      })
+      .map({ (users) -> [String:AssigneeItem] in
+        return IssuePropertyItemService().changeAssigneeArrToDict(arr: users)
+      })
+      .asDriver(onErrorJustReturn: [String:AssigneeItem]())
+      .drive(assigneeItemsDict)
+      .disposed(by: bag)
     
-    issueApi.getAssignees(repo: selectedRepo)
-      .asDriver(onErrorJustReturn: [])
-      .debug()
-      .drive(assignees)
+    Observable.just(IssueService.Label.arr)
+      .map { (labels) -> [String:LabelItem] in
+        return IssuePropertyItemService().changeLabelArrToDict(arr: labels)
+      }
+      .asDriver(onErrorJustReturn: [String : LabelItem]())
+      .drive(labelItemsDict)
       .disposed(by: bag)
   }
   
   //이슈생성 api요청 성공하면 로컬 변경하기
-  func createIssue(title: String, newComment: String, label: [IssueService.Label], users: [User]) -> Observable<Bool> {
+  func createIssue(title: String,
+                   newComment: String,
+                   label: [IssueService.Label],
+                   users: [User]) -> Observable<Bool> {
     let repoId = self.repoId!
-    return issueApi.createIssue(title: title, body: newComment, label: label, repo: selectedRepo, users: users)
+    return issueApi.createIssue(title: title,
+                                body: newComment,
+                                label: label,
+                                repo: selectedRepo,
+                                users: users)
       .map({ (newIssue) -> Bool in
         if newIssue.id != -1 {
-          LocalDataManager.shared.createIssue(repoId: repoId, createdIssue: newIssue)
+          LocalDataManager.shared.createIssue(repoId: repoId,
+                                              createdIssue: newIssue)
           return true
         }
         return false
