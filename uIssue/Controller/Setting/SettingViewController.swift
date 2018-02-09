@@ -14,7 +14,7 @@ class SettingViewController: UIViewController {
   
   private let bag = DisposeBag()
   private var viewModel: SettingViewViewModel!
-  private lazy var logoutBtn: UIButton = {
+  private let logoutBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Logout", for: UIControlState.normal)
     btn.isEnabled = false
@@ -39,6 +39,14 @@ class SettingViewController: UIViewController {
     return txtField
   }()
   
+  private let messageLabel: UILabel = {
+    let label = UILabel()
+    label.isHidden = true
+    label.sizeToFit()
+    label.textAlignment = .center
+    return label
+  }()
+  
   static func createWith(viewModel: SettingViewViewModel) -> SettingViewController {
     return {
       $0.viewModel = viewModel
@@ -59,6 +67,7 @@ class SettingViewController: UIViewController {
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
     view.addSubview(logoutBtn)
+    view.addSubview(messageLabel)
     
     logoutBtn.snp.makeConstraints({ (make) in
       make.right.bottom.equalToSuperview().offset(-10)
@@ -77,6 +86,12 @@ class SettingViewController: UIViewController {
       make.top.equalTo(idTextField.snp.bottom).offset(10)
       make.width.height.equalTo(idTextField)
     })
+    
+    messageLabel.snp.makeConstraints { (make) in
+      make.centerX.equalToSuperview()
+      make.top.equalTo(passWordTextField.snp.bottom).offset(10)
+      make.width.height.equalTo(passWordTextField)
+    }
   }
   
   func bindUI() {
@@ -95,6 +110,7 @@ class SettingViewController: UIViewController {
       .drive(logoutBtn.rx.isEnabled)
       .disposed(by: bag)
     
+    //로그아웃 성공하면 화면이동, 싪패시 에러메시지
     logoutBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<AuthService.Status> in
@@ -102,13 +118,35 @@ class SettingViewController: UIViewController {
                                        password: (self?.passWordTextField.text)!))!
       }
       .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("logout error"))
-      .drive(onNext: { status in
+      .drive(onNext: { [weak self] status in
         switch status {
         case .authorized: Navigator.shared.unwindTo(target: SplashViewController())
-        case .unAuthorized(let value): print(value)
+        case .unAuthorized(let value): self?.showErrorMsg(message: value)
         }
       })
       .disposed(by: bag)
+    
+    //키보드 오르락내리락 시 버튼 이동
+    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillShow)
+      .asObservable()
+      .subscribe(onNext: { [weak self] noti in
+        self?.logoutBtn.keyboardWillChange(noti)
+      })
+      .disposed(by: bag)
+    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillHide)
+      .asObservable()
+      .subscribe(onNext: { [weak self] noti in
+        self?.logoutBtn.keyboardWillChange(noti)
+      })
+      .disposed(by: bag)
+  }
+  
+  func showErrorMsg(message: String) {
+    messageLabel.text = message
+    messageLabel.isHidden = false
+    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
+      self.messageLabel.isHidden = true
+    }
   }
   
 }

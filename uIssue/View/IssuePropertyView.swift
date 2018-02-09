@@ -3,7 +3,7 @@
 //  uIssue
 //
 //  Created by junwoo on 2018. 2. 6..
-//  Copyright © 2018년 samchon. All rights reserved.
+//  Copyright © 2018년 samchon. All rights reserved.0.
 //
 
 import UIKit
@@ -100,7 +100,6 @@ class IssuePropertyView: UIView {
         self?.labelTableView.reloadData()
       })
       .disposed(by: bag)
-    
     viewModel.assigneeItemsDict.asDriver()
       .drive(onNext: { [weak self] _ in
         self?.assigneeTableView.reloadData()
@@ -120,7 +119,6 @@ class IssuePropertyView: UIView {
         return cell
       }
       .disposed(by: bag)
-    
     viewModel.assigneeItemsDict.asObservable()
       .map({ (dict) -> [AssigneeItem] in
         return Array(dict.values)
@@ -143,13 +141,12 @@ class IssuePropertyView: UIView {
           var checkedDict =
             self?.viewModel.labelItemsDict.value.filter{ $0.value.isChecked }
           
-          //빼기
           if model.isChecked {
             checkedDict?.removeValue(forKey: model.label.rawValue)
-            //추가
           } else {
             checkedDict![model.label.rawValue] = model
           }
+          
           let updatedLabels = Array(checkedDict!.values).map{ $0.label }
           let state = IssueService().transformStrToState(stateString: issue.state)
           
@@ -181,13 +178,12 @@ class IssuePropertyView: UIView {
           var checkedDict =
             self?.viewModel.assigneeItemsDict.value.filter{ $0.value.isChecked }
           
-          //빼기
           if model.isChecked {
             checkedDict?.removeValue(forKey: model.user.login)
-            //추가
           } else {
             checkedDict![model.user.login] = model
           }
+          
           let updatedUsers = Array(checkedDict!.values).map{ $0.user }
           let labels =
             IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)

@@ -51,6 +51,7 @@
 		48E44AC81FF50C9B008F9649 /* IssueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC71FF50C9B008F9649 /* IssueService.swift */; };
 		48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ACB1FF603D2008F9649 /* ListCell.swift */; };
 		48EF0C37202C463500987DCB /* IssuePropertyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C36202C463500987DCB /* IssuePropertyViewController.swift */; };
+		48EF0C39202D64AD00987DCB /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C38202D64AD00987DCB /* UIView.swift */; };
 		48FFC1312025755F003CAA13 /* Me.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FFC1302025755F003CAA13 /* Me.swift */; };
 		48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FFC13220258794003CAA13 /* IssueAPI.swift */; };
 /* End PBXBuildFile section */
@@ -112,6 +113,7 @@
 		48E44AC71FF50C9B008F9649 /* IssueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueService.swift; sourceTree = "<group>"; };
 		48E44ACB1FF603D2008F9649 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		48EF0C36202C463500987DCB /* IssuePropertyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePropertyViewController.swift; sourceTree = "<group>"; };
+		48EF0C38202D64AD00987DCB /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
 		48FFC1302025755F003CAA13 /* Me.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Me.swift; sourceTree = "<group>"; };
 		48FFC13220258794003CAA13 /* IssueAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueAPI.swift; sourceTree = "<group>"; };
 		49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_uIssueTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -347,6 +349,7 @@
 			children = (
 				48E44AC31FF4F12C008F9649 /* Userdefaults.swift */,
 				4843CFED2026D7C800B70DCD /* UIColor.swift */,
+				48EF0C38202D64AD00987DCB /* UIView.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -624,6 +627,7 @@
 				48470FBD20184EC8003F5FBB /* LocalDataManager.swift in Sources */,
 				48B83A17200F28BB00F2A490 /* Token.swift in Sources */,
 				48470FB42017068D003F5FBB /* CreateIssueViewController.swift in Sources */,
+				48EF0C39202D64AD00987DCB /* UIView.swift in Sources */,
 				48E44AC61FF508E9008F9649 /* Issue.swift in Sources */,
 				48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */,
 				48470F9B20135092003F5FBB /* IssueListViewController.swift in Sources */,

@@ -30,27 +30,26 @@ class CommentBoxView: UIView {
   private var comment: Comment?
   private var issue: Issue?
   private var mode = BehaviorRelay<Mode>(value: .normal)
-  
   private var contentsMode: Contents!
   
-  private lazy var topView: UIView = {
+  private let topView: UIView = {
     let view = UIView()
     view.backgroundColor = UIColor(hex: "F1F8FF")
     return view
   }()
   
-  private lazy var avatarImageView: UIImageView = {
+  private let avatarImageView: UIImageView = {
     let view = UIImageView()
     view.contentMode = .scaleAspectFit
     return view
   }()
   
-  private lazy var userLabel: UILabel = {
+  private let userLabel: UILabel = {
     let label = UILabel()
     return label
   }()
   
-  private lazy var editButton: UIButton = {
+  private let editButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("EDIT", for: UIControlState.normal)
     btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
@@ -58,7 +57,7 @@ class CommentBoxView: UIView {
     return btn
   }()
   
-  private lazy var saveButton: UIButton = {
+  private let saveButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("SAVE", for: UIControlState.normal)
     btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
@@ -66,7 +65,7 @@ class CommentBoxView: UIView {
     return btn
   }()
   
-  private lazy var cancelButton: UIButton = {
+  private let cancelButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("CANCEL", for: UIControlState.normal)
     btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
@@ -74,7 +73,7 @@ class CommentBoxView: UIView {
     return btn
   }()
   
-  private lazy var deleteButton: UIButton = {
+  private let deleteButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("DELETE", for: UIControlState.normal)
     btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
@@ -82,7 +81,7 @@ class CommentBoxView: UIView {
     return btn
   }()
   
-  private lazy var commentTextView: UITextView = {
+  private let commentTextView: UITextView = {
     let view = UITextView()
     view.isScrollEnabled = false
     return view
@@ -100,14 +99,13 @@ class CommentBoxView: UIView {
   }
   
   func bindUI() {
-    
+    //텍스트에 따라 버튼 활성화
     commentTextView.rx.text.orEmpty.asDriver()
       .map({ (text) -> Bool in
         return !text.isEmpty
       })
       .drive(cancelButton.rx.isEnabled)
       .disposed(by: bag)
-      
     commentTextView.rx.text.orEmpty.asDriver()
       .map({ (text) -> Bool in
         return !text.isEmpty
@@ -115,6 +113,7 @@ class CommentBoxView: UIView {
       .drive(saveButton.rx.isEnabled)
       .disposed(by: bag)
     
+    //취소버튼 탭
     cancelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
@@ -136,6 +135,7 @@ class CommentBoxView: UIView {
       })
       .disposed(by: bag)
     
+    //삭제버튼 탭시 삭제 요청하기
     deleteButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
@@ -179,6 +179,7 @@ class CommentBoxView: UIView {
       })
     .disposed(by: bag)
     
+    //편집버튼 탭
     editButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
@@ -187,7 +188,7 @@ class CommentBoxView: UIView {
       })
       .disposed(by: bag)
     
-    
+    //저장버튼 탭
     saveButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
@@ -289,6 +290,14 @@ class CommentBoxView: UIView {
     }
   }
   
+  func getText() -> String {
+    return commentTextView.text
+  }
+  
+  func setEditMode() {
+    mode.accept(.edit)
+  }
+  
   required init?(coder aDecoder: NSCoder) {
     fatalError("init(coder:) has not been implemented")
   }
@@ -349,14 +358,6 @@ class CommentBoxView: UIView {
       make.right.equalTo(editButton.snp.left).offset(-5)
       make.centerY.equalTo(editButton)
     }
-  }
-  
-  func getText() -> String {
-    return commentTextView.text
-  }
-  
-  func setEditMode() {
-    mode.accept(.edit)
   }
   
 }

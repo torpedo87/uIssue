@@ -13,11 +13,13 @@ import RxCocoa
 class RepoListViewViewModel {
   private let bag = DisposeBag()
   
+  //input
+  let issueApi: IssueServiceRepresentable
+  let statusDriver: Driver<AuthService.Status>
+  
   //output
   let repoList = BehaviorRelay<[Repository]>(value: [])
   let running = BehaviorRelay<Bool>(value: true)
-  let issueApi: IssueServiceRepresentable
-  let statusDriver: Driver<AuthService.Status>
   
   init(issueApi: IssueServiceRepresentable = IssueService(),
        statusDriver: Driver<AuthService.Status> = AuthService().status) {
@@ -28,6 +30,7 @@ class RepoListViewViewModel {
   
   func bindOutput() {
     
+    //내 정보 받아오기 성공하면 내 이슈 몽땅 로컬로 가져오기
     statusDriver.asObservable()
       .flatMap({ [weak self] (status) -> Observable<Bool> in
         if status == .authorized {
@@ -43,6 +46,7 @@ class RepoListViewViewModel {
       })
       .disposed(by: bag)
     
+    //로컬데이터로부터 레퍼지토리 가져와서 바인딩
     LocalDataManager.shared.getProvider()
       .map { $0.filter { $0.value.issuesDic!.count > 0 } }
       .map({ (repoDict) -> [Repository] in
@@ -53,11 +57,14 @@ class RepoListViewViewModel {
       .drive(repoList)
       .disposed(by: bag)
     
-    repoList.asDriver()
-      .map { _ in false }
-      .drive(running)
-      .disposed(by: bag)
     
+    // repolist가 completed 되지 않음...
+    repoList.asDriver()
+      .drive(onNext: { [weak self] _ in
+        self?.running.accept(true)
+      }, onCompleted: { [weak self] in
+        self?.running.accept(false)
+      })
+      .disposed(by: bag)
   }
-  
 }

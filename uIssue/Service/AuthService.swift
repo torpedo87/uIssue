@@ -76,7 +76,8 @@ class AuthService: AuthServiceRepresentable {
           "note": "admin uIssue"
         ]
         
-        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        request.httpBody =
+          try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
           
         return request
       }(url)
@@ -106,8 +107,10 @@ class AuthService: AuthServiceRepresentable {
       .catchError({ (error) -> Observable<Status> in
         if let error = error as? Errors {
           switch error {
-          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
-          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          case .requestFail:
+            return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo:
+            return Observable.just(Status.unAuthorized("invalidUserInfo"))
           }
         }
         return Observable.just(Status.unAuthorized(error.localizedDescription))
@@ -155,8 +158,10 @@ class AuthService: AuthServiceRepresentable {
       .catchError({ (error) -> Observable<AuthService.Status> in
         if let error = error as? Errors {
           switch error {
-          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
-          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          case .requestFail:
+            return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo:
+            return Observable.just(Status.unAuthorized("invalidUserInfo"))
           }
         }
         return Observable.just(Status.unAuthorized(error.localizedDescription))

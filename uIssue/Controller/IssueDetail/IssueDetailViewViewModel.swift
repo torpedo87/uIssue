@@ -13,11 +13,15 @@ import RxCocoa
 class IssueDetailViewViewModel: PropertySettable {
   
   private let bag = DisposeBag()
+  
+  //input
   private let issueId: Int!
   private let repoId: Int!
+  private let issueApi: IssueServiceRepresentable
+  
+  //output
   let issueDetail = BehaviorRelay<Issue>(value: Issue())
   let commentList = BehaviorRelay<[Comment]>(value: [])
-  private let issueApi: IssueServiceRepresentable
   let labelItemsDict =
     BehaviorRelay<[String:LabelItem]>(value: [String:LabelItem]())
   let assigneeItemsDict =
@@ -31,11 +35,11 @@ class IssueDetailViewViewModel: PropertySettable {
     self.issueId = issueId
     
     bindOutput(repoId: repoId, issueId: issueId)
-    
   }
   
   func bindOutput(repoId: Int, issueId: Int) {
     
+    //로컬로부터 이슈 가져와 바인딩
     LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [Int : Repository]())
       .map { $0.filter { $0.value.issuesDic!.count > 0 } }
@@ -49,6 +53,7 @@ class IssueDetailViewViewModel: PropertySettable {
     .drive(issueDetail)
     .disposed(by: bag)
     
+    //이슈로부터 코멘트 가져와 바인딩
     issueDetail.asDriver()
       .map { (issue) -> [Comment] in
         if let _ = issue.commentsDic {
@@ -60,7 +65,7 @@ class IssueDetailViewViewModel: PropertySettable {
     .disposed(by: bag)
     
     
-    //로컬에서 레퍼지토리 사용자명단 가져오기
+    //로컬에서 레퍼지토리의 assignees 가져오기
     LocalDataManager.shared.getProvider()
       .map({ [weak self] (dict) -> [String:AssigneeItem] in
         let repo = dict[repoId]
@@ -77,6 +82,7 @@ class IssueDetailViewViewModel: PropertySettable {
       .drive(assigneeItemsDict)
       .disposed(by: bag)
     
+    //로컬로부터 이슈의 기존라벨 바인딩
     LocalDataManager.shared.getProvider()
       .map { [weak self] (dict) -> [String:LabelItem] in
         let allLabels = IssueService.Label.arr
@@ -177,6 +183,7 @@ class IssueDetailViewViewModel: PropertySettable {
       })
   }
   
+  //코멘트 삭제 api 성공하면 로컬변경
   func deleteComment(existingComment: Comment) -> Observable<Bool> {
     let selectedIssue = issueDetail.value
     let repoId = self.repoId!
@@ -195,6 +202,7 @@ class IssueDetailViewViewModel: PropertySettable {
       })
   }
   
+  //assingee 지정
   func itemCheck(assignees: [User],
                  dict: [String:AssigneeItem]) -> [String:AssigneeItem] {
     var tempDict = dict
@@ -205,6 +213,7 @@ class IssueDetailViewViewModel: PropertySettable {
     return tempDict
   }
   
+  //라벨 지정
   func itemCheck(issueLabels: [IssueLabel],
                  dict: [String:LabelItem]) -> [String:LabelItem] {
     let labels =

@@ -12,6 +12,7 @@ import RxCocoa
 
 class IssueListFetcher {
   
+  //이슈를 몽땅 가져와서 로컬에서 사용할 형태로 변형
   func getAllData(issueApi: IssueServiceRepresentable) -> Observable<[Int:Repository]> {
     
     return issueApi.currentPage.asObservable()

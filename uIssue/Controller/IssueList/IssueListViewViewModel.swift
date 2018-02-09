@@ -9,7 +9,6 @@
 import RxSwift
 import RxCocoa
 
-
 class IssueListViewViewModel {
   private let bag = DisposeBag()
   
@@ -17,8 +16,8 @@ class IssueListViewViewModel {
   let repoId: Int!
   
   //output
+  let rawIssueList = BehaviorRelay<[Issue]>(value: [])
   let issueList = BehaviorRelay<[Issue]>(value: [])
-  let tempList = BehaviorRelay<[Issue]>(value: [])
   
   init(repoId: Int) {
     self.repoId = repoId
@@ -26,6 +25,8 @@ class IssueListViewViewModel {
   }
   
   func bindOutput(repoId: Int) {
+    
+    //로컬로부터 해당 레퍼지토리의 모든 이슈 가져오기
     LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [Int : Repository]())
       .map { $0.filter { $0.value.issuesDic!.count > 0 } }
@@ -36,10 +37,11 @@ class IssueListViewViewModel {
         }
         return []
       })
-      .drive(tempList)
+      .drive(rawIssueList)
       .disposed(by: bag)
     
-    tempList.asDriver()
+    //오픈 이슈만 걸러내기
+    rawIssueList.asDriver()
       .map({ (issueArr) -> [Issue] in
         issueArr.filter { $0.state == "open" }
       })
@@ -59,14 +61,16 @@ class IssueListViewViewModel {
       .disposed(by: bag)
   }
   
+  //이슈 필터링
   func filterByState(state: IssueService.State) {
     if state == .all {
-      issueList.accept(tempList.value)
+      issueList.accept(rawIssueList.value)
     } else {
-      issueList.accept(tempList.value.filter { $0.state == state.rawValue })
+      issueList.accept(rawIssueList.value.filter { $0.state == state.rawValue })
     }
   }
   
+  //이슈 정렬
   func sortBySort(sort: IssueService.Sort) {
     switch sort {
     case .created:
@@ -76,6 +80,16 @@ class IssueListViewViewModel {
       issueList.accept(issueList.value.sorted(by: { $0.updated_at > $1.updated_at }))
     }
   }
+  
+  func filterByLabel(label: IssueService.Label) {
+    let issueLabel = IssueLabel(name: label.rawValue)
+    
+    issueList.accept(issueList.value.filter {
+      $0.labels.contains(where: { (element) -> Bool in
+      return issueLabel.name == element.name
+    }) })
+  }
+  
 }
 
 

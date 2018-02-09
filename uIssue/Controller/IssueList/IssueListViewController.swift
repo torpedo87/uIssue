@@ -13,13 +13,13 @@ import RxCocoa
 class IssueListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: IssueListViewViewModel!
-  private lazy var topView: UIView = {
+  private let topView: UIView = {
     let view = UIView()
     view.backgroundColor = UIColor(hex: "F6F8FA")
     return view
   }()
 
-  private lazy var stateButton: UIButton = {
+  private let stateButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("STATE ▽", for: UIControlState.normal)
     btn.setTitle("STATE △", for: UIControlState.selected)
@@ -27,7 +27,7 @@ class IssueListViewController: UIViewController {
     return btn
   }()
   
-  private lazy var sortButton: UIButton = {
+  private let sortButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("SORT ▽", for: UIControlState.normal)
     btn.setTitle("SORT △", for: UIControlState.selected)
@@ -35,7 +35,15 @@ class IssueListViewController: UIViewController {
     return btn
   }()
   
-  private lazy var tableView: UITableView = {
+  private let labelButton: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("LABEL ▽", for: UIControlState.normal)
+    btn.setTitle("LABEL △", for: UIControlState.selected)
+    btn.setTitleColor(UIColor.darkGray, for: UIControlState.normal)
+    return btn
+  }()
+  
+  private let tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -73,6 +81,7 @@ class IssueListViewController: UIViewController {
     view.addSubview(topView)
     topView.addSubview(stateButton)
     topView.addSubview(sortButton)
+    topView.addSubview(labelButton)
     view.addSubview(tableView)
     
     topView.snp.makeConstraints { (make) in
@@ -91,6 +100,12 @@ class IssueListViewController: UIViewController {
       make.right.top.bottom.equalTo(topView)
     }
     
+    labelButton.snp.makeConstraints { (make) in
+      labelButton.sizeToFit()
+      make.top.bottom.equalTo(topView)
+      make.right.equalTo(sortButton.snp.left).offset(-10)
+    }
+    
     tableView.snp.makeConstraints({ (make) in
       make.left.right.bottom.equalToSuperview()
       make.top.equalTo(topView.snp.bottom)
@@ -100,6 +115,7 @@ class IssueListViewController: UIViewController {
   
   func bindUI() {
     
+    //state 누르면 팝업
     stateButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
@@ -108,6 +124,7 @@ class IssueListViewController: UIViewController {
       })
       .disposed(by: bag)
     
+    //sort 누르면 팝업
     sortButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
@@ -116,6 +133,16 @@ class IssueListViewController: UIViewController {
       })
       .disposed(by: bag)
     
+    //label 누르면 팝업
+    labelButton.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { [weak self] _ in
+        self?.presentPopUp(sender: (self?.labelButton)!, mode: .label)
+      })
+      .disposed(by: bag)
+    
+    //add 누르면 createIssue 화면으로 이동
     addBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())

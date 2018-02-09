@@ -15,15 +15,18 @@ class LocalDataManager {
   static let shared = LocalDataManager()
   
   //local
-  private let resultProvider = BehaviorRelay<[Int:Repository]>(value: [Int:Repository]())
+  private let resultProvider =
+    BehaviorRelay<[Int:Repository]>(value: [Int:Repository]())
   private let bag = DisposeBag()
   
+  //데이터 가져와서 바인딩
   func bindOutput(issueApi: IssueServiceRepresentable) {
     IssueListFetcher().getAllData(issueApi: issueApi)
       .bind(to: resultProvider)
       .disposed(by: bag)
   }
   
+  //observable 반환
   func getProvider() -> Observable<[Int:Repository]> {
     return resultProvider.asObservable()
   }
@@ -55,11 +58,11 @@ class LocalDataManager {
   
   func editIssue(repoId: Int, newIssue: Issue) {
     let repo = resultProvider.value[repoId]
-    let commetsDict = resultProvider.value[repoId]?.issuesDic?[newIssue.id]?.commentsDic
+    let commetsDict =
+      resultProvider.value[repoId]?.issuesDic?[newIssue.id]?.commentsDic
     var issue = newIssue
     issue.repository = repo
     issue.commentsDic = commetsDict
-    issue.isCommentsFetched = true
     var tempDict = resultProvider.value
     tempDict[repoId]?.issuesDic?.updateValue(issue, forKey: newIssue.id)
     resultProvider.accept(tempDict)
@@ -70,9 +73,11 @@ class LocalDataManager {
     if let _ = resultProvider.value[repoId]?.issuesDic {
       tempDict[repoId]?.issuesDic![issue.id]?
         .setCommentsDic(comments: comments)
+      tempDict[repoId]?.issuesDic![issue.id]?.isCommentsFetched = true
       resultProvider.accept(tempDict)
     } else {
       tempDict[repoId]?.issuesDic = [Int:Issue]()
+      tempDict[repoId]?.issuesDic![issue.id]?.isCommentsFetched = true
       tempDict[repoId]?.issuesDic![issue.id]?
         .setCommentsDic(comments: comments)
       resultProvider.accept(tempDict)

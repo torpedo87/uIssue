@@ -15,6 +15,7 @@ class CommentCell: UITableViewCell {
   static let reuseIdentifier = "CommentCell"
   var comment: Comment!
   var viewModel: IssueDetailViewViewModel!
+  
   private lazy var commentView: CommentBoxView = {
     let view = CommentBoxView(comment: comment,
                               issue: nil,

@@ -13,7 +13,7 @@ import RxCocoa
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: RepoListViewViewModel!
-  private lazy var tableView: UITableView = {
+  private let tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -29,7 +29,7 @@ class RepoListViewController: UIViewController {
     return item
   }()
   
-  private lazy var activityIndicator: UIActivityIndicatorView = {
+  private let activityIndicator: UIActivityIndicatorView = {
     let spinner = UIActivityIndicatorView()
     spinner.color = UIColor.blue
     spinner.isHidden = false
@@ -70,15 +70,16 @@ class RepoListViewController: UIViewController {
   }
   
   func bindUI() {
-    viewModel.running.asDriver()
-      .skip(1)
-      .drive(activityIndicator.rx.isAnimating)
-      .disposed(by:bag)
     
+    //completed 안돼서 계속 돌아감...
+    viewModel.running.asDriver()
+      .drive(activityIndicator.rx.isAnimating)
+      .disposed(by: bag)
+    
+    //로그아웃 버튼 클릭시 로그아웃 화면으로 이동
     logoutBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .map{ _ in true }
-      .asDriver(onErrorJustReturn: false)
+      .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
         Navigator.shared.show(destination: .setting, sender: self!)
       })
@@ -93,10 +94,7 @@ class RepoListViewController: UIViewController {
     //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (
-        tableView: UITableView,
-        index: Int,
-        element: Repository) in
+        [weak self] (tableView: UITableView, index: Int, element: Repository) in
         let cell =
           ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
         cell.configureCell(viewModel: (self?.viewModel)!, index: index)

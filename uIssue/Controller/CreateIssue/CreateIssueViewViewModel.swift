@@ -12,14 +12,15 @@ import RxCocoa
 
 class CreateIssueViewViewModel: PropertySettable {
   private let bag = DisposeBag()
+  
   //input
-  let titleInput = BehaviorRelay<String>(value: "")
-  //output
-  let validate: Driver<Bool>
   private let repoId: Int!
+  let titleInput = BehaviorRelay<String>(value: "")
   let issueApi: IssueServiceRepresentable
   let selectedRepo: Repository!
   
+  //output
+  let validate: Driver<Bool>
   let labelItemsDict =
     BehaviorRelay<[String:LabelItem]>(value: [String:LabelItem]())
   let assigneeItemsDict =
@@ -38,7 +39,11 @@ class CreateIssueViewViewModel: PropertySettable {
         return true
     }.asDriver(onErrorJustReturn: false)
     
-    //레퍼지토리 사용자 가져오기
+    bindOutput(repoId: repoId)
+  }
+  
+  func bindOutput(repoId: Int) {
+    //레퍼지토리 assignees 가져와서 바인딩
     LocalDataManager.shared.getProvider()
       .asDriver(onErrorJustReturn: [Int : Repository]())
       .map({ (dict) -> [User] in
@@ -56,6 +61,7 @@ class CreateIssueViewViewModel: PropertySettable {
       .drive(assigneeItemsDict)
       .disposed(by: bag)
     
+    //라벨 바인딩
     Observable.just(IssueService.Label.arr)
       .map { (labels) -> [String:LabelItem] in
         return IssuePropertyItemService().changeLabelArrToDict(arr: labels)
