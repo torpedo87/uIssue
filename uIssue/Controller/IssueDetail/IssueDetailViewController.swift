@@ -25,21 +25,24 @@ class IssueDetailViewController: UIViewController {
   
   private let bodyTopLabel: UILabel = {
     let label = UILabel()
-    label.backgroundColor = UIColor(hex: "FEDF32")
+    label.backgroundColor = UIColor(hex: "2AA3EF")
+    label.textColor = UIColor.white
     label.text = "Body"
     return label
   }()
   
   private let commmentsTopLabel: UILabel = {
     let label = UILabel()
-    label.backgroundColor = UIColor(hex: "FEDF32")
+    label.backgroundColor = UIColor(hex: "2AA3EF")
+    label.textColor = UIColor.white
     label.text = "Comments"
     return label
   }()
   
   private let newCommmentTopLabel: UILabel = {
     let label = UILabel()
-    label.backgroundColor = UIColor(hex: "FEDF32")
+    label.backgroundColor = UIColor(hex: "2AA3EF")
+    label.textColor = UIColor.white
     label.text = "New Comment"
     return label
   }()
@@ -241,7 +244,7 @@ class IssueDetailViewController: UIViewController {
       IssuePropertyViewController.createWith(viewModel: viewModel)
     issuePropertyViewController.modalPresentationStyle = .popover
     issuePropertyViewController.preferredContentSize =
-      CGSize(width: UIScreen.main.bounds.width - 20, height: 500)
+      CGSize(width: UIScreen.main.bounds.width - 50, height: 500)
     let popOver = issuePropertyViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = view

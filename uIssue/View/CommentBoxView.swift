@@ -51,33 +51,33 @@ class CommentBoxView: UIView {
   
   private let editButton: UIButton = {
     let btn = UIButton()
-    btn.setTitle("EDIT", for: UIControlState.normal)
-    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
+    btn.setImage(UIImage(named: "edit"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private let saveButton: UIButton = {
     let btn = UIButton()
-    btn.setTitle("SAVE", for: UIControlState.normal)
-    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
+    btn.setImage(UIImage(named: "save"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private let cancelButton: UIButton = {
     let btn = UIButton()
-    btn.setTitle("CANCEL", for: UIControlState.normal)
-    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
+    btn.setImage(UIImage(named: "cancel"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private let deleteButton: UIButton = {
     let btn = UIButton()
-    btn.setTitle("DELETE", for: UIControlState.normal)
-    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
+    btn.setImage(UIImage(named: "delete"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
+//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
@@ -100,12 +100,6 @@ class CommentBoxView: UIView {
   
   func bindUI() {
     //텍스트에 따라 버튼 활성화
-    commentTextView.rx.text.orEmpty.asDriver()
-      .map({ (text) -> Bool in
-        return !text.isEmpty
-      })
-      .drive(cancelButton.rx.isEnabled)
-      .disposed(by: bag)
     commentTextView.rx.text.orEmpty.asDriver()
       .map({ (text) -> Bool in
         return !text.isEmpty
@@ -303,8 +297,6 @@ class CommentBoxView: UIView {
   }
   
   func setupView() {
-    layer.borderWidth = 1.0
-    layer.borderColor = UIColor.black.cgColor
     addSubview(topView)
     topView.addSubview(avatarImageView)
     topView.addSubview(userLabel)
@@ -316,12 +308,13 @@ class CommentBoxView: UIView {
     
     topView.snp.makeConstraints { (make) in
       make.left.top.right.equalToSuperview()
-      make.height.equalTo(50)
+      make.height.equalTo(40)
     }
     
     avatarImageView.snp.makeConstraints { (make) in
-      make.left.top.bottom.equalTo(topView)
-      make.width.equalTo(50)
+      make.left.top.equalTo(topView).offset(5)
+      make.bottom.equalTo(topView).offset(-5)
+      make.width.equalTo(30)
     }
     
     commentTextView.snp.makeConstraints { (make) in
@@ -349,13 +342,13 @@ class CommentBoxView: UIView {
     
     cancelButton.snp.makeConstraints { (make) in
       cancelButton.sizeToFit()
-      make.right.equalTo(saveButton.snp.left).offset(-5)
+      make.right.equalTo(saveButton.snp.left).offset(-10)
       make.centerY.equalTo(saveButton)
     }
     
     deleteButton.snp.makeConstraints { (make) in
       deleteButton.sizeToFit()
-      make.right.equalTo(editButton.snp.left).offset(-5)
+      make.right.equalTo(editButton.snp.left).offset(-10)
       make.centerY.equalTo(editButton)
     }
   }

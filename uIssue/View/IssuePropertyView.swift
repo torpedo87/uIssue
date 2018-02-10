@@ -23,6 +23,7 @@ class IssuePropertyView: UIView {
   private lazy var labelLabel: UILabel = {
     let view = UILabel()
     view.text = "LABEL"
+    view.textAlignment = .center
     view.backgroundColor = UIColor(hex: "F1F8FF")
     return view
   }()
@@ -30,6 +31,7 @@ class IssuePropertyView: UIView {
   private lazy var userLabel: UILabel = {
     let view = UILabel()
     view.text = "ASSIGNEE"
+    view.textAlignment = .center
     view.backgroundColor = UIColor(hex: "F1F8FF")
     return view
   }()

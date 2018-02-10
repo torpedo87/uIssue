@@ -105,4 +105,8 @@ class PopUpViewController: UIViewController {
       })
       .disposed(by: bag)
   }
+  
+  func getTableViewHeight() -> CGFloat {
+    return tableView.rowHeight * CGFloat(list.value.count)
+  }
 }

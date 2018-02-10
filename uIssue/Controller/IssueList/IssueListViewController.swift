@@ -187,7 +187,7 @@ class IssueListViewController: UIViewController {
     let popUpViewController =
       PopUpViewController.createWith(viewModel: viewModel, mode: mode)
     popUpViewController.modalPresentationStyle = .popover
-    popUpViewController.preferredContentSize = CGSize(width: 150, height: 100)
+    popUpViewController.preferredContentSize = CGSize(width: 100, height: popUpViewController.getTableViewHeight())
     let popOver = popUpViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = sender
