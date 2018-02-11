@@ -19,7 +19,7 @@ class RepoListViewViewModel {
   
   //output
   let repoList = BehaviorRelay<[Repository]>(value: [])
-  let running = BehaviorRelay<Bool>(value: true)
+  let running = LocalDataManager.shared.running
   
   init(issueApi: IssueServiceRepresentable = IssueService(),
        statusDriver: Driver<AuthService.Status> = AuthService().status) {
@@ -57,14 +57,5 @@ class RepoListViewViewModel {
       .drive(repoList)
       .disposed(by: bag)
     
-    
-    // repolist가 completed 되지 않음...
-    repoList.asDriver()
-      .drive(onNext: { [weak self] _ in
-        self?.running.accept(true)
-      }, onCompleted: { [weak self] in
-        self?.running.accept(false)
-      })
-      .disposed(by: bag)
   }
 }

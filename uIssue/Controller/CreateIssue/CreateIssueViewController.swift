@@ -16,7 +16,7 @@ class CreateIssueViewController: UIViewController {
   private let bag = DisposeBag()
   private let topView: UIView = {
     let view = UIView()
-    view.backgroundColor = UIColor(hex: "FEDF32")
+    view.backgroundColor = UIColor(hex: "2AA3EF")
     return view
   }()
   
@@ -38,13 +38,14 @@ class CreateIssueViewController: UIViewController {
   private let cancelButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("CANCEL", for: UIControlState.normal)
-    btn.setTitleColor(UIColor.black, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.white, for: UIControlState.normal)
     return btn
   }()
   
   private let submitButton: UIButton = {
     let btn = UIButton()
     btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.layer.cornerRadius = 8
     btn.setTitle("Submit new issue", for: UIControlState.normal)
     btn.setTitle("Enter title", for: UIControlState.disabled)
     btn.isEnabled = false
@@ -118,7 +119,8 @@ class CreateIssueViewController: UIViewController {
     }
     
     submitButton.snp.makeConstraints { (make) in
-      submitButton.sizeToFit()
+      make.width.equalTo(150)
+      make.height.equalTo(50)
       make.top.equalTo(commetTextView.snp.bottom).offset(50)
       make.right.equalToSuperview().offset(-20)
     }

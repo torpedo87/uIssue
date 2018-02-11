@@ -23,7 +23,7 @@ class IssueListViewController: UIViewController {
     let btn = UIButton()
     btn.setTitle("STATE ▽", for: UIControlState.normal)
     btn.setTitle("STATE △", for: UIControlState.selected)
-    btn.setTitleColor(UIColor.darkGray, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
     return btn
   }()
   
@@ -31,7 +31,7 @@ class IssueListViewController: UIViewController {
     let btn = UIButton()
     btn.setTitle("SORT ▽", for: UIControlState.normal)
     btn.setTitle("SORT △", for: UIControlState.selected)
-    btn.setTitleColor(UIColor.darkGray, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
     return btn
   }()
   
@@ -39,7 +39,7 @@ class IssueListViewController: UIViewController {
     let btn = UIButton()
     btn.setTitle("LABEL ▽", for: UIControlState.normal)
     btn.setTitle("LABEL △", for: UIControlState.selected)
-    btn.setTitleColor(UIColor.darkGray, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
     return btn
   }()
   

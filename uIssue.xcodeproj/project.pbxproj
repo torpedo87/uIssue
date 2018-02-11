@@ -52,6 +52,9 @@
 		48E44ACC1FF603D2008F9649 /* ListCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ACB1FF603D2008F9649 /* ListCell.swift */; };
 		48EF0C37202C463500987DCB /* IssuePropertyViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C36202C463500987DCB /* IssuePropertyViewController.swift */; };
 		48EF0C39202D64AD00987DCB /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C38202D64AD00987DCB /* UIView.swift */; };
+		48EF0C3B202ED3F600987DCB /* User.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C3A202ED3F600987DCB /* User.swift */; };
+		48EF0C3D202ED40E00987DCB /* Comment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C3C202ED40E00987DCB /* Comment.swift */; };
+		48EF0C3F202ED42800987DCB /* Repository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF0C3E202ED42800987DCB /* Repository.swift */; };
 		48FFC1312025755F003CAA13 /* Me.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FFC1302025755F003CAA13 /* Me.swift */; };
 		48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48FFC13220258794003CAA13 /* IssueAPI.swift */; };
 /* End PBXBuildFile section */
@@ -114,6 +117,9 @@
 		48E44ACB1FF603D2008F9649 /* ListCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListCell.swift; sourceTree = "<group>"; };
 		48EF0C36202C463500987DCB /* IssuePropertyViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssuePropertyViewController.swift; sourceTree = "<group>"; };
 		48EF0C38202D64AD00987DCB /* UIView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIView.swift; sourceTree = "<group>"; };
+		48EF0C3A202ED3F600987DCB /* User.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = User.swift; sourceTree = "<group>"; };
+		48EF0C3C202ED40E00987DCB /* Comment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Comment.swift; sourceTree = "<group>"; };
+		48EF0C3E202ED42800987DCB /* Repository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Repository.swift; sourceTree = "<group>"; };
 		48FFC1302025755F003CAA13 /* Me.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Me.swift; sourceTree = "<group>"; };
 		48FFC13220258794003CAA13 /* IssueAPI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueAPI.swift; sourceTree = "<group>"; };
 		49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_uIssueTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -330,6 +336,9 @@
 				48B83A16200F28BB00F2A490 /* Token.swift */,
 				48FFC1302025755F003CAA13 /* Me.swift */,
 				484A4D07202A02F400F1022B /* IssuePropertyItem.swift */,
+				48EF0C3A202ED3F600987DCB /* User.swift */,
+				48EF0C3C202ED40E00987DCB /* Comment.swift */,
+				48EF0C3E202ED42800987DCB /* Repository.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -604,12 +613,15 @@
 				48470FBB201719BA003F5FBB /* IssueDetailViewViewModel.swift in Sources */,
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
 				48470FAA20162E21003F5FBB /* SplashViewController.swift in Sources */,
+				48EF0C3D202ED40E00987DCB /* Comment.swift in Sources */,
+				48EF0C3F202ED42800987DCB /* Repository.swift in Sources */,
 				4840CBCF2024753600517961 /* CommentCell.swift in Sources */,
 				48A9C9C4202AF3ED003EAFCD /* IssuePropertyItemService.swift in Sources */,
 				48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */,
 				48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */,
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
 				48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */,
+				48EF0C3B202ED3F600987DCB /* User.swift in Sources */,
 				48FFC1312025755F003CAA13 /* Me.swift in Sources */,
 				4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */,
 				4843CFFC20294BED00B70DCD /* IssuePropertyView.swift in Sources */,

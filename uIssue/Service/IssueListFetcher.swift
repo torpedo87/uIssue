@@ -15,12 +15,9 @@ class IssueListFetcher {
   //이슈를 몽땅 가져와서 로컬에서 사용할 형태로 변형
   func getAllData(issueApi: IssueServiceRepresentable) -> Observable<[Int:Repository]> {
     
-    return issueApi.currentPage.asObservable()
-      .flatMap { (page) -> Observable<[Issue]> in
-        issueApi.fetchAllIssues(filter: .all, state: .all, sort: .created, page: page)
-      }
+    return issueApi.fetchAllIssues(filter: .all, state: .all, sort: .created, page: 1)
+      .debug("-------getalldata------------")
       .map { issueArr -> [Int:Repository] in
-        
         var dict = [Repository:[Issue]]()
         for issue in issueArr {
           if let _ = dict[issue.repository!] {

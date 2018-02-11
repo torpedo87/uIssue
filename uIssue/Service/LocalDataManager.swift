@@ -18,10 +18,16 @@ class LocalDataManager {
   private let resultProvider =
     BehaviorRelay<[Int:Repository]>(value: [Int:Repository]())
   private let bag = DisposeBag()
+  let running = BehaviorRelay<Bool>(value: true)
   
   //데이터 가져와서 바인딩
   func bindOutput(issueApi: IssueServiceRepresentable) {
     IssueListFetcher().getAllData(issueApi: issueApi)
+      .do(onNext: { [weak self] _ in
+        self?.running.accept(true)
+      }, onCompleted: { [weak self] in
+        self?.running.accept(false)
+      })
       .bind(to: resultProvider)
       .disposed(by: bag)
   }

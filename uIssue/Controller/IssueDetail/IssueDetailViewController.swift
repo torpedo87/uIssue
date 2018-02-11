@@ -86,6 +86,7 @@ class IssueDetailViewController: UIViewController {
   private let closeButton: UIButton = {
     let btn = UIButton()
     btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.layer.cornerRadius = 8
     return btn
   }()
   
@@ -163,7 +164,8 @@ class IssueDetailViewController: UIViewController {
     }
     
     closeButton.snp.makeConstraints { (make) in
-      closeButton.sizeToFit()
+      make.top.equalTo(newCommentView.snp.bottom).offset(10)
+      make.width.equalTo(150)
       make.right.bottom.equalToSuperview().offset(-20)
     }
   }
