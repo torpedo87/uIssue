@@ -23,23 +23,26 @@ class IssueDetailViewController: UIViewController {
     return commentBox
   }()
   
-  private lazy var bodyTopLabel: UILabel = {
+  private let bodyTopLabel: UILabel = {
     let label = UILabel()
-    label.backgroundColor = UIColor(hex: "FEDF32")
+    label.backgroundColor = UIColor(hex: "2AA3EF")
+    label.textColor = UIColor.white
     label.text = "Body"
     return label
   }()
   
-  private lazy var commmentsTopLabel: UILabel = {
+  private let commmentsTopLabel: UILabel = {
     let label = UILabel()
-    label.backgroundColor = UIColor(hex: "FEDF32")
+    label.backgroundColor = UIColor(hex: "2AA3EF")
+    label.textColor = UIColor.white
     label.text = "Comments"
     return label
   }()
   
-  private lazy var newCommmentTopLabel: UILabel = {
+  private let newCommmentTopLabel: UILabel = {
     let label = UILabel()
-    label.backgroundColor = UIColor(hex: "FEDF32")
+    label.backgroundColor = UIColor(hex: "2AA3EF")
+    label.textColor = UIColor.white
     label.text = "New Comment"
     return label
   }()
@@ -64,7 +67,7 @@ class IssueDetailViewController: UIViewController {
     return commentBox
   }()
 
-  private lazy var commentTableView: UITableView = {
+  private let commentTableView: UITableView = {
     let view = UITableView()
     view.tableFooterView = UIView()
     view.register(CommentCell.self,
@@ -80,9 +83,10 @@ class IssueDetailViewController: UIViewController {
     return item
   }()
   
-  private lazy var closeButton: UIButton = {
+  private let closeButton: UIButton = {
     let btn = UIButton()
     btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.layer.cornerRadius = 8
     return btn
   }()
   
@@ -97,6 +101,7 @@ class IssueDetailViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    //코멘트 가져오는건 한번만
     if viewModel.issueDetail.value.isCommentsFetched == nil {
       viewModel.requestFetchComments()
     }
@@ -159,13 +164,14 @@ class IssueDetailViewController: UIViewController {
     }
     
     closeButton.snp.makeConstraints { (make) in
-      closeButton.sizeToFit()
+      make.top.equalTo(newCommentView.snp.bottom).offset(10)
+      make.width.equalTo(150)
       make.right.bottom.equalToSuperview().offset(-20)
     }
   }
   
   func bindUI() {
-    
+    //세팅버튼 탭하면 팝업
     settingBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
@@ -174,6 +180,7 @@ class IssueDetailViewController: UIViewController {
       })
       .disposed(by: bag)
     
+    //이슈 상태에 따라서 버튼명 변경
     viewModel.issueDetail.asDriver()
       .drive(onNext: { [weak self] issue in
         if issue.state == "closed" {
@@ -183,6 +190,7 @@ class IssueDetailViewController: UIViewController {
         }
       }).disposed(by: bag)
     
+    //close 탭시 이슈 상태 변경 요청해서 성공하면 화면 나가기
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
@@ -238,7 +246,7 @@ class IssueDetailViewController: UIViewController {
       IssuePropertyViewController.createWith(viewModel: viewModel)
     issuePropertyViewController.modalPresentationStyle = .popover
     issuePropertyViewController.preferredContentSize =
-      CGSize(width: UIScreen.main.bounds.width - 20, height: 500)
+      CGSize(width: UIScreen.main.bounds.width - 50, height: 500)
     let popOver = issuePropertyViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = view

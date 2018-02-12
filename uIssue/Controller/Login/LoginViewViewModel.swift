@@ -22,6 +22,8 @@ class LoginViewViewModel {
   //api 의존성 주입을 위해 프로토콜 사용
   init(authApi: AuthServiceRepresentable = AuthService()) {
     self.authApi = authApi
+    
+    
     let isIdValid = idTextInput.asObservable()
       .map { (text) -> Bool in
         if text.isEmpty {
@@ -38,6 +40,7 @@ class LoginViewViewModel {
         return true
     }
     
+    //아이디와 비번의 동시 유효성
     validate = Observable.combineLatest(isIdValid, isPwdValid)
       .map{ tuple -> Bool in
         if tuple.0 == true && tuple.1 == true {
@@ -46,11 +49,10 @@ class LoginViewViewModel {
         return false
       }
       .asDriver(onErrorJustReturn: false)
-    
   }
   
+  //토큰 요청
   func requestLogin(id: String, password: String) -> Observable<AuthService.Status> {
     return authApi.requestToken(userId: id, userPassword: password)
   }
-  
 }

@@ -12,7 +12,6 @@ import RxCocoa
 import Moya
 
 protocol IssueServiceRepresentable {
-  var currentPage: BehaviorRelay<Int> { get }
   func fetchAllIssues(filter: IssueService.Filter,
                       state: IssueService.State,
                       sort: IssueService.Sort,
@@ -40,9 +39,7 @@ protocol IssueServiceRepresentable {
 }
 
 class IssueService: IssueServiceRepresentable {
-  
-  var currentPage: BehaviorRelay<Int> = BehaviorRelay<Int>(value: 1)
-  var lastPage = Variable<Int>(-1)
+  private let bag = DisposeBag()
   private var tempIssueArr = [Issue]()
   let provider = MoyaProvider<IssueAPI>()
   
@@ -108,39 +105,53 @@ class IssueService: IssueServiceRepresentable {
                       state: State,
                       sort: Sort,
                       page: Int) -> Observable<[Issue]> {
-    return self.provider.rx.request(.fetchAllIssues(
-      filter: filter,
-      state: state,
-      sort: sort,
-      page: page))
-      .asObservable()
-      .map { [weak self] (result) -> [Issue] in
-        let response = result.response!
-        let data = result.data
-        if let link = response.allHeaderFields["Link"] as? String,
-          self?.lastPage.value == -1 {
-          self?.lastPage.value = (self?.getLastPageFromLinkHeader(link: link))!
-        }
-        if 200 ..< 300 ~= response.statusCode {
-          let issues = try! JSONDecoder().decode([Issue].self, from: data)
-          for issue in issues {
-            self?.tempIssueArr.append(issue)
-          }
-          if (self?.currentPage.value)! < (self?.lastPage.value)! {
-            let tempPage = (self?.currentPage.value)! + 1
-            self?.currentPage.accept(tempPage)
-            return []
-          }
-          return (self?.tempIssueArr)!
-        } else if 401 == response.statusCode {
-          throw AuthService.Errors.invalidUserInfo
-        } else {
-          throw AuthService.Errors.requestFail
-        }
-      }.catchError({ (error) -> Observable<[Issue]> in
-        return Observable.just([])
+    
+    return paging()
+      .flatMap { [unowned self] in
+        self.provider.rx.request(.fetchAllIssues(filter: .all,
+                                                 state: .all,
+                                                 sort: .created,
+                                                 page: $0))
+      }
+      .reduce([Issue](), accumulator: { issues, response in
+        let decoded = try! JSONDecoder().decode([Issue].self, from: response.data)
+        return issues + decoded
       })
     
+  }
+  
+  private func paging() -> Observable<Int> {
+    return Observable.create { observer in
+      self.provider.request(.fetchAllIssues(filter: .all,
+                                            state: .all,
+                                            sort: .created,
+                                            page: 1))
+      { result in
+        
+        //get last page
+        var lastPage = Int()
+        if let link = result.value?.response?.allHeaderFields["Link"] as? String {
+          lastPage = (self.getLastPageFromLinkHeader(link: link))
+        }
+        
+        switch result {
+        case .success(let response):
+          if 200 ..< 300 ~= response.statusCode {
+            for page in 1...lastPage {
+              observer.onNext(page)
+            }
+            observer.onCompleted()
+          } else if 401 == response.statusCode {
+            observer.onError(AuthService.Errors.invalidUserInfo)
+          } else {
+            observer.onError(AuthService.Errors.requestFail)
+          }
+        case .failure(let error):
+          observer.onError(error)
+        }
+      }
+      return Disposables.create()
+    }
   }
   
   func createIssue(title: String, body: String,
@@ -169,8 +180,6 @@ class IssueService: IssueServiceRepresentable {
         return Observable.just(Issue())
       })
   }
-  
-  
   
   func editIssue(title: String, body: String,
                  label: [IssueService.Label],

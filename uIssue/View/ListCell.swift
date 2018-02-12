@@ -29,7 +29,8 @@ class ListCell: UITableViewCell {
     
     titleLabel.snp.makeConstraints { (make) in
       make.right.equalTo(countLabel.snp.left)
-      make.left.top.bottom.equalToSuperview()
+      make.top.bottom.equalToSuperview()
+      make.left.equalToSuperview().offset(10)
     }
     countLabel.snp.makeConstraints { (make) in
       countLabel.sizeToFit()

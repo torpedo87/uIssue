@@ -16,11 +16,11 @@ class CreateIssueViewController: UIViewController {
   private let bag = DisposeBag()
   private let topView: UIView = {
     let view = UIView()
-    view.backgroundColor = UIColor(hex: "FEDF32")
+    view.backgroundColor = UIColor(hex: "2AA3EF")
     return view
   }()
   
-  private lazy var titleTextField: UITextField = {
+  private let titleTextField: UITextField = {
     let view = UITextField()
     view.placeholder = "Leave a new issue"
     view.layer.borderWidth = 1.0
@@ -28,30 +28,31 @@ class CreateIssueViewController: UIViewController {
     return view
   }()
   
-  private lazy var commetTextView: UITextView = {
+  private let commetTextView: UITextView = {
     let view = UITextView()
     view.layer.borderWidth = 1.0
     view.layer.borderColor = UIColor.black.cgColor
     return view
   }()
   
-  private lazy var cancelButton: UIButton = {
+  private let cancelButton: UIButton = {
     let btn = UIButton()
     btn.setTitle("CANCEL", for: UIControlState.normal)
-    btn.setTitleColor(UIColor.black, for: UIControlState.normal)
+    btn.setTitleColor(UIColor.white, for: UIControlState.normal)
     return btn
   }()
   
-  private lazy var submitButton: UIButton = {
+  private let submitButton: UIButton = {
     let btn = UIButton()
     btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.layer.cornerRadius = 8
     btn.setTitle("Submit new issue", for: UIControlState.normal)
     btn.setTitle("Enter title", for: UIControlState.disabled)
     btn.isEnabled = false
     return btn
   }()
   
-  private lazy var settingButton: UIButton = {
+  private let settingButton: UIButton = {
     let btn = UIButton()
     btn.setImage(UIImage(named: "setting"), for: UIControlState.normal)
     return btn
@@ -118,7 +119,8 @@ class CreateIssueViewController: UIViewController {
     }
     
     submitButton.snp.makeConstraints { (make) in
-      submitButton.sizeToFit()
+      make.width.equalTo(150)
+      make.height.equalTo(50)
       make.top.equalTo(commetTextView.snp.bottom).offset(50)
       make.right.equalToSuperview().offset(-20)
     }
@@ -135,6 +137,7 @@ class CreateIssueViewController: UIViewController {
       .drive(submitButton.rx.isEnabled)
       .disposed(by: bag)
     
+    //세팅 탭하면 팝업
     settingButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
@@ -143,7 +146,7 @@ class CreateIssueViewController: UIViewController {
       })
       .disposed(by: bag)
     
-    
+    //버튼 클릭시 새이슈생성 요청해서 성공하면 화면 dismiss
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<Bool> in
@@ -160,7 +163,6 @@ class CreateIssueViewController: UIViewController {
                                             label: checkedLabels,
                                             users: checkedUsers))!
       }
-      .debug()
       .observeOn(MainScheduler.instance)
       .bind { [weak self] (success) in
         if success {
@@ -168,6 +170,7 @@ class CreateIssueViewController: UIViewController {
         }
       }.disposed(by: bag)
     
+    //cancel 버튼 클릭시 화면 나가기
     cancelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())

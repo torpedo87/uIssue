@@ -31,7 +31,7 @@ class LoginViewController: UIViewController {
     return txtField
   }()
   
-  private lazy var loginBtn: UIButton = {
+  private let loginBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Login", for: UIControlState.normal)
     btn.isEnabled = false
@@ -57,7 +57,6 @@ class LoginViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
     setupView()
     bindUI()
   }
@@ -97,11 +96,24 @@ class LoginViewController: UIViewController {
   
   func bindUI() {
     
+    //키보드에 따라 버튼 오르락 내리락
+    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillShow)
+      .asObservable()
+      .subscribe(onNext: { [weak self] noti in
+        self?.loginBtn.keyboardWillChange(noti)
+      })
+      .disposed(by: bag)
+    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillHide)
+      .asObservable()
+      .subscribe(onNext: { [weak self] noti in
+        self?.loginBtn.keyboardWillChange(noti)
+      })
+      .disposed(by: bag)
+    
     //사용자 입력값을 뷰모델에 전달
     idTextField.rx.text.orEmpty
       .bind(to: viewModel.idTextInput)
       .disposed(by: bag)
-    
     passWordTextField.rx.text.orEmpty
       .bind(to: viewModel.pwdTextInput)
       .disposed(by: bag)
@@ -111,7 +123,8 @@ class LoginViewController: UIViewController {
     viewModel.validate
       .drive(loginBtn.rx.isEnabled)
       .disposed(by: bag)
-
+    
+    //로그인 버튼클릭시 토큰 요청해서 성공하면 화면이동, 실패시 에러메시지
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<AuthService.Status> in

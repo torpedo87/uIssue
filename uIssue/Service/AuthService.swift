@@ -55,8 +55,6 @@ class AuthService: AuthServiceRepresentable {
     guard let url =
       URL(string: "https://api.github.com/authorizations") else { fatalError() }
     
-    //rx 는 시퀀스이므로 request부터 Observable 형태로 감시하는 건가보다
-    //Observable<URLRequest>
     let request: Observable<URLRequest> = Observable.create{ observer in
       let request: URLRequest = {
         var request = URLRequest(url: $0)
@@ -76,7 +74,8 @@ class AuthService: AuthServiceRepresentable {
           "note": "admin uIssue"
         ]
         
-        request.httpBody = try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
+        request.httpBody =
+          try! JSONSerialization.data(withJSONObject: bodyObject, options: [])
           
         return request
       }(url)
@@ -86,12 +85,9 @@ class AuthService: AuthServiceRepresentable {
       return Disposables.create()
     }
     
-    //flatmap을 사용하면 그 다음 연산자에 observable을 벗긴채로 전달 가능한건가보다
-    //O<request> -> flatmap -> O<(response, data)>
     return request.flatMap{
       URLSession.shared.rx.response(request: $0)
     }
-      //O<(response, data)> -> map -> O<status>
       .map({ (response, data) -> Status in
         if 200 ..< 300 ~= response.statusCode {
           let token = try! JSONDecoder().decode(Token.self, from: data)
@@ -106,8 +102,10 @@ class AuthService: AuthServiceRepresentable {
       .catchError({ (error) -> Observable<Status> in
         if let error = error as? Errors {
           switch error {
-          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
-          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          case .requestFail:
+            return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo:
+            return Observable.just(Status.unAuthorized("invalidUserInfo"))
           }
         }
         return Observable.just(Status.unAuthorized(error.localizedDescription))
@@ -155,8 +153,10 @@ class AuthService: AuthServiceRepresentable {
       .catchError({ (error) -> Observable<AuthService.Status> in
         if let error = error as? Errors {
           switch error {
-          case .requestFail: return Observable.just(Status.unAuthorized("requestFail"))
-          case .invalidUserInfo: return Observable.just(Status.unAuthorized("invalidUserInfo"))
+          case .requestFail:
+            return Observable.just(Status.unAuthorized("requestFail"))
+          case .invalidUserInfo:
+            return Observable.just(Status.unAuthorized("invalidUserInfo"))
           }
         }
         return Observable.just(Status.unAuthorized(error.localizedDescription))

@@ -26,8 +26,6 @@ class IssuePropertyItemService {
     return dict
   }
   
-  
-  
   func transformLabelToItem(labels: [IssueService.Label]) -> [LabelItem] {
     var items = [LabelItem]()
     for label in labels {

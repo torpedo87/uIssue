@@ -18,6 +18,7 @@ class PopUpViewController: UIViewController {
     case label
   }
   
+  //mode 설정시 list 채워짐
   private var popUpMode: PopUpMode! {
     didSet {
       switch popUpMode! {
@@ -38,7 +39,7 @@ class PopUpViewController: UIViewController {
   private var viewModel: IssueListViewViewModel!
   private var list: BehaviorRelay<[String]>!
   
-  private lazy var tableView: UITableView = {
+  private let tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -98,10 +99,14 @@ class PopUpViewController: UIViewController {
         case .sort:
           self?.viewModel.sortBySort(sort: IssueService.Sort.arr[indexPath.row])
         case .label:
-          self?.viewModel.filterByState(state: IssueService.State.arr[indexPath.row])
+          self?.viewModel.filterByLabel(label: IssueService.Label.arr[indexPath.row])
         }
         self?.dismiss(animated: true, completion: nil)
       })
       .disposed(by: bag)
+  }
+  
+  func getTableViewHeight() -> CGFloat {
+    return tableView.rowHeight * CGFloat(list.value.count)
   }
 }

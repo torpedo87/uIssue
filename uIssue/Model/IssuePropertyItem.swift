@@ -15,10 +15,7 @@ struct LabelItem {
   mutating func setIsChecked(check: Bool) {
     self.isChecked = check
   }
-  
-  mutating func toggleIsChecked() {
-    self.isChecked = !isChecked
-  }
+
 }
 
 struct AssigneeItem {
@@ -29,7 +26,4 @@ struct AssigneeItem {
     self.isChecked = check
   }
   
-  mutating func toggleIsChecked() {
-    self.isChecked = !isChecked
-  }
 }
