@@ -70,9 +70,10 @@ class LoginViewController: UIViewController {
     view.addSubview(messageLabel)
     
     idTextField.snp.makeConstraints({ (make) in
-      make.center.equalToSuperview()
-      make.width.equalTo(200)
-      make.height.equalTo(50)
+      make.centerX.equalToSuperview()
+      make.centerY.equalToSuperview().offset(-100)
+      make.width.equalTo(UIScreen.main.bounds.height / 15)
+      make.height.equalTo(UIScreen.main.bounds.width / 2)
     })
     
     passWordTextField.snp.makeConstraints({ (make) in
@@ -82,9 +83,9 @@ class LoginViewController: UIViewController {
     })
     
     loginBtn.snp.makeConstraints({ (make) in
+      loginBtn.sizeToFit()
       make.centerX.equalToSuperview()
       make.top.equalTo(passWordTextField.snp.bottom).offset(10)
-      make.width.height.equalTo(passWordTextField)
     })
     
     messageLabel.snp.makeConstraints({ (make) in
@@ -95,20 +96,6 @@ class LoginViewController: UIViewController {
   }
   
   func bindUI() {
-    
-    //키보드에 따라 버튼 오르락 내리락
-    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillShow)
-      .asObservable()
-      .subscribe(onNext: { [weak self] noti in
-        self?.loginBtn.keyboardWillChange(noti)
-      })
-      .disposed(by: bag)
-    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillHide)
-      .asObservable()
-      .subscribe(onNext: { [weak self] noti in
-        self?.loginBtn.keyboardWillChange(noti)
-      })
-      .disposed(by: bag)
     
     //사용자 입력값을 뷰모델에 전달
     idTextField.rx.text.orEmpty

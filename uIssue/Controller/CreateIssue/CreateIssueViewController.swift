@@ -31,12 +31,16 @@ class CreateIssueViewController: UIViewController {
   private let commetTextView: UITextView = {
     let view = UITextView()
     view.layer.borderWidth = 1.0
+    view.text = ""
     view.layer.borderColor = UIColor.black.cgColor
+    view.isScrollEnabled = false
     return view
   }()
   
   private let cancelButton: UIButton = {
     let btn = UIButton()
+    btn.backgroundColor = UIColor(hex: "3CC75A")
+    btn.layer.cornerRadius = 8
     btn.setTitle("CANCEL", for: UIControlState.normal)
     btn.setTitleColor(UIColor.white, for: UIControlState.normal)
     return btn
@@ -78,51 +82,50 @@ class CreateIssueViewController: UIViewController {
   }
   
   func setupView() {
-    view.addSubview(topView)
-    topView.addSubview(cancelButton)
-    topView.addSubview(settingButton)
     view.backgroundColor = UIColor.white
+    view.addSubview(topView)
+    topView.addSubview(settingButton)
     view.addSubview(titleTextField)
     view.addSubview(commetTextView)
     view.addSubview(propertyView)
     view.addSubview(submitButton)
+    view.addSubview(cancelButton)
     
     topView.snp.makeConstraints { (make) in
-      make.left.top.right.equalToSuperview()
-      make.height.equalTo(85)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+      make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+      make.height.equalTo(UIScreen.main.bounds.height / 15)
     }
     
     titleTextField.snp.makeConstraints { (make) in
       make.centerX.equalToSuperview()
-      make.height.equalTo(50)
-      make.left.equalToSuperview().offset(50)
-      make.right.equalToSuperview().offset(-50)
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
+      make.width.equalTo(UIScreen.main.bounds.width * 2 / 3)
       make.top.equalTo(topView.snp.bottom).offset(10)
     }
     
     commetTextView.snp.makeConstraints { (make) in
       make.centerX.left.right.equalTo(titleTextField)
-      make.height.equalTo(200)
       make.top.equalTo(titleTextField.snp.bottom).offset(10)
     }
     
-    cancelButton.snp.makeConstraints { (make) in
-      cancelButton.sizeToFit()
-      make.left.equalTo(topView).offset(10)
-      make.bottom.equalTo(topView).offset(-5)
-    }
-    
     settingButton.snp.makeConstraints { (make) in
-      submitButton.sizeToFit()
+      settingButton.sizeToFit()
       make.right.equalTo(topView).offset(-10)
-      make.bottom.equalTo(topView).offset(-5)
+      make.centerY.equalTo(topView)
     }
     
     submitButton.snp.makeConstraints { (make) in
-      make.width.equalTo(150)
-      make.height.equalTo(50)
-      make.top.equalTo(commetTextView.snp.bottom).offset(50)
-      make.right.equalToSuperview().offset(-20)
+      make.right.equalTo(commetTextView)
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
+      make.top.equalTo(commetTextView.snp.bottom).offset(10)
+    }
+    
+    cancelButton.snp.makeConstraints { (make) in
+      make.left.equalTo(commetTextView)
+      make.height.width.centerY.equalTo(submitButton)
+      make.right.equalTo(submitButton.snp.left).offset(-10)
     }
   }
   
@@ -186,7 +189,7 @@ class CreateIssueViewController: UIViewController {
       IssuePropertyViewController.createWith(viewModel: viewModel)
     issuePropertyViewController.modalPresentationStyle = .popover
     issuePropertyViewController.preferredContentSize =
-      CGSize(width: UIScreen.main.bounds.width - 20, height: 500)
+      CGSize(width: UIScreen.main.bounds.width - 20, height: UIScreen.main.bounds.height / 2)
     let popOver = issuePropertyViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = view

@@ -69,16 +69,11 @@ class SettingViewController: UIViewController {
     view.addSubview(logoutBtn)
     view.addSubview(messageLabel)
     
-    logoutBtn.snp.makeConstraints({ (make) in
-      make.right.bottom.equalToSuperview().offset(-10)
-      make.height.equalTo(50)
-      make.width.equalTo(100)
-    })
-    
     idTextField.snp.makeConstraints({ (make) in
-      make.center.equalToSuperview()
-      make.width.equalTo(200)
-      make.height.equalTo(50)
+      make.centerX.equalToSuperview()
+      make.centerY.equalToSuperview().offset(-100)
+      make.width.equalTo(UIScreen.main.bounds.width / 2)
+      make.height.equalTo(UIScreen.main.bounds.height / 15)
     })
     
     passWordTextField.snp.makeConstraints({ (make) in
@@ -87,9 +82,15 @@ class SettingViewController: UIViewController {
       make.width.height.equalTo(idTextField)
     })
     
+    logoutBtn.snp.makeConstraints { (make) in
+      logoutBtn.sizeToFit()
+      make.top.equalTo(passWordTextField.snp.bottom).offset(10)
+      make.centerX.equalToSuperview()
+    }
+    
     messageLabel.snp.makeConstraints { (make) in
       make.centerX.equalToSuperview()
-      make.top.equalTo(passWordTextField.snp.bottom).offset(10)
+      make.top.equalTo(logoutBtn.snp.bottom).offset(10)
       make.width.height.equalTo(passWordTextField)
     }
   }
@@ -126,19 +127,6 @@ class SettingViewController: UIViewController {
       })
       .disposed(by: bag)
     
-    //키보드 오르락내리락 시 버튼 이동
-    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillShow)
-      .asObservable()
-      .subscribe(onNext: { [weak self] noti in
-        self?.logoutBtn.keyboardWillChange(noti)
-      })
-      .disposed(by: bag)
-    NotificationCenter.default.rx.notification(Notification.Name.UIKeyboardWillHide)
-      .asObservable()
-      .subscribe(onNext: { [weak self] noti in
-        self?.logoutBtn.keyboardWillChange(noti)
-      })
-      .disposed(by: bag)
   }
   
   func showErrorMsg(message: String) {

@@ -255,8 +255,6 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  
-  
   func editComment(issue: Issue, comment: Comment,
                    newCommentText: String) -> Observable<Comment> {
     return self.provider.rx.request(.editComment(issue: issue,
@@ -318,64 +316,26 @@ class IssueService: IssueServiceRepresentable {
       })
   }
   
-  //이것만 Moya를 적용하면 에러남
-//  func getAssignees(repo: Repository) -> Observable<[User]> {
-//    return self.provider.rx.request(.getAssignees(repo: repo))
-//      .asObservable()
-//      .map({ (result) -> [User] in
-//        let response = result.response!
-//        let data = result.data
-//        if 200 ..< 300 ~= response.statusCode {
-//          let users = try! JSONDecoder().decode([User].self, from: data)
-//          return users
-//        } else if 401 == response.statusCode {
-//          throw AuthService.Errors.invalidUserInfo
-//        } else {
-//          throw AuthService.Errors.requestFail
-//        }
-//      }).catchError({ (error) -> Observable<[User]> in
-//        return Observable.just([])
-//      })
-//  }
-  
   func getAssignees(repo: Repository) -> Observable<[User]> {
-    guard let urlComponents =
-      URLComponents(string: "https://api.github.com/repos/\(repo.owner.login)/\(repo.name)/assignees")
-      else { fatalError() }
-
-    let request: Observable<URLRequest> = Observable.create{ observer in
-      let request: URLRequest = {
-        var request = URLRequest(url: $0)
-        request.httpMethod = "GET"
-
-        return request
-      }(urlComponents.url!)
-
-      observer.onNext(request)
-      observer.onCompleted()
-      return Disposables.create()
-    }
-
-    return request.flatMap{
-      URLSession.shared.rx.response(request: $0)
-      }
-      .map({ (response, data) -> [User] in
+    return self.provider.rx.request(.getAssignees(repo: repo))
+      .debug("-------qq----------")
+      .asObservable()
+      .map({ (result) -> [User] in
+        let response = result.response!
+        let data = result.data
         if 200 ..< 300 ~= response.statusCode {
           let users = try! JSONDecoder().decode([User].self, from: data)
-
           return users
         } else if 401 == response.statusCode {
           throw AuthService.Errors.invalidUserInfo
         } else {
           throw AuthService.Errors.requestFail
         }
-      })
-      .catchError({ (error) -> Observable<[User]> in
+      }).catchError({ (error) -> Observable<[User]> in
         return Observable.just([])
       })
+      .debug("--------rr-------")
   }
-  
-  
   
   //helper
   func getLastPageFromLinkHeader(link: String) -> Int {

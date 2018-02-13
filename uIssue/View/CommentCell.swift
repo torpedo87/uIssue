@@ -32,7 +32,10 @@ class CommentCell: UITableViewCell {
     addSubview(commentView)
     
     commentView.snp.makeConstraints { (make) in
-      make.edges.equalToSuperview()
+      make.right.equalTo(safeAreaLayoutGuide.snp.right)
+      make.left.equalTo(safeAreaLayoutGuide.snp.left)
+      make.top.equalTo(safeAreaLayoutGuide.snp.top)
+      make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
     }
   }
   

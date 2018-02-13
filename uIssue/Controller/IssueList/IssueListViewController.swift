@@ -13,41 +13,41 @@ import RxCocoa
 class IssueListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: IssueListViewViewModel!
-  private let topView: UIView = {
-    let view = UIView()
-    view.backgroundColor = UIColor(hex: "F6F8FA")
-    return view
+  
+  private lazy var topBar: UIToolbar = {
+    let bar = UIToolbar(frame: CGRect.zero)
+    return bar
   }()
 
-  private let stateButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("STATE ▽", for: UIControlState.normal)
-    btn.setTitle("STATE △", for: UIControlState.selected)
-    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
-    return btn
+  private lazy var stateButton: UIBarButtonItem = {
+    let item = UIBarButtonItem(title: "STATE",
+                              style: UIBarButtonItemStyle.plain,
+                              target: self,
+                              action: nil)
+    return item
   }()
   
-  private let sortButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("SORT ▽", for: UIControlState.normal)
-    btn.setTitle("SORT △", for: UIControlState.selected)
-    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
-    return btn
+  private lazy var sortButton: UIBarButtonItem = {
+    let item = UIBarButtonItem(title: "SORT",
+                               style: UIBarButtonItemStyle.plain,
+                               target: self,
+                               action: nil)
+    return item
   }()
   
-  private let labelButton: UIButton = {
-    let btn = UIButton()
-    btn.setTitle("LABEL ▽", for: UIControlState.normal)
-    btn.setTitle("LABEL △", for: UIControlState.selected)
-    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
-    return btn
+  private let labelButton: UIBarButtonItem = {
+    let item = UIBarButtonItem(title: "LABEL",
+                               style: UIBarButtonItemStyle.plain,
+                               target: self,
+                               action: nil)
+    return item
   }()
   
   private let tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.rowHeight = 50
+    view.rowHeight = UIScreen.main.bounds.height / 20
     return view
   }()
   
@@ -78,37 +78,22 @@ class IssueListViewController: UIViewController {
     title = "Issue List"
     navigationItem.rightBarButtonItem = addBarButtonItem
     view.backgroundColor = UIColor.white
-    view.addSubview(topView)
-    topView.addSubview(stateButton)
-    topView.addSubview(sortButton)
-    topView.addSubview(labelButton)
+    view.addSubview(topBar)
+    topBar.setItems([stateButton, sortButton, labelButton], animated: true)
     view.addSubview(tableView)
     
-    topView.snp.makeConstraints { (make) in
-      make.top.equalToSuperview().offset(85)
-      make.left.right.equalToSuperview()
-      make.height.equalTo(50)
-    }
-    
-    stateButton.snp.makeConstraints { (make) in
-      stateButton.sizeToFit()
-      make.left.top.bottom.equalTo(topView)
-    }
-    
-    sortButton.snp.makeConstraints { (make) in
-      sortButton.sizeToFit()
-      make.right.top.bottom.equalTo(topView)
-    }
-    
-    labelButton.snp.makeConstraints { (make) in
-      labelButton.sizeToFit()
-      make.top.bottom.equalTo(topView)
-      make.right.equalTo(sortButton.snp.left).offset(-10)
+    topBar.snp.makeConstraints { (make) in
+      make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
     }
     
     tableView.snp.makeConstraints({ (make) in
-      make.left.right.bottom.equalToSuperview()
-      make.top.equalTo(topView.snp.bottom)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+      make.top.equalTo(topBar.snp.bottom)
+      make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
     })
     
   }
@@ -183,14 +168,16 @@ class IssueListViewController: UIViewController {
       .disposed(by: bag)
   }
   
-  func presentPopUp(sender: UIButton, mode: PopUpViewController.PopUpMode) {
+  func presentPopUp(sender: UIBarButtonItem, mode: PopUpViewController.PopUpMode) {
     let popUpViewController =
       PopUpViewController.createWith(viewModel: viewModel, mode: mode)
     popUpViewController.modalPresentationStyle = .popover
-    popUpViewController.preferredContentSize = CGSize(width: 100, height: popUpViewController.getTableViewHeight())
+    popUpViewController.preferredContentSize =
+      CGSize(width: 100, height: popUpViewController.getTableViewHeight())
     let popOver = popUpViewController.popoverPresentationController
     popOver?.delegate = self
-    popOver?.sourceView = sender
+    popOver?.barButtonItem = sender
+    popOver?.permittedArrowDirections = .up
     present(popUpViewController, animated: true, completion: nil)
   }
   

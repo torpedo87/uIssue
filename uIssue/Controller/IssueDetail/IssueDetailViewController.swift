@@ -112,7 +112,7 @@ class IssueDetailViewController: UIViewController {
   }
   
   func setupView() {
-    title = "Issue Detail"
+    title = viewModel.issueDetail.value.title
     view.backgroundColor = UIColor.white
     navigationItem.rightBarButtonItem = settingBarButtonItem
     view.addSubview(titleTextView)
@@ -125,48 +125,50 @@ class IssueDetailViewController: UIViewController {
     view.addSubview(closeButton)
     
     titleTextView.snp.makeConstraints { (make) in
-      make.top.equalToSuperview().offset(85)
-      make.left.right.equalToSuperview()
+      make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
     }
     
     bodyTopLabel.snp.makeConstraints { (make) in
       make.top.equalTo(titleTextView.snp.bottom)
-      make.left.right.equalToSuperview()
-      make.height.equalTo(30)
+      make.left.right.equalTo(titleTextView)
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
     }
     
     bodyTextView.snp.makeConstraints { (make) in
-      make.left.right.equalToSuperview()
+      make.left.right.equalTo(titleTextView)
       make.top.equalTo(bodyTopLabel.snp.bottom)
     }
     
     commmentsTopLabel.snp.makeConstraints { (make) in
       make.top.equalTo(bodyTextView.snp.bottom)
-      make.left.right.equalToSuperview()
-      make.height.equalTo(30)
+      make.left.right.equalTo(titleTextView)
+      make.height.equalTo(bodyTopLabel)
     }
     
     commentTableView.snp.makeConstraints { (make) in
       make.top.equalTo(commmentsTopLabel.snp.bottom)
-      make.left.right.equalToSuperview()
+      make.left.right.equalTo(titleTextView)
       make.bottom.equalTo(newCommmentTopLabel.snp.top)
     }
     
     newCommmentTopLabel.snp.makeConstraints { (make) in
-      make.left.right.equalToSuperview()
-      make.height.equalTo(30)
+      make.left.right.equalTo(titleTextView)
+      make.height.equalTo(bodyTopLabel)
       make.bottom.equalTo(newCommentView.snp.top)
     }
     
     newCommentView.snp.makeConstraints { (make) in
-      make.left.right.equalToSuperview()
-      make.bottom.equalTo(closeButton).offset(-50)
+      make.left.right.equalTo(titleTextView)
+      make.bottom.equalTo(closeButton.snp.top).offset(-10)
     }
     
     closeButton.snp.makeConstraints { (make) in
-      make.top.equalTo(newCommentView.snp.bottom).offset(10)
+      make.height.equalTo(titleTextView)
       make.width.equalTo(150)
-      make.right.bottom.equalToSuperview().offset(-20)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right).offset(-10)
+      make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-10)
     }
   }
   
@@ -183,10 +185,13 @@ class IssueDetailViewController: UIViewController {
     //이슈 상태에 따라서 버튼명 변경
     viewModel.issueDetail.asDriver()
       .drive(onNext: { [weak self] issue in
+        self?.title = issue.title
         if issue.state == "closed" {
           self?.closeButton.setTitle("REOPEN ISSUE", for: UIControlState.normal)
+          self?.settingBarButtonItem.isEnabled = false
         } else {
           self?.closeButton.setTitle("CLOSE ISSUE", for: UIControlState.normal)
+          self?.settingBarButtonItem.isEnabled = true
         }
       }).disposed(by: bag)
     
@@ -246,7 +251,7 @@ class IssueDetailViewController: UIViewController {
       IssuePropertyViewController.createWith(viewModel: viewModel)
     issuePropertyViewController.modalPresentationStyle = .popover
     issuePropertyViewController.preferredContentSize =
-      CGSize(width: UIScreen.main.bounds.width - 50, height: 500)
+      CGSize(width: UIScreen.main.bounds.width - 50, height: UIScreen.main.bounds.height / 2)
     let popOver = issuePropertyViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = view

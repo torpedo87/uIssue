@@ -29,12 +29,15 @@ class ListCell: UITableViewCell {
     
     titleLabel.snp.makeConstraints { (make) in
       make.right.equalTo(countLabel.snp.left)
-      make.top.bottom.equalToSuperview()
-      make.left.equalToSuperview().offset(10)
+      make.left.equalTo(safeAreaLayoutGuide.snp.left).offset(10)
+      make.top.equalTo(safeAreaLayoutGuide.snp.top)
+      make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
     }
     countLabel.snp.makeConstraints { (make) in
       countLabel.sizeToFit()
-      make.right.top.bottom.equalToSuperview()
+      make.right.equalTo(safeAreaLayoutGuide.snp.right)
+      make.top.equalTo(safeAreaLayoutGuide.snp.top)
+      make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
     }
   }
   

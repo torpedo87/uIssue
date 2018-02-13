@@ -34,6 +34,7 @@
 		48512A1920204CAA00ECBF31 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1820204CAA00ECBF31 /* TestData.swift */; };
 		48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */; };
 		48512A1F2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */; };
+		4896D51C2032C50800E73780 /* IssueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4896D51B2032C50800E73780 /* IssueLabel.swift */; };
 		48A313E61FF3956D00201F6E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48A313E51FF3956D00201F6E /* AppDelegate.swift */; };
 		48A313EB1FF3956D00201F6E /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 48A313E91FF3956D00201F6E /* Main.storyboard */; };
 		48A313ED1FF3956D00201F6E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48A313EC1FF3956D00201F6E /* Assets.xcassets */; };
@@ -95,6 +96,7 @@
 		48512A1820204CAA00ECBF31 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewViewModelTests.swift; sourceTree = "<group>"; };
 		48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewViewModelTests.swift; sourceTree = "<group>"; };
+		4896D51B2032C50800E73780 /* IssueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueLabel.swift; sourceTree = "<group>"; };
 		48A313E21FF3956D00201F6E /* uIssue.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = uIssue.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48A313E51FF3956D00201F6E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		48A313EA1FF3956D00201F6E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -339,6 +341,7 @@
 				48EF0C3A202ED3F600987DCB /* User.swift */,
 				48EF0C3C202ED40E00987DCB /* Comment.swift */,
 				48EF0C3E202ED42800987DCB /* Repository.swift */,
+				4896D51B2032C50800E73780 /* IssueLabel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -614,6 +617,7 @@
 				48A3140B1FF3983600201F6E /* LoginViewController.swift in Sources */,
 				48470FAA20162E21003F5FBB /* SplashViewController.swift in Sources */,
 				48EF0C3D202ED40E00987DCB /* Comment.swift in Sources */,
+				4896D51C2032C50800E73780 /* IssueLabel.swift in Sources */,
 				48EF0C3F202ED42800987DCB /* Repository.swift in Sources */,
 				4840CBCF2024753600517961 /* CommentCell.swift in Sources */,
 				48A9C9C4202AF3ED003EAFCD /* IssuePropertyItemService.swift in Sources */,
@@ -802,12 +806,14 @@
 			baseConfigurationReference = 7540D0CF640B326A535FA3B3 /* Pods-uIssue.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J6JJA4UC5Z;
+				DEVELOPMENT_TEAM = CA736F4E8H;
 				INFOPLIST_FILE = "uIssue/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.samchon.uIssue;
+				PRODUCT_BUNDLE_IDENTIFIER = com.samchon.uIssues;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -818,12 +824,14 @@
 			baseConfigurationReference = 6B5DE9CC3A79555DEC794AB6 /* Pods-uIssue.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = J6JJA4UC5Z;
+				DEVELOPMENT_TEAM = CA736F4E8H;
 				INFOPLIST_FILE = "uIssue/Supporting Files/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.samchon.uIssue;
+				PRODUCT_BUNDLE_IDENTIFIER = com.samchon.uIssues;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 4.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

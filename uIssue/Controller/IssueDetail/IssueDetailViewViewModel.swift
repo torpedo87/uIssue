@@ -75,8 +75,14 @@ class IssueDetailViewViewModel: PropertySettable {
         }
         let itemDict =
           IssuePropertyItemService().changeAssigneeArrToDict(arr: users)
-        let assignees = repo?.issuesDic![issueId]?.assignees
-        return (self?.itemCheck(assignees: assignees!, dict: itemDict))!
+        if let assignees = repo?.issuesDic![issueId]?.assignees {
+          if let userDict = self?.itemCheck(assignees: assignees, dict: itemDict) {
+            return userDict
+          } else {
+            return [String:AssigneeItem]()
+          }
+        }
+        return [String:AssigneeItem]()
       })
       .asDriver(onErrorJustReturn: [String:AssigneeItem]())
       .drive(assigneeItemsDict)
@@ -88,8 +94,16 @@ class IssueDetailViewViewModel: PropertySettable {
         let allLabels = IssueService.Label.arr
         let itemDict =
           IssuePropertyItemService().changeLabelArrToDict(arr: allLabels)
-        let issueLabels = dict[repoId]?.issuesDic![issueId]?.labels
-        return (self?.itemCheck(issueLabels: issueLabels!, dict: itemDict))!
+        if let issueDict = dict[repoId]?.issuesDic {
+          if let issueLabels = issueDict[issueId]?.labels {
+            return (self?.itemCheck(issueLabels: issueLabels, dict: itemDict))!
+          } else {
+            return [String:LabelItem]()
+          }
+        } else {
+          return [String:LabelItem]()
+        }
+        
       }
       .asDriver(onErrorJustReturn: [String : LabelItem]())
       .drive(labelItemsDict)
@@ -141,7 +155,6 @@ class IssueDetailViewViewModel: PropertySettable {
           return false
         }
       })
-    
   }
   
   //코멘트 생성 api 요청 성공시 로컬 변경하기

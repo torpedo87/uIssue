@@ -39,7 +39,7 @@ class IssuePropertyView: UIView {
   private lazy var labelTableView: UITableView = {
     let table = UITableView()
     table.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
-    table.rowHeight = 50
+    table.rowHeight = UIScreen.main.bounds.height / 20
     table.allowsMultipleSelection = true
     return table
   }()
@@ -47,7 +47,7 @@ class IssuePropertyView: UIView {
   private lazy var assigneeTableView: UITableView = {
     let table = UITableView()
     table.register(ListCell.self, forCellReuseIdentifier: ListCell.reuseIdentifier)
-    table.rowHeight = 50
+    table.rowHeight = UIScreen.main.bounds.height / 20
     table.allowsMultipleSelection = true
     return table
   }()
@@ -70,28 +70,30 @@ class IssuePropertyView: UIView {
     addSubview(assigneeTableView)
     
     labelLabel.snp.makeConstraints { (make) in
-      make.top.left.equalToSuperview()
-      make.height.equalTo(50)
+      make.top.equalTo(safeAreaLayoutGuide.snp.top)
+      make.left.equalTo(safeAreaLayoutGuide.snp.left)
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
       make.width.equalTo(userLabel)
       make.right.equalTo(userLabel.snp.left)
     }
     
     userLabel.snp.makeConstraints { (make) in
-      make.top.right.equalToSuperview()
+      make.top.equalTo(safeAreaLayoutGuide.snp.top)
+      make.right.equalTo(safeAreaLayoutGuide.snp.right)
       make.width.height.equalTo(labelLabel)
     }
     
     labelTableView.snp.makeConstraints { (make) in
       make.height.equalTo(Int(labelTableView.rowHeight) * IssueService.Label.arr.count)
       make.top.equalTo(labelLabel.snp.bottom)
-      make.left.equalToSuperview()
+      make.left.equalTo(safeAreaLayoutGuide.snp.left)
       make.width.equalTo(assigneeTableView)
       make.right.equalTo(assigneeTableView.snp.left)
     }
     
     assigneeTableView.snp.makeConstraints { (make) in
       make.top.equalTo(userLabel.snp.bottom)
-      make.right.equalToSuperview()
+      make.right.equalTo(safeAreaLayoutGuide.snp.right)
       make.height.equalTo(labelTableView)
     }
   }
@@ -142,19 +144,16 @@ class IssuePropertyView: UIView {
           let issue = viewmodel.issueDetail.value
           var checkedDict =
             self?.viewModel.labelItemsDict.value.filter{ $0.value.isChecked }
-          
           if model.isChecked {
             checkedDict?.removeValue(forKey: model.label.rawValue)
           } else {
             checkedDict![model.label.rawValue] = model
           }
-          
           let updatedLabels = Array(checkedDict!.values).map{ $0.label }
           let state = IssueService().transformStrToState(stateString: issue.state)
-          
           return viewmodel.editIssue(state: state!,
                                      newTitleText: issue.title,
-                                     newBodyText: issue.body!,
+                                     newBodyText: issue.body ?? "",
                                      label: updatedLabels,
                                      assignees: issue.assignees)
         } else {
@@ -166,7 +165,13 @@ class IssuePropertyView: UIView {
           return Observable.just(false)
         }
       })
-      .subscribe()
+      .subscribe(onNext: { success in
+        if success {
+          print("success")
+        } else {
+          print("false")
+        }
+      })
       .disposed(by: bag)
       
     
@@ -204,7 +209,13 @@ class IssuePropertyView: UIView {
           return Observable.just(false)
         }
       })
-      .subscribe()
+      .subscribe(onNext: { success in
+        if success {
+          print("success")
+        } else {
+          print("false")
+        }
+      })
       .disposed(by: bag)
     
   }

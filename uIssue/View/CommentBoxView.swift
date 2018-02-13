@@ -52,32 +52,24 @@ class CommentBoxView: UIView {
   private let editButton: UIButton = {
     let btn = UIButton()
     btn.setImage(UIImage(named: "edit"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private let saveButton: UIButton = {
     let btn = UIButton()
     btn.setImage(UIImage(named: "save"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private let cancelButton: UIButton = {
     let btn = UIButton()
     btn.setImage(UIImage(named: "cancel"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
   private let deleteButton: UIButton = {
     let btn = UIButton()
     btn.setImage(UIImage(named: "delete"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor(hex: "157EFB"), for: UIControlState.normal)
-//    btn.setTitleColor(UIColor.lightGray, for: UIControlState.disabled)
     return btn
   }()
   
@@ -276,9 +268,10 @@ class CommentBoxView: UIView {
       self.commentTextView.text = ""
       }
     case .issueTitle: do {
-      self.userLabel.font = UIFont.systemFont(ofSize: 30)
-      self.commentTextView.font = UIFont.systemFont(ofSize: 30)
-      self.userLabel.text = "#\(self.issue!.number) Title"
+      let me = Me.shared.getUser()
+      let imgUrl = URL(string: me!.avatar_url)
+      self.avatarImageView.kf.setImage(with: imgUrl)
+      self.userLabel.text = me!.login
       self.commentTextView.text = self.issue!.title
       }
     }
@@ -307,18 +300,22 @@ class CommentBoxView: UIView {
     addSubview(commentTextView)
     
     topView.snp.makeConstraints { (make) in
-      make.left.top.right.equalToSuperview()
-      make.height.equalTo(40)
+      make.top.equalTo(safeAreaLayoutGuide.snp.top)
+      make.left.equalTo(safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(safeAreaLayoutGuide.snp.right)
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
     }
     
     avatarImageView.snp.makeConstraints { (make) in
       make.left.top.equalTo(topView).offset(5)
       make.bottom.equalTo(topView).offset(-5)
-      make.width.equalTo(30)
+      make.width.equalTo(avatarImageView.snp.height)
     }
     
     commentTextView.snp.makeConstraints { (make) in
-      make.left.bottom.right.equalToSuperview()
+      make.left.equalTo(safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(safeAreaLayoutGuide.snp.right)
+      make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
       make.top.equalTo(topView.snp.bottom)
     }
     
