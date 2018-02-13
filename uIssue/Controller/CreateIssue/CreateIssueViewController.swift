@@ -14,10 +14,10 @@ class CreateIssueViewController: UIViewController {
   
   private var viewModel: CreateIssueViewViewModel!
   private let bag = DisposeBag()
-  private let topView: UIView = {
-    let view = UIView()
-    view.backgroundColor = UIColor(hex: "2AA3EF")
-    return view
+  
+  private let topBar: UIToolbar = {
+    let bar = UIToolbar(frame: CGRect.zero)
+    return bar
   }()
   
   private let titleTextField: UITextField = {
@@ -56,10 +56,12 @@ class CreateIssueViewController: UIViewController {
     return btn
   }()
   
-  private let settingButton: UIButton = {
-    let btn = UIButton()
-    btn.setImage(UIImage(named: "setting"), for: UIControlState.normal)
-    return btn
+  private lazy var propertyBarButtonItem: UIBarButtonItem = {
+    let item = UIBarButtonItem(image: UIImage(named: "setting"),
+                               style: .plain,
+                               target: self,
+                               action: nil)
+    return item
   }()
   
   private lazy var propertyView: IssuePropertyView = {
@@ -83,15 +85,15 @@ class CreateIssueViewController: UIViewController {
   
   func setupView() {
     view.backgroundColor = UIColor.white
-    view.addSubview(topView)
-    topView.addSubview(settingButton)
+    view.addSubview(topBar)
+    topBar.setItems([propertyBarButtonItem], animated: true)
     view.addSubview(titleTextField)
     view.addSubview(commetTextView)
     view.addSubview(propertyView)
     view.addSubview(submitButton)
     view.addSubview(cancelButton)
     
-    topView.snp.makeConstraints { (make) in
+    topBar.snp.makeConstraints { (make) in
       make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
       make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
       make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
@@ -102,24 +104,18 @@ class CreateIssueViewController: UIViewController {
       make.centerX.equalToSuperview()
       make.height.equalTo(UIScreen.main.bounds.height / 20)
       make.width.equalTo(UIScreen.main.bounds.width * 2 / 3)
-      make.top.equalTo(topView.snp.bottom).offset(10)
+      make.top.equalTo(topBar.snp.bottom).offset(20)
     }
     
     commetTextView.snp.makeConstraints { (make) in
       make.centerX.left.right.equalTo(titleTextField)
-      make.top.equalTo(titleTextField.snp.bottom).offset(10)
-    }
-    
-    settingButton.snp.makeConstraints { (make) in
-      settingButton.sizeToFit()
-      make.right.equalTo(topView).offset(-10)
-      make.centerY.equalTo(topView)
+      make.top.equalTo(titleTextField.snp.bottom).offset(20)
     }
     
     submitButton.snp.makeConstraints { (make) in
       make.right.equalTo(commetTextView)
       make.height.equalTo(UIScreen.main.bounds.height / 20)
-      make.top.equalTo(commetTextView.snp.bottom).offset(10)
+      make.top.equalTo(commetTextView.snp.bottom).offset(20)
     }
     
     cancelButton.snp.makeConstraints { (make) in
@@ -141,7 +137,7 @@ class CreateIssueViewController: UIViewController {
       .disposed(by: bag)
     
     //세팅 탭하면 팝업
-    settingButton.rx.tap
+    propertyBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
@@ -189,7 +185,8 @@ class CreateIssueViewController: UIViewController {
       IssuePropertyViewController.createWith(viewModel: viewModel)
     issuePropertyViewController.modalPresentationStyle = .popover
     issuePropertyViewController.preferredContentSize =
-      CGSize(width: UIScreen.main.bounds.width - 20, height: UIScreen.main.bounds.height / 2)
+      CGSize(width: UIScreen.main.bounds.width - 20,
+             height: UIScreen.main.bounds.height / 2)
     let popOver = issuePropertyViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = view

@@ -123,6 +123,7 @@ class IssuePropertyView: UIView {
         return cell
       }
       .disposed(by: bag)
+    
     viewModel.assigneeItemsDict.asObservable()
       .map({ (dict) -> [AssigneeItem] in
         return Array(dict.values)

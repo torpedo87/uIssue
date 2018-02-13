@@ -75,7 +75,7 @@ class IssueDetailViewController: UIViewController {
     return view
   }()
   
-  private lazy var settingBarButtonItem: UIBarButtonItem = {
+  private lazy var propertyBarButtonItem: UIBarButtonItem = {
     let item = UIBarButtonItem(image: UIImage(named: "setting"),
                                style: .plain,
                                target: self,
@@ -114,7 +114,7 @@ class IssueDetailViewController: UIViewController {
   func setupView() {
     title = viewModel.issueDetail.value.title
     view.backgroundColor = UIColor.white
-    navigationItem.rightBarButtonItem = settingBarButtonItem
+    navigationItem.rightBarButtonItem = propertyBarButtonItem
     view.addSubview(titleTextView)
     view.addSubview(bodyTopLabel)
     view.addSubview(bodyTextView)
@@ -165,7 +165,7 @@ class IssueDetailViewController: UIViewController {
     }
     
     closeButton.snp.makeConstraints { (make) in
-      make.height.equalTo(titleTextView)
+      make.height.equalTo(UIScreen.main.bounds.height / 30)
       make.width.equalTo(150)
       make.right.equalTo(view.safeAreaLayoutGuide.snp.right).offset(-10)
       make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).offset(-10)
@@ -174,7 +174,7 @@ class IssueDetailViewController: UIViewController {
   
   func bindUI() {
     //세팅버튼 탭하면 팝업
-    settingBarButtonItem.rx.tap
+    propertyBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
       .drive(onNext: { [weak self] _ in
@@ -188,10 +188,10 @@ class IssueDetailViewController: UIViewController {
         self?.title = issue.title
         if issue.state == "closed" {
           self?.closeButton.setTitle("REOPEN ISSUE", for: UIControlState.normal)
-          self?.settingBarButtonItem.isEnabled = false
+          self?.propertyBarButtonItem.isEnabled = false
         } else {
           self?.closeButton.setTitle("CLOSE ISSUE", for: UIControlState.normal)
-          self?.settingBarButtonItem.isEnabled = true
+          self?.propertyBarButtonItem.isEnabled = true
         }
       }).disposed(by: bag)
     

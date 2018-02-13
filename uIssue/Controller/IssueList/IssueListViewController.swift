@@ -14,13 +14,13 @@ class IssueListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: IssueListViewViewModel!
   
-  private lazy var topBar: UIToolbar = {
+  private let topBar: UIToolbar = {
     let bar = UIToolbar(frame: CGRect.zero)
     return bar
   }()
 
   private lazy var stateButton: UIBarButtonItem = {
-    let item = UIBarButtonItem(title: "STATE",
+    let item = UIBarButtonItem(title: "STATE ▽",
                               style: UIBarButtonItemStyle.plain,
                               target: self,
                               action: nil)
@@ -28,7 +28,7 @@ class IssueListViewController: UIViewController {
   }()
   
   private lazy var sortButton: UIBarButtonItem = {
-    let item = UIBarButtonItem(title: "SORT",
+    let item = UIBarButtonItem(title: "SORT ▽",
                                style: UIBarButtonItemStyle.plain,
                                target: self,
                                action: nil)
@@ -36,7 +36,7 @@ class IssueListViewController: UIViewController {
   }()
   
   private let labelButton: UIBarButtonItem = {
-    let item = UIBarButtonItem(title: "LABEL",
+    let item = UIBarButtonItem(title: "LABEL ▽",
                                style: UIBarButtonItemStyle.plain,
                                target: self,
                                action: nil)

@@ -115,8 +115,11 @@ class LoginViewController: UIViewController {
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .flatMap { [weak self] _ -> Observable<AuthService.Status> in
-        (self?.viewModel.requestLogin(id: (self?.idTextField.text!)!,
-                                      password: (self?.passWordTextField.text!)!))!
+        if let id = self?.idTextField.text, let pwd = self?.passWordTextField.text {
+          return self?.viewModel.requestLogin(id: id, password: pwd)
+            ?? Observable.just(.unAuthorized("login error"))
+        }
+        return Observable.just(.unAuthorized("login error"))
       }
       .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("login error"))
       .drive(onNext: { [weak self] status in
