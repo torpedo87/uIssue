@@ -30,7 +30,9 @@ class Navigator {
     case .repoList:
       let vm = RepoListViewViewModel()
       let repoListVC = RepoListViewController.createWith(viewModel: vm)
-      show(target: UINavigationController(rootViewController: repoListVC),
+      let nav = UINavigationController(rootViewController: repoListVC)
+      nav.navigationBar.prefersLargeTitles = true
+      show(target: nav,
            sender: sender)
     case .issueList(let repoId):
       let vm = IssueListViewViewModel(repoId: repoId)

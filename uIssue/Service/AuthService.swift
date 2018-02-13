@@ -71,7 +71,7 @@ class AuthService: AuthServiceRepresentable {
           "scopes": [
             "public_repo"
           ],
-          "note": "admin uIssue"
+          "note": UUID().uuidString
         ]
         
         request.httpBody =

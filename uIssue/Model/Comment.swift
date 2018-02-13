@@ -25,16 +25,6 @@ struct Comment: Codable {
   static let test = Comment(id: 1, user: User.test, created_at: "1", body: "body")
 }
 
-struct IssueLabel: Codable {
-  let name: String
-  
-  init(name: String = "") {
-    self.name = name
-  }
-  
-  static let test = IssueLabel(name: "debug")
-}
-
 extension Comment: Equatable {
   static func ==(lhs: Comment, rhs: Comment) -> Bool {
     return lhs.id == rhs.id

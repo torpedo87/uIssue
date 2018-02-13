@@ -81,15 +81,20 @@ class IssueListViewViewModel {
     }
   }
   
-  func filterByLabel(label: IssueService.Label) {
-    let issueLabel = IssueLabel(name: label.rawValue)
+  func filterByLabels(labels: [IssueService.Label]) {
+    issueList.accept(rawIssueList.value.filter { $0.state == "open" })
+    
+    var issueLabels = [IssueLabel]()
+    for label in labels {
+      issueLabels.append(IssueLabel(name: label.rawValue))
+    }
+    
+    let issueLabelSet = Set(issueLabels)
     
     issueList.accept(issueList.value.filter {
-      $0.labels.contains(where: { (element) -> Bool in
-      return issueLabel.name == element.name
-    }) })
+      issueLabelSet.isSubset(of: Set($0.labels))
+    })
   }
-  
 }
 
 

@@ -43,7 +43,7 @@ class PopUpViewController: UIViewController {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.rowHeight = 50
+    view.rowHeight = UIScreen.main.bounds.height / 20
     return view
   }()
   
@@ -67,7 +67,10 @@ class PopUpViewController: UIViewController {
     view.addSubview(tableView)
     
     tableView.snp.makeConstraints { (make) in
-      make.edges.equalTo(view)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+      make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+      make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
     }
     
   }
@@ -92,16 +95,41 @@ class PopUpViewController: UIViewController {
     tableView.rx
       .itemSelected
       .subscribe(onNext: { [weak self] indexPath in
-        self?.tableView.deselectRow(at: indexPath, animated: true)
         switch (self?.popUpMode)! {
         case .state:
+          self?.tableView.allowsMultipleSelection = false
           self?.viewModel.filterByState(state: IssueService.State.arr[indexPath.row])
         case .sort:
+          self?.tableView.allowsMultipleSelection = false
           self?.viewModel.sortBySort(sort: IssueService.Sort.arr[indexPath.row])
         case .label:
-          self?.viewModel.filterByLabel(label: IssueService.Label.arr[indexPath.row])
+          self?.tableView.allowsMultipleSelection = true
+          var selectedLabels = [IssueService.Label]()
+          if let selectedIndexPaths = self?.tableView.indexPathsForSelectedRows {
+            for indexpath in selectedIndexPaths {
+              selectedLabels.append(IssueService.Label.arr[indexpath.row])
+            }
+          }
+          self?.viewModel.filterByLabels(labels: selectedLabels)
         }
-        self?.dismiss(animated: true, completion: nil)
+      })
+      .disposed(by: bag)
+    
+    tableView.rx
+      .itemDeselected
+      .subscribe(onNext: { [weak self] indexPath in
+        switch (self?.popUpMode)! {
+        case .label:
+          self?.tableView.allowsMultipleSelection = true
+          var selectedLabels = [IssueService.Label]()
+          if let selectedIndexPaths = self?.tableView.indexPathsForSelectedRows {
+            for indexpath in selectedIndexPaths {
+              selectedLabels.append(IssueService.Label.arr[indexpath.row])
+            }
+          }
+          self?.viewModel.filterByLabels(labels: selectedLabels)
+        default: break
+        }
       })
       .disposed(by: bag)
   }

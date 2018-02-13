@@ -17,7 +17,7 @@ class RepoListViewController: UIViewController {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.rowHeight = 50
+    view.rowHeight = UIScreen.main.bounds.height / 20
     return view
   }()
   
@@ -59,12 +59,14 @@ class RepoListViewController: UIViewController {
     view.addSubview(activityIndicator)
     
     tableView.snp.makeConstraints({ (make) in
-      make.left.right.bottom.equalToSuperview()
-      make.top.equalToSuperview().offset(50)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+      make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
+      make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
     })
     
     activityIndicator.snp.makeConstraints { (make) in
-      make.width.height.equalTo(100)
+      make.width.height.equalTo(UIScreen.main.bounds.height / 10)
       make.center.equalToSuperview()
     }
   }

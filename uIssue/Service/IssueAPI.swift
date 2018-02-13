@@ -9,6 +9,12 @@
 import Foundation
 import Moya
 
+private extension String {
+  var URLEscapedString: String {
+    return self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlHostAllowed)!
+  }
+}
+
 enum IssueAPI {
   
   case fetchAllIssues(
@@ -55,17 +61,17 @@ extension IssueAPI: TargetType {
     case .getUser():
       return "/user"
     case .createIssue(_, _, _, let repo, _):
-      return "/repos/\(repo.owner.login)/\(repo.name)/issues"
+      return "/repos/\(repo.owner.login.URLEscapedString)/\(repo.name.URLEscapedString)/issues"
     case .editIssue(_, _, _, let issue, _, let repo, _):
-      return "/repos/\(issue.user.login)/\(repo.name)/issues/\(issue.number)"
+      return "/repos/\(issue.user.login.URLEscapedString)/\(repo.name.URLEscapedString)/issues/\(issue.number)"
     case .fetchComments(let issue):
-      return "/repos/\(issue.user.login)/\(issue.repository!.name)/issues/\(issue.number)/comments"
+      return "/repos/\(issue.user.login.URLEscapedString)/\(issue.repository!.name.URLEscapedString)/issues/\(issue.number)/comments"
     case .createComment(let issue, _):
-      return "/repos/\(issue.repository!.owner.login)/\(issue.repository!.name)/issues/\(issue.number)/comments"
+      return "/repos/\(issue.repository!.owner.login.URLEscapedString)/\(issue.repository!.name.URLEscapedString)/issues/\(issue.number)/comments"
     case .editComment(let issue, let comment, _), .deleteComment(let issue, let comment):
-      return "/repos/\(issue.repository!.owner.login)/\(issue.repository!.name)/issues/comments/\(comment.id)"
+      return "/repos/\(issue.repository!.owner.login.URLEscapedString)/\(issue.repository!.name.URLEscapedString)/issues/comments/\(comment.id)"
     case .getAssignees(let repo):
-      return "/repos/\(repo.owner.login)/\(repo.name)/assignees"
+      return "/repos/\(repo.owner.login.URLEscapedString)/\(repo.name.URLEscapedString)/assignees"
     }
   }
   
