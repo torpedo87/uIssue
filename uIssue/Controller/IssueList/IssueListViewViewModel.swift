@@ -61,7 +61,7 @@ class IssueListViewViewModel {
       .disposed(by: bag)
   }
   
-  //이슈 필터링
+  //필터링
   func filterByState(state: IssueService.State) {
     if state == .all {
       issueList.accept(rawIssueList.value)
@@ -70,7 +70,7 @@ class IssueListViewViewModel {
     }
   }
   
-  //이슈 정렬
+  //정렬
   func sortBySort(sort: IssueService.Sort) {
     switch sort {
     case .created:
@@ -81,16 +81,14 @@ class IssueListViewViewModel {
     }
   }
   
+  //라벨
   func filterByLabels(labels: [IssueService.Label]) {
     issueList.accept(rawIssueList.value.filter { $0.state == "open" })
-    
     var issueLabels = [IssueLabel]()
     for label in labels {
       issueLabels.append(IssueLabel(name: label.rawValue))
     }
-    
     let issueLabelSet = Set(issueLabels)
-    
     issueList.accept(issueList.value.filter {
       issueLabelSet.isSubset(of: Set($0.labels))
     })

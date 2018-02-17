@@ -182,7 +182,8 @@ class CommentBoxView: UIView {
         
         let assignees = self?.viewModel.issueDetail.value.assignees
         let issueLabels = self?.viewModel.issueDetail.value.labels
-        let labels = IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels!)
+        let labels =
+          IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels!)
         switch (self?.contentsMode)! {
         case .issueBody: do {
           

@@ -8,22 +8,24 @@
 
 import Foundation
 
-struct LabelItem {
-  var label: IssueService.Label
-  var isChecked: Bool
+protocol Checkable {
+  var isChecked: Bool { get set }
   
-  mutating func setIsChecked(check: Bool) {
-    self.isChecked = check
-  }
-
+  mutating func setIsChecked(check: Bool)
 }
 
-struct AssigneeItem {
-  var user: User
-  var isChecked: Bool
-  
+extension Checkable {
   mutating func setIsChecked(check: Bool) {
     self.isChecked = check
   }
-  
+}
+
+struct LabelItem: Checkable {
+  var label: IssueService.Label
+  var isChecked: Bool
+}
+
+struct AssigneeItem: Checkable {
+  var user: User
+  var isChecked: Bool
 }

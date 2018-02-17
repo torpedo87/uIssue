@@ -31,7 +31,6 @@
 		48512A13202046DF00ECBF31 /* TestAPIMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A12202046DF00ECBF31 /* TestAPIMock.swift */; };
 		48512A1520204A4100ECBF31 /* LoginViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */; };
 		48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */; };
-		48512A1920204CAA00ECBF31 /* TestData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1820204CAA00ECBF31 /* TestData.swift */; };
 		48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */; };
 		48512A1F2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */; };
 		4896D51C2032C50800E73780 /* IssueLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4896D51B2032C50800E73780 /* IssueLabel.swift */; };
@@ -93,7 +92,6 @@
 		48512A12202046DF00ECBF31 /* TestAPIMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestAPIMock.swift; sourceTree = "<group>"; };
 		48512A1420204A4100ECBF31 /* LoginViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewViewModelTests.swift; sourceTree = "<group>"; };
 		48512A1620204BE600ECBF31 /* IssueListViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListViewViewModelTests.swift; sourceTree = "<group>"; };
-		48512A1820204CAA00ECBF31 /* TestData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestData.swift; sourceTree = "<group>"; };
 		48512A1A2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateIssueViewViewModelTests.swift; sourceTree = "<group>"; };
 		48512A1E2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueDetailViewViewModelTests.swift; sourceTree = "<group>"; };
 		4896D51B2032C50800E73780 /* IssueLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueLabel.swift; sourceTree = "<group>"; };
@@ -240,7 +238,6 @@
 			isa = PBXGroup;
 			children = (
 				48512A12202046DF00ECBF31 /* TestAPIMock.swift */,
-				48512A1820204CAA00ECBF31 /* TestData.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -658,7 +655,6 @@
 				48512A1B2021FE7A00ECBF31 /* CreateIssueViewViewModelTests.swift in Sources */,
 				48512A13202046DF00ECBF31 /* TestAPIMock.swift in Sources */,
 				48512A1F2022FA1100ECBF31 /* IssueDetailViewViewModelTests.swift in Sources */,
-				48512A1920204CAA00ECBF31 /* TestData.swift in Sources */,
 				48512A1720204BE600ECBF31 /* IssueListViewViewModelTests.swift in Sources */,
 				48512A1520204A4100ECBF31 /* LoginViewViewModelTests.swift in Sources */,
 			);
