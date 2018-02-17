@@ -72,8 +72,8 @@ class LoginViewController: UIViewController {
     idTextField.snp.makeConstraints({ (make) in
       make.centerX.equalToSuperview()
       make.centerY.equalToSuperview().offset(-100)
-      make.width.equalTo(UIScreen.main.bounds.height / 15)
-      make.height.equalTo(UIScreen.main.bounds.width / 2)
+      make.width.equalTo(UIScreen.main.bounds.width / 2)
+      make.height.equalTo(UIScreen.main.bounds.height / 15)
     })
     
     passWordTextField.snp.makeConstraints({ (make) in

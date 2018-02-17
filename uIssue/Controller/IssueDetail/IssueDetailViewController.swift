@@ -251,7 +251,8 @@ class IssueDetailViewController: UIViewController {
       IssuePropertyViewController.createWith(viewModel: viewModel)
     issuePropertyViewController.modalPresentationStyle = .popover
     issuePropertyViewController.preferredContentSize =
-      CGSize(width: UIScreen.main.bounds.width - 50, height: UIScreen.main.bounds.height / 2)
+      CGSize(width: UIScreen.main.bounds.width - 50,
+             height: UIScreen.main.bounds.height / 2)
     let popOver = issuePropertyViewController.popoverPresentationController
     popOver?.delegate = self
     popOver?.sourceView = view

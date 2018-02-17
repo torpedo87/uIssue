@@ -41,7 +41,11 @@ protocol IssueServiceRepresentable {
 class IssueService: IssueServiceRepresentable {
   private let bag = DisposeBag()
   private var tempIssueArr = [Issue]()
-  let provider = MoyaProvider<IssueAPI>()
+  var provider: MoyaProvider<IssueAPI>!
+  
+  init(provider: MoyaProvider<IssueAPI> = MoyaProvider<IssueAPI>()) {
+    self.provider = provider
+  }
   
   enum Filter: String {
     case assigned
@@ -157,7 +161,8 @@ class IssueService: IssueServiceRepresentable {
                    label: [Label], repo: Repository,
                    users: [User]) -> Observable<Issue> {
     return Observable.create({ (observer) -> Disposable in
-      self.provider.request(.createIssue(title: title, body: body, label: label, repo: repo, users: users)) { (result) in
+      self.provider.request(.createIssue(title: title, body: body, label: label,
+                                         repo: repo, users: users)) { (result) in
         switch result {
         case let .success(moyaResponse):
           let data = moyaResponse.data
@@ -185,7 +190,9 @@ class IssueService: IssueServiceRepresentable {
                  repo: Repository,
                  assignees: [User]) -> Observable<Issue> {
     return Observable.create({ (observer) -> Disposable in
-      self.provider.request(.editIssue(title: title, body: body, label: label, issue: issue, state: state, repo: repo, assignees: assignees)) { (result) in
+      self.provider.request(.editIssue(title: title, body: body, label: label,
+                                       issue: issue, state: state, repo: repo,
+                                       assignees: assignees)) { (result) in
         switch result {
         case let .success(moyaResponse):
           let data = moyaResponse.data
@@ -233,7 +240,8 @@ class IssueService: IssueServiceRepresentable {
   
   func createComment(issue: Issue, commentBody: String) -> Observable<Comment> {
     return Observable.create({ (observer) -> Disposable in
-      self.provider.request(.createComment(issue: issue, commentBody: commentBody)) { (result) in
+      self.provider.request(.createComment(issue: issue,
+                                           commentBody: commentBody)) { (result) in
         switch result {
         case let .success(moyaResponse):
           let data = moyaResponse.data
@@ -258,7 +266,9 @@ class IssueService: IssueServiceRepresentable {
   func editComment(issue: Issue, comment: Comment,
                    newCommentText: String) -> Observable<Comment> {
     return Observable.create({ (observer) -> Disposable in
-      self.provider.request(.editComment(issue: issue, comment: comment, newCommentText: newCommentText)) { (result) in
+      self.provider.request(.editComment(issue: issue,
+                                         comment: comment,
+                                         newCommentText: newCommentText)) { (result) in
         switch result {
         case let .success(moyaResponse):
           let data = moyaResponse.data
@@ -282,7 +292,8 @@ class IssueService: IssueServiceRepresentable {
   
   func deleteComment(issue: Issue, comment: Comment) -> Observable<Bool> {
     return Observable.create({ (observer) -> Disposable in
-      self.provider.request(.deleteComment(issue: issue, comment: comment)) { (result) in
+      self.provider.request(.deleteComment(issue: issue,
+                                           comment: comment)) { (result) in
         switch result {
         case let .success(moyaResponse):
           let statusCode = moyaResponse.statusCode
@@ -325,7 +336,6 @@ class IssueService: IssueServiceRepresentable {
     })
   }
   
-  //이것만 Moya를 적용하면 에러남
   func getAssignees(repo: Repository) -> Observable<[User]> {
     return Observable.create({ (observer) -> Disposable in
       self.provider.request(.getAssignees(repo: repo)) { (result) in

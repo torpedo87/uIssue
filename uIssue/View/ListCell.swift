@@ -28,13 +28,13 @@ class ListCell: UITableViewCell {
     addSubview(countLabel)
     
     titleLabel.snp.makeConstraints { (make) in
-      make.right.equalTo(countLabel.snp.left)
       make.left.equalTo(safeAreaLayoutGuide.snp.left).offset(10)
       make.top.equalTo(safeAreaLayoutGuide.snp.top)
       make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
     }
     countLabel.snp.makeConstraints { (make) in
       countLabel.sizeToFit()
+      make.left.equalTo(titleLabel.snp.right)
       make.right.equalTo(safeAreaLayoutGuide.snp.right)
       make.top.equalTo(safeAreaLayoutGuide.snp.top)
       make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)

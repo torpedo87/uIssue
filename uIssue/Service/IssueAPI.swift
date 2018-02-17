@@ -9,12 +9,6 @@
 import Foundation
 import Moya
 
-private extension String {
-  var URLEscapedString: String {
-    return self.addingPercentEncoding(withAllowedCharacters: CharacterSet.urlHostAllowed)!
-  }
-}
-
 enum IssueAPI {
   
   case fetchAllIssues(
@@ -40,8 +34,25 @@ enum IssueAPI {
 
 extension IssueAPI: TargetType {
   
+  //for test
   var sampleData: Data {
-    return Data()
+    let jsonEncoder = JSONEncoder()
+    switch self {
+    case .createComment(_, _), .editComment(_, _, _):
+      return try! jsonEncoder.encode(Comment.test)
+    case .createIssue(_, _, _, _, _), .editIssue(_, _, _, _, _, _, _):
+      return try! jsonEncoder.encode(Issue.test)
+    case .fetchAllIssues(_, _, _, _):
+      return try! jsonEncoder.encode([Issue.test])
+    case .fetchComments(_):
+      return try! jsonEncoder.encode([Comment.test])
+    case .getAssignees(_):
+      return try! jsonEncoder.encode([User.test])
+    case .getUser():
+      return try! jsonEncoder.encode(User.test)
+    case .deleteComment(_ , _):
+      return Data()
+    }
   }
   
   var headers: [String : String]? {
@@ -61,17 +72,17 @@ extension IssueAPI: TargetType {
     case .getUser():
       return "/user"
     case .createIssue(_, _, _, let repo, _):
-      return "/repos/\(repo.owner.login.URLEscapedString)/\(repo.name.URLEscapedString)/issues"
+      return "/repos/\(repo.owner.login)/\(repo.name)/issues"
     case .editIssue(_, _, _, let issue, _, let repo, _):
-      return "/repos/\(issue.user.login.URLEscapedString)/\(repo.name.URLEscapedString)/issues/\(issue.number)"
+      return "/repos/\(issue.user.login)/\(repo.name)/issues/\(issue.number)"
     case .fetchComments(let issue):
-      return "/repos/\(issue.user.login.URLEscapedString)/\(issue.repository!.name.URLEscapedString)/issues/\(issue.number)/comments"
+      return "/repos/\(issue.user.login)/\(issue.repository!.name)/issues/\(issue.number)/comments"
     case .createComment(let issue, _):
-      return "/repos/\(issue.repository!.owner.login.URLEscapedString)/\(issue.repository!.name.URLEscapedString)/issues/\(issue.number)/comments"
+      return "/repos/\(issue.repository!.owner.login)/\(issue.repository!.name)/issues/\(issue.number)/comments"
     case .editComment(let issue, let comment, _), .deleteComment(let issue, let comment):
-      return "/repos/\(issue.repository!.owner.login.URLEscapedString)/\(issue.repository!.name.URLEscapedString)/issues/comments/\(comment.id)"
+      return "/repos/\(issue.repository!.owner.login)/\(issue.repository!.name)/issues/comments/\(comment.id)"
     case .getAssignees(let repo):
-      return "/repos/\(repo.owner.login.URLEscapedString)/\(repo.name.URLEscapedString)/assignees"
+      return "/repos/\(repo.owner.login)/\(repo.name)/assignees"
     }
   }
   
@@ -122,4 +133,6 @@ extension IssueAPI: TargetType {
                                 encoding: JSONEncoding.default)
     }
   }
+  
 }
+
