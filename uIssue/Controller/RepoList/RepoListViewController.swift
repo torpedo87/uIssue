@@ -13,7 +13,7 @@ import RxCocoa
 class RepoListViewController: UIViewController {
   private let bag = DisposeBag()
   private var viewModel: RepoListViewViewModel!
-  private let tableView: UITableView = {
+  private lazy var tableView: UITableView = {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
@@ -73,7 +73,6 @@ class RepoListViewController: UIViewController {
   
   func bindUI() {
     
-    //completed 안돼서 계속 돌아감...
     viewModel.running.asDriver()
       .drive(activityIndicator.rx.isAnimating)
       .disposed(by: bag)
@@ -82,35 +81,35 @@ class RepoListViewController: UIViewController {
     logoutBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        Navigator.shared.show(destination: .setting, sender: self!)
+      .drive(onNext: { [unowned self] _ in
+        Navigator.shared.show(destination: .setting, sender: self)
       })
       .disposed(by: bag)
   }
   
   func bindTableView() {
     viewModel.repoList.asDriver()
-      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .drive(onNext: { [unowned self] _ in self.tableView.reloadData() })
       .disposed(by: bag)
     
     //datasource
     viewModel.repoList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: Repository) in
+        [unowned self] (tableView: UITableView, index: Int, element: Repository) in
         let cell =
           ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
-        cell.configureCell(viewModel: (self?.viewModel)!, index: index)
+        cell.configureCell(viewModel: self.viewModel, index: index)
         return cell
     }
     .disposed(by: bag)
     
     //delegate
     tableView.rx.itemSelected
-      .subscribe(onNext: { [weak self] indexPath in
-        self?.tableView.deselectRow(at: indexPath, animated: true)
-        let selectedRepo = self?.viewModel.repoList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueList(selectedRepo!.id),
-                              sender: self!)
+      .subscribe(onNext: { [unowned self] indexPath in
+        self.tableView.deselectRow(at: indexPath, animated: true)
+        let selectedRepo = self.viewModel.repoList.value[indexPath.row]
+        Navigator.shared.show(destination: .issueList(selectedRepo.id),
+                              sender: self)
       })
       .disposed(by: bag)
 

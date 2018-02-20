@@ -103,21 +103,8 @@ class CommentBoxView: UIView {
     cancelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        switch (self?.contentsMode)! {
-        case .issueBody: do {
-          self?.commentTextView.text = self?.viewModel.issueDetail.value.body
-          }
-        case .commentBody: do {
-          self?.commentTextView.text = self?.comment?.body
-          }
-        case .newCommentBody: do {
-          self?.commentTextView.text = ""
-          }
-        case .issueTitle:
-          self?.commentTextView.text = self?.issue?.title
-        }
-        self?.mode.accept(.normal)
+      .drive(onNext: { [unowned self] _ in
+        self.cancelWithMode(mode: self.contentsMode)
       })
       .disposed(by: bag)
     
@@ -125,52 +112,28 @@ class CommentBoxView: UIView {
     deleteButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<Bool> in
-        if let issue = self?.viewModel.issueDetail.value {
-          let issueState =
-            IssueService().transformStrToState(stateString: issue.state)
-          let issueLabel =
-            IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
-          switch (self?.contentsMode)! {
-          case .issueBody: do {
-            return (self?.viewModel.editIssue(state: issueState!,
-                                              newTitleText: issue.title,
-                                              newBodyText: "",
-                                              label: issueLabel,
-                                              assignees: issue.assignees))!
-            }
-          case .commentBody: do {
-            return (self?.viewModel.deleteComment(existingComment: (self?.comment)!))!
-            }
-          default: do {
-            return Observable.just(false)
-            }
-          }
-        } else {
-          return Observable.just(false)
-        }
-    }.asDriver(onErrorJustReturn: false)
-      .drive(onNext: { [weak self] bool in
+      .flatMap { [unowned self] _ -> Observable<Bool> in
+        self.deleteWithMode(mode: self.contentsMode)
+      }.asDriver(onErrorJustReturn: false)
+      .drive(onNext: { [unowned self] bool in
         if bool {
-          switch (self?.contentsMode)! {
-          case .issueBody: do {
-            self?.commentTextView.text = ""
-            }
-          case .newCommentBody: do {
-            self?.commentTextView.text = ""
-            }
+          switch (self.contentsMode)! {
+          case .issueBody:
+            self.commentTextView.text = ""
+          case .newCommentBody:
+            self.commentTextView.text = ""
           default: break
           }
         }
       })
-    .disposed(by: bag)
+      .disposed(by: bag)
     
     //편집버튼 탭
     editButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.mode.accept(.edit)
+      .drive(onNext: { [unowned self] _ in
+        self.mode.accept(.edit)
       })
       .disposed(by: bag)
     
@@ -178,45 +141,16 @@ class CommentBoxView: UIView {
     saveButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .observeOn(MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<Bool> in
-        
-        let assignees = self?.viewModel.issueDetail.value.assignees
-        let issueLabels = self?.viewModel.issueDetail.value.labels
-        let labels =
-          IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels!)
-        switch (self?.contentsMode)! {
-        case .issueBody: do {
-          
-          return (self?.viewModel.editIssue(state: .open,
-                                            newTitleText: (self?.issue)!.title,
-                                            newBodyText: (self?.commentTextView.text)!,
-                                            label: labels,
-                                            assignees: assignees!))!
-          }
-        case .commentBody: do {
-          return (self?.viewModel.editComment(existingComment: (self?.comment)!,
-                                              newCommentText: (self?.commentTextView.text)!))!
-          }
-        case .newCommentBody: do {
-          return (self?.viewModel.createComment(newCommentBody: (self?.commentTextView.text)!))!
-          }
-        case .issueTitle:
-          return (self?.viewModel.editIssue(state: .open,
-                                            newTitleText: (self?.commentTextView.text)!,
-                                            newBodyText: (self?.issue)!.body!,
-                                            label: labels,
-                                            assignees: assignees!))!
-        }
+      .flatMap { [unowned self] _ -> Observable<Bool> in
+        self.saveWithMode(mode: self.contentsMode)
       }.asDriver(onErrorJustReturn: false)
-      .drive(onNext: { [weak self] (success) in
+      .drive(onNext: { [unowned self] (success) in
         if success {
-          switch (self?.contentsMode)! {
-          case .newCommentBody: do {
-            self?.commentTextView.text = ""
-            }
-          default: do {
-            self?.mode.accept(.normal)
-            }
+          switch (self.contentsMode)! {
+          case .newCommentBody:
+            self.commentTextView.text = ""
+          default:
+            self.mode.accept(.normal)
           }
         }
       })
@@ -225,56 +159,125 @@ class CommentBoxView: UIView {
     
     //edit or normal
     mode.asDriver()
-      .drive(onNext: { [weak self] modeValue in
-        switch modeValue {
-        case .edit: do {
-          self?.commentTextView.isUserInteractionEnabled = true
-          self?.commentTextView.backgroundColor = UIColor(hex: "FCFCA8")
-          self?.editButton.isHidden = true
-          self?.deleteButton.isHidden = true
-          self?.saveButton.isHidden = false
-          self?.cancelButton.isHidden = false
-          }
-        case .normal: do {
-          self?.commentTextView.isUserInteractionEnabled = false
-          self?.commentTextView.backgroundColor = UIColor.white
-          self?.editButton.isHidden = false
-          self?.deleteButton.isHidden = false
-          self?.saveButton.isHidden = true
-          self?.cancelButton.isHidden = true
-          }
-        }
+      .drive(onNext: { [unowned self] modeValue in
+        self.configureWithMode(modeValue: modeValue)
       })
       .disposed(by: bag)
     
+    configureWithContentsMode(mode: contentsMode)
+  }
+  
+  private func cancelWithMode(mode: Contents) {
+    switch mode {
+    case .issueBody:
+      self.commentTextView.text = self.viewModel.issueDetail.value.body
+    case .commentBody:
+      self.commentTextView.text = self.comment?.body
+    case .newCommentBody:
+      self.commentTextView.text = ""
+    case .issueTitle:
+      self.commentTextView.text = self.issue?.title
+    }
+    self.mode.accept(.normal)
+  }
+  
+  private func deleteWithMode(mode: Contents) -> Observable<Bool> {
+    let issue = viewModel.issueDetail.value
+    let issueState =
+      IssueService().transformStrToState(stateString: issue.state)
+    let issueLabel =
+      IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
+    switch self.contentsMode {
+    case .issueBody:
+      return self.viewModel.editIssue(state: issueState!,
+                                        newTitleText: issue.title,
+                                        newBodyText: "",
+                                        label: issueLabel,
+                                        assignees: issue.assignees)
+    case .commentBody:
+      return self.viewModel.deleteComment(existingComment: self.comment!)
+      
+    default:
+      return Observable.just(false)
+    }
     
-    switch contentsMode! {
-    case .commentBody: do {
+  }
+  
+  private func saveWithMode(mode: Contents) -> Observable<Bool> {
+    let assignees = self.viewModel.issueDetail.value.assignees
+    let issueLabels = self.viewModel.issueDetail.value.labels
+    let labels =
+      IssueService().transformIssueLabelToLabel(issueLabelArr: issueLabels)
+    switch mode {
+    case .issueBody:
+      return self.viewModel.editIssue(state: .open,
+                                      newTitleText: self.issue!.title,
+                                      newBodyText: self.commentTextView.text,
+                                      label: labels,
+                                      assignees: assignees)
+      
+    case .commentBody:
+      return self.viewModel.editComment(existingComment: self.comment!,
+                                        newCommentText: self.commentTextView.text)
+      
+    case .newCommentBody:
+      return self.viewModel.createComment(newCommentBody: self.commentTextView.text)
+      
+    case .issueTitle:
+      return self.viewModel.editIssue(state: .open,
+                                      newTitleText: self.commentTextView.text,
+                                      newBodyText: self.issue!.body ?? "",
+                                      label: labels,
+                                      assignees: assignees)
+    }
+  }
+  
+  private func configureWithContentsMode(mode: Contents) {
+    switch mode {
+    case .commentBody:
       let imgUrl = URL(string: self.comment!.user.avatar_url)
       self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = self.comment!.user.login
       self.commentTextView.text = self.comment!.body
-      }
-    case .issueBody: do {
+      
+    case .issueBody:
       let imgUrl = URL(string: self.issue!.user.avatar_url)
       self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = self.issue!.user.login
       self.commentTextView.text = self.issue!.body
-      }
-    case .newCommentBody: do {
+      
+    case .newCommentBody:
       let me = Me.shared.getUser()
       let imgUrl = URL(string: me!.avatar_url)
       self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = me!.login
       self.commentTextView.text = ""
-      }
-    case .issueTitle: do {
+      
+    case .issueTitle:
       let me = Me.shared.getUser()
       let imgUrl = URL(string: me!.avatar_url)
       self.avatarImageView.kf.setImage(with: imgUrl)
       self.userLabel.text = me!.login
       self.commentTextView.text = self.issue!.title
-      }
+    }
+  }
+  
+  private func configureWithMode(modeValue: Mode) {
+    switch modeValue {
+    case .edit:
+      self.commentTextView.isUserInteractionEnabled = true
+      self.commentTextView.backgroundColor = UIColor(hex: "FCFCA8")
+      self.editButton.isHidden = true
+      self.deleteButton.isHidden = true
+      self.saveButton.isHidden = false
+      self.cancelButton.isHidden = false
+    case .normal:
+      self.commentTextView.isUserInteractionEnabled = false
+      self.commentTextView.backgroundColor = UIColor.white
+      self.editButton.isHidden = false
+      self.deleteButton.isHidden = false
+      self.saveButton.isHidden = true
+      self.cancelButton.isHidden = true
     }
   }
   

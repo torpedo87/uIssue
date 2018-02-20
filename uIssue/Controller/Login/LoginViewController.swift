@@ -14,9 +14,15 @@ class LoginViewController: UIViewController {
   
   private let bag = DisposeBag()
   private var viewModel: LoginViewViewModel!
+  private let imgView: UIImageView = {
+    let view = UIImageView()
+    view.image = UIImage(named: "issue")
+    view.contentMode = .scaleAspectFill
+    return view
+  }()
   private let idTextField: UITextField = {
     let txtField = UITextField()
-    txtField.placeholder = "please enter id"
+    txtField.placeholder = "Please enter your GitHub ID"
     txtField.layer.borderColor = UIColor.blue.cgColor
     txtField.layer.borderWidth = 0.5
     return txtField
@@ -24,7 +30,7 @@ class LoginViewController: UIViewController {
   
   private let passWordTextField: UITextField = {
     let txtField = UITextField()
-    txtField.placeholder = "please enter password"
+    txtField.placeholder = "Please enter your password"
     txtField.layer.borderColor = UIColor.blue.cgColor
     txtField.isSecureTextEntry = true
     txtField.layer.borderWidth = 0.5
@@ -33,19 +39,18 @@ class LoginViewController: UIViewController {
   
   private let loginBtn: UIButton = {
     let btn = UIButton()
-    btn.setTitle("Login", for: UIControlState.normal)
+    btn.setTitle("Login", for: .normal)
     btn.isEnabled = false
-    btn.setTitleColor(UIColor.blue, for: UIControlState.normal)
-    btn.setTitleColor(UIColor.gray, for: UIControlState.disabled)
+    btn.setTitleColor(UIColor.blue, for: .normal)
+    btn.setTitleColor(UIColor.gray, for: .disabled)
     return btn
   }()
   
-  private let messageLabel: UILabel = {
-    let label = UILabel()
-    label.isHidden = true
-    label.sizeToFit()
-    label.textAlignment = .center
-    return label
+  private let gitHubBtn: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("Forget your password?", for: .normal)
+    btn.setTitleColor(UIColor.blue, for: .normal)
+    return btn
   }()
   
   static func createWith(viewModel: LoginViewViewModel) -> LoginViewController {
@@ -64,15 +69,22 @@ class LoginViewController: UIViewController {
   func setupView() {
     title = "Login"
     view.backgroundColor = UIColor.white
+    view.addSubview(imgView)
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
     view.addSubview(loginBtn)
-    view.addSubview(messageLabel)
+    view.addSubview(gitHubBtn)
+    
+    imgView.snp.makeConstraints { (make) in
+      make.centerX.equalToSuperview()
+      make.width.height.equalTo(UIScreen.main.bounds.height / 4)
+      make.bottom.equalTo(idTextField.snp.top).offset(-10)
+    }
     
     idTextField.snp.makeConstraints({ (make) in
       make.centerX.equalToSuperview()
       make.centerY.equalToSuperview().offset(-100)
-      make.width.equalTo(UIScreen.main.bounds.width / 2)
+      make.width.equalTo(UIScreen.main.bounds.width * 2 / 3)
       make.height.equalTo(UIScreen.main.bounds.height / 15)
     })
     
@@ -88,11 +100,11 @@ class LoginViewController: UIViewController {
       make.top.equalTo(passWordTextField.snp.bottom).offset(10)
     })
     
-    messageLabel.snp.makeConstraints({ (make) in
+    gitHubBtn.snp.makeConstraints { (make) in
+      gitHubBtn.sizeToFit()
       make.centerX.equalToSuperview()
       make.top.equalTo(loginBtn.snp.bottom).offset(10)
-      make.width.height.equalTo(passWordTextField)
-    })
+    }
   }
   
   func bindUI() {
@@ -114,32 +126,42 @@ class LoginViewController: UIViewController {
     //로그인 버튼클릭시 토큰 요청해서 성공하면 화면이동, 실패시 에러메시지
     loginBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<AuthService.Status> in
-        if let id = self?.idTextField.text, let pwd = self?.passWordTextField.text {
-          return self?.viewModel.requestLogin(id: id, password: pwd)
-            ?? Observable.just(.unAuthorized("login error"))
+      .flatMap { [unowned self] _ -> Observable<AuthService.Status> in
+        if let id = self.idTextField.text, let pwd = self.passWordTextField.text {
+          return self.viewModel.requestLogin(id: id, password: pwd)
         }
         return Observable.just(.unAuthorized("login error"))
       }
       .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("login error"))
-      .drive(onNext: { [weak self] status in
+      .drive(onNext: { [unowned self] status in
         switch status {
         case .authorized: do {
-          Navigator.shared.show(destination: .repoList, sender: self!)
+          Navigator.shared.show(destination: .repoList, sender: self)
           }
-        case .unAuthorized(let value): self?.showErrorMsg(message: value)
+        case .unAuthorized(let value): self.showErrorMsg(message: value)
         }
       })
       .disposed(by: bag)
     
+    gitHubBtn.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { _ in
+        if let url = URL(string: "https://github.com/password_reset") {
+          UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+      })
+      .disposed(by: bag)
   }
   
   func showErrorMsg(message: String) {
-    messageLabel.text = message
-    messageLabel.isHidden = false
-    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
-      self.messageLabel.isHidden = true
-    }
+    let alert = UIAlertController(title: "Login Failed",
+                                  message: message,
+                                  preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK",
+                                  style: .default,
+                                  handler: nil))
+    self.present(alert, animated: true, completion: nil)
   }
   
 }

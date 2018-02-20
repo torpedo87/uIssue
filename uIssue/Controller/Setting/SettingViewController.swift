@@ -62,7 +62,7 @@ class SettingViewController: UIViewController {
   }
   
   func setupView() {
-    title = "Setting"
+    title = "LOGOUT"
     view.backgroundColor = UIColor.white
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
@@ -114,15 +114,15 @@ class SettingViewController: UIViewController {
     //로그아웃 성공하면 화면이동, 싪패시 에러메시지
     logoutBtn.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<AuthService.Status> in
-        (self?.viewModel.requestLogout(id: (self?.idTextField.text)!,
-                                       password: (self?.passWordTextField.text)!))!
+      .flatMap { [unowned self] _ -> Observable<AuthService.Status> in
+        self.viewModel.requestLogout(id: self.idTextField.text ?? "",
+                                     password: self.passWordTextField.text ?? "")
       }
       .asDriver(onErrorJustReturn: AuthService.Status.unAuthorized("logout error"))
-      .drive(onNext: { [weak self] status in
+      .drive(onNext: { [unowned self] status in
         switch status {
         case .authorized: Navigator.shared.unwindTo(target: SplashViewController())
-        case .unAuthorized(let value): self?.showErrorMsg(message: value)
+        case .unAuthorized(let value): self.showErrorMsg(message: value)
         }
       })
       .disposed(by: bag)

@@ -20,6 +20,7 @@ class IssueDetailViewViewModel: PropertySettable {
   private let issueApi: IssueServiceRepresentable
   
   //output
+  let running = LocalDataManager.shared.running
   let issueDetail = BehaviorRelay<Issue>(value: Issue())
   let commentList = BehaviorRelay<[Comment]>(value: [])
   let labelItemsDict =
@@ -55,6 +56,11 @@ class IssueDetailViewViewModel: PropertySettable {
     
     //이슈로부터 코멘트 가져와 바인딩
     issueDetail.asDriver()
+      .do(onNext: { [unowned self] issue in
+        if issue.isCommentsFetched == nil {
+          self.requestFetchComments()
+        }
+      })
       .map { (issue) -> [Comment] in
         if let _ = issue.commentsDic {
           return Array(issue.commentsDic!.values)
@@ -67,7 +73,7 @@ class IssueDetailViewViewModel: PropertySettable {
     
     //로컬에서 레퍼지토리의 assignees 가져오기
     LocalDataManager.shared.getProvider()
-      .map({ [weak self] (dict) -> [String:AssigneeItem] in
+      .map({ [unowned self] (dict) -> [String:AssigneeItem] in
         let repo = dict[repoId]
         var users = [User]()
         if let _ = repo?.assigneesDic {
@@ -76,11 +82,7 @@ class IssueDetailViewViewModel: PropertySettable {
         let itemDict =
           IssuePropertyItemService().changeAssigneeArrToDict(arr: users)
         if let assignees = repo?.issuesDic![issueId]?.assignees {
-          if let userDict = self?.itemCheck(assignees: assignees, dict: itemDict) {
-            return userDict
-          } else {
-            return [String:AssigneeItem]()
-          }
+          return self.itemCheck(assignees: assignees, dict: itemDict)
         }
         return [String:AssigneeItem]()
       })
@@ -90,13 +92,13 @@ class IssueDetailViewViewModel: PropertySettable {
     
     //로컬로부터 이슈의 기존라벨 바인딩
     LocalDataManager.shared.getProvider()
-      .map { [weak self] (dict) -> [String:LabelItem] in
+      .map { [unowned self] (dict) -> [String:LabelItem] in
         let allLabels = IssueService.Label.arr
         let itemDict =
           IssuePropertyItemService().changeLabelArrToDict(arr: allLabels)
         if let issueDict = dict[repoId]?.issuesDic {
           if let issueLabels = issueDict[issueId]?.labels {
-            return (self?.itemCheck(issueLabels: issueLabels, dict: itemDict))!
+            return self.itemCheck(issueLabels: issueLabels, dict: itemDict)
           } else {
             return [String:LabelItem]()
           }
@@ -115,9 +117,9 @@ class IssueDetailViewViewModel: PropertySettable {
   func requestFetchComments() {
     issueApi.fetchComments(issue: issueDetail.value)
       .asDriver(onErrorJustReturn: [])
-      .drive(onNext: { [weak self] (comments) in
-        LocalDataManager.shared.fetchComments(repoId: (self?.repoId)!,
-                                              issue: (self?.issueDetail.value)!,
+      .drive(onNext: { [unowned self] (comments) in
+        LocalDataManager.shared.fetchComments(repoId: self.repoId,
+                                              issue: self.issueDetail.value,
                                               comments: comments)
       })
       .disposed(by: bag)
@@ -138,15 +140,15 @@ class IssueDetailViewViewModel: PropertySettable {
                               state: state,
                               repo: selectedRepo,
                               assignees: assignees)
-      .map({ [weak self] (editedIssue) -> Bool in
+      .map({ [unowned self] (editedIssue) -> Bool in
         if editedIssue.id != -1 {
           switch state {
           case .closed: do {
-            LocalDataManager.shared.closeIssue(repoId: (self?.repoId)!,
+            LocalDataManager.shared.closeIssue(repoId: self.repoId,
                                                existingIssue: editedIssue)
             }
           default: do {
-            LocalDataManager.shared.editIssue(repoId: (self?.repoId)!,
+            LocalDataManager.shared.editIssue(repoId: self.repoId,
                                               newIssue: editedIssue)
             }
           }
@@ -236,5 +238,9 @@ class IssueDetailViewViewModel: PropertySettable {
       tempDict[label.rawValue]?.setIsChecked(check: true)
     }
     return tempDict
+  }
+  
+  func refreshData() {
+    LocalDataManager.shared.bindOutput()
   }
 }

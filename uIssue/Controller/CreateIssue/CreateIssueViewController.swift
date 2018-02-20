@@ -140,32 +140,32 @@ class CreateIssueViewController: UIViewController {
     propertyBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.presentPropertyViewController()
+      .drive(onNext: { [unowned self] _ in
+        self.presentPropertyViewController()
       })
       .disposed(by: bag)
     
     //버튼 클릭시 새이슈생성 요청해서 성공하면 화면 dismiss
     submitButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<Bool> in
+      .flatMap { [unowned self] _ -> Observable<Bool> in
         let checkedLabelItems =
-          Array((self?.viewModel)!.labelItemsDict.value
+          Array(self.viewModel.labelItemsDict.value
             .filter { $0.value.isChecked }.values)
         let checkedLabels = checkedLabelItems.map { $0.label }
         let checkedAssigneeItems =
-          Array((self?.viewModel)!.assigneeItemsDict.value
+          Array(self.viewModel.assigneeItemsDict.value
             .filter { $0.value.isChecked }.values)
         let checkedUsers = checkedAssigneeItems.map{ $0.user }
-        return (self?.viewModel.createIssue(title: (self?.titleTextField.text)!,
-                                            newComment: (self?.commetTextView.text)!,
+        return self.viewModel.createIssue(title: self.titleTextField.text ?? "",
+                                            newComment: self.commetTextView.text,
                                             label: checkedLabels,
-                                            users: checkedUsers))!
+                                            users: checkedUsers)
       }
       .observeOn(MainScheduler.instance)
-      .bind { [weak self] (success) in
+      .bind { [unowned self] (success) in
         if success {
-          self?.dismiss(animated: true, completion: nil)
+          self.dismiss(animated: true, completion: nil)
         }
       }.disposed(by: bag)
     
@@ -173,8 +173,8 @@ class CreateIssueViewController: UIViewController {
     cancelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.dismiss(animated: true, completion: nil)
+      .drive(onNext: { [unowned self] _ in
+        self.dismiss(animated: true, completion: nil)
       })
       .disposed(by: bag)
     

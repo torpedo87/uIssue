@@ -43,12 +43,26 @@ class IssueListViewController: UIViewController {
     return item
   }()
   
-  private let tableView: UITableView = {
+  private let searchBar: UISearchBar = {
+    let bar = UISearchBar()
+    bar.showsCancelButton = true
+    return bar
+  }()
+  
+  private lazy var tableView: UITableView = {
     let view = UITableView()
+    view.refreshControl = refreshControl
+    view.tableHeaderView = searchBar
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
     view.rowHeight = UIScreen.main.bounds.height / 20
     return view
+  }()
+  
+  private let refreshControl: UIRefreshControl = {
+    let control = UIRefreshControl()
+    control.tintColor = UIColor.red
+    return control
   }()
   
   private lazy var addBarButtonItem: UIBarButtonItem = {
@@ -57,6 +71,20 @@ class IssueListViewController: UIViewController {
                       target: self,
                       action: nil)
     return item
+  }()
+  
+  private let bottomView: UIView = {
+    let view = UIView()
+    view.backgroundColor = UIColor.white
+    return view
+  }()
+  
+  private let bottomLabel: UILabel = {
+    let label = UILabel()
+    label.backgroundColor = UIColor.white
+    label.textAlignment = .center
+    label.textColor = UIColor.black
+    return label
   }()
   
   static func createWith(
@@ -81,6 +109,8 @@ class IssueListViewController: UIViewController {
     view.addSubview(topBar)
     topBar.setItems([stateButton, sortButton, labelButton], animated: true)
     view.addSubview(tableView)
+    view.addSubview(bottomView)
+    bottomView.addSubview(bottomLabel)
     
     topBar.snp.makeConstraints { (make) in
       make.top.equalTo(view.safeAreaLayoutGuide.snp.top)
@@ -93,9 +123,22 @@ class IssueListViewController: UIViewController {
       make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
       make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
       make.top.equalTo(topBar.snp.bottom)
-      make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+      make.bottom.equalTo(bottomView.snp.top)
     })
+    searchBar.sizeToFit()
     
+    bottomView.snp.makeConstraints { (make) in
+      make.height.equalTo(UIScreen.main.bounds.height / 20)
+      make.left.equalTo(view.safeAreaLayoutGuide.snp.left)
+      make.right.equalTo(view.safeAreaLayoutGuide.snp.right)
+      make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+    }
+    
+    bottomLabel.snp.makeConstraints { (make) in
+      make.center.equalTo(bottomView)
+      make.top.bottom.equalTo(bottomView)
+      make.width.equalTo(200)
+    }
   }
   
   func bindUI() {
@@ -104,8 +147,8 @@ class IssueListViewController: UIViewController {
     stateButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.presentPopUp(sender: (self?.stateButton)!, mode: .state)
+      .drive(onNext: { [unowned self] _ in
+        self.presentPopUp(sender: self.stateButton, mode: .state)
       })
       .disposed(by: bag)
     
@@ -113,8 +156,8 @@ class IssueListViewController: UIViewController {
     sortButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.presentPopUp(sender: (self?.sortButton)!, mode: .sort)
+      .drive(onNext: { [unowned self] _ in
+        self.presentPopUp(sender: self.sortButton, mode: .sort)
       })
       .disposed(by: bag)
     
@@ -122,8 +165,8 @@ class IssueListViewController: UIViewController {
     labelButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.presentPopUp(sender: (self?.labelButton)!, mode: .label)
+      .drive(onNext: { [unowned self] _ in
+        self.presentPopUp(sender: self.labelButton, mode: .label)
       })
       .disposed(by: bag)
     
@@ -131,26 +174,64 @@ class IssueListViewController: UIViewController {
     addBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        let repoId = self?.viewModel.repoId
+      .drive(onNext: { [unowned self] _ in
+        let repoId = self.viewModel.repoId
         Navigator.shared.show(destination: .createIssue(repoId!),
-                              sender: self!)
+                              sender: self)
+      })
+      .disposed(by: bag)
+    
+    refreshControl.rx.controlEvent(.valueChanged)
+      .asDriver()
+      .drive(onNext: { [unowned self] _ in
+        self.viewModel.refreshData()
+      })
+      .disposed(by: bag)
+    
+    viewModel.running.asDriver()
+      .do(onNext: { bool in
+        if !bool {
+          self.bottomLabel.text = "Updated at " + self.getCurrentTime()
+        }
+      })
+      .drive(refreshControl.rx.isRefreshing)
+      .disposed(by: bag)
+    
+    searchBar.rx.cancelButtonClicked
+      .asDriver()
+      .drive(onNext: { [unowned self] in
+        self.searchBar.resignFirstResponder()
+      })
+      .disposed(by: bag)
+    
+    searchBar.rx.searchButtonClicked
+      .asDriver()
+      .drive(onNext: { [unowned self] in
+        self.searchBar.resignFirstResponder()
+      })
+      .disposed(by: bag)
+    
+    searchBar.rx.text.orEmpty
+      .debounce(0.5, scheduler: MainScheduler.instance)
+      .distinctUntilChanged()
+      .subscribe(onNext: { [unowned self] query in
+        self.viewModel.filterByQuery(query: query)
       })
       .disposed(by: bag)
   }
   
   func bindTableView() {
     viewModel.issueList.asDriver()
-      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .drive(onNext: { [unowned self] _ in self.tableView.reloadData() })
       .disposed(by: bag)
     
     //datasource
     viewModel.issueList.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: Issue) in
+        [unowned self] (tableView: UITableView, index: Int, element: Issue) in
         let cell = ListCell(style: .default,
                             reuseIdentifier: ListCell.reuseIdentifier)
-        cell.configureCell(viewModel: (self?.viewModel)!, index: index)
+        cell.configureCell(viewModel: self.viewModel, index: index)
         return cell
       }
       .disposed(by: bag)
@@ -158,17 +239,17 @@ class IssueListViewController: UIViewController {
     //delegate
     tableView.rx
       .itemSelected
-      .subscribe(onNext: { [weak self] indexPath in
-        let repoId = self?.viewModel.repoId
-        self?.tableView.deselectRow(at: indexPath, animated: true)
-        let selectedIssue = self?.viewModel.issueList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueDetail(repoId!, selectedIssue!.id),
-                              sender: self!)
+      .subscribe(onNext: { [unowned self] indexPath in
+        let repoId = self.viewModel.repoId
+        self.tableView.deselectRow(at: indexPath, animated: true)
+        let selectedIssue = self.viewModel.issueList.value[indexPath.row]
+        Navigator.shared.show(destination: .issueDetail(repoId!, selectedIssue.id),
+                              sender: self)
       })
       .disposed(by: bag)
   }
   
-  func presentPopUp(sender: UIBarButtonItem, mode: PopUpViewController.PopUpMode) {
+  private func presentPopUp(sender: UIBarButtonItem, mode: PopUpViewController.PopUpMode) {
     let popUpViewController =
       PopUpViewController.createWith(viewModel: viewModel, mode: mode)
     popUpViewController.modalPresentationStyle = .popover
@@ -181,6 +262,11 @@ class IssueListViewController: UIViewController {
     present(popUpViewController, animated: true, completion: nil)
   }
   
+  private func getCurrentTime() -> String {
+    let dateFormatter = DateFormatter()
+    dateFormatter.timeStyle = .short
+    return dateFormatter.string(from: Date())
+  }
 }
 
 extension IssueListViewController: UIPopoverPresentationControllerDelegate {

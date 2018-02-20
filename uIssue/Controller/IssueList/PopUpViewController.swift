@@ -77,16 +77,16 @@ class PopUpViewController: UIViewController {
   
   func bindTableView() {
     list.asDriver()
-      .drive(onNext: { [weak self] _ in self?.tableView.reloadData() })
+      .drive(onNext: { [unowned self] _ in self.tableView.reloadData() })
       .disposed(by: bag)
     
     //datasource
     list.asObservable()
       .bind(to: tableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: String) in
+        [unowned self] (tableView: UITableView, index: Int, element: String) in
         let cell =
           ListCell(style: .default, reuseIdentifier: ListCell.reuseIdentifier)
-        cell.configureCell(list: (self?.list.value)!, index: index)
+        cell.configureCell(list: self.list.value, index: index)
         return cell
       }
       .disposed(by: bag)
@@ -94,40 +94,40 @@ class PopUpViewController: UIViewController {
     //delegate
     tableView.rx
       .itemSelected
-      .subscribe(onNext: { [weak self] indexPath in
-        switch (self?.popUpMode)! {
+      .subscribe(onNext: { [unowned self] indexPath in
+        switch self.popUpMode! {
         case .state:
-          self?.tableView.allowsMultipleSelection = false
-          self?.viewModel.filterByState(state: IssueService.State.arr[indexPath.row])
+          self.tableView.allowsMultipleSelection = false
+          self.viewModel.filterByState(state: IssueService.State.arr[indexPath.row])
         case .sort:
-          self?.tableView.allowsMultipleSelection = false
-          self?.viewModel.sortBySort(sort: IssueService.Sort.arr[indexPath.row])
+          self.tableView.allowsMultipleSelection = false
+          self.viewModel.sortBySort(sort: IssueService.Sort.arr[indexPath.row])
         case .label:
-          self?.tableView.allowsMultipleSelection = true
+          self.tableView.allowsMultipleSelection = true
           var selectedLabels = [IssueService.Label]()
-          if let selectedIndexPaths = self?.tableView.indexPathsForSelectedRows {
+          if let selectedIndexPaths = self.tableView.indexPathsForSelectedRows {
             for indexpath in selectedIndexPaths {
               selectedLabels.append(IssueService.Label.arr[indexpath.row])
             }
           }
-          self?.viewModel.filterByLabels(labels: selectedLabels)
+          self.viewModel.filterByLabels(labels: selectedLabels)
         }
       })
       .disposed(by: bag)
     
     tableView.rx
       .itemDeselected
-      .subscribe(onNext: { [weak self] indexPath in
-        switch (self?.popUpMode)! {
+      .subscribe(onNext: { [unowned self] indexPath in
+        switch self.popUpMode! {
         case .label:
-          self?.tableView.allowsMultipleSelection = true
+          self.tableView.allowsMultipleSelection = true
           var selectedLabels = [IssueService.Label]()
-          if let selectedIndexPaths = self?.tableView.indexPathsForSelectedRows {
+          if let selectedIndexPaths = self.tableView.indexPathsForSelectedRows {
             for indexpath in selectedIndexPaths {
               selectedLabels.append(IssueService.Label.arr[indexpath.row])
             }
           }
-          self?.viewModel.filterByLabels(labels: selectedLabels)
+          self.viewModel.filterByLabels(labels: selectedLabels)
         default: break
         }
       })

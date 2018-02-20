@@ -66,10 +66,16 @@ class IssueDetailViewController: UIViewController {
     commentBox.setEditMode()
     return commentBox
   }()
-
-  private let commentTableView: UITableView = {
+  
+  private let refreshControl: UIRefreshControl = {
+    let control = UIRefreshControl()
+    control.tintColor = UIColor.red
+    return control
+  }()
+  
+  private lazy var commentTableView: UITableView = {
     let view = UITableView()
-    view.tableFooterView = UIView()
+    view.refreshControl = refreshControl
     view.register(CommentCell.self,
                   forCellReuseIdentifier: CommentCell.reuseIdentifier)
     return view
@@ -100,11 +106,6 @@ class IssueDetailViewController: UIViewController {
   
   override func viewDidLoad() {
     super.viewDidLoad()
-    
-    //코멘트 가져오는건 한번만
-    if viewModel.issueDetail.value.isCommentsFetched == nil {
-      viewModel.requestFetchComments()
-    }
     
     setupView()
     bindUI()
@@ -177,60 +178,69 @@ class IssueDetailViewController: UIViewController {
     propertyBarButtonItem.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
       .asDriver(onErrorJustReturn: ())
-      .drive(onNext: { [weak self] _ in
-        self?.presentPropertyViewController()
+      .drive(onNext: { [unowned self] _ in
+        self.presentPropertyViewController()
       })
       .disposed(by: bag)
     
     //이슈 상태에 따라서 버튼명 변경
     viewModel.issueDetail.asDriver()
-      .drive(onNext: { [weak self] issue in
-        self?.title = issue.title
+      .drive(onNext: { [unowned self] issue in
+        self.title = issue.title
         if issue.state == "closed" {
-          self?.closeButton.setTitle("REOPEN ISSUE", for: UIControlState.normal)
-          self?.propertyBarButtonItem.isEnabled = false
+          self.closeButton.setTitle("REOPEN ISSUE", for: UIControlState.normal)
+          self.propertyBarButtonItem.isEnabled = false
         } else {
-          self?.closeButton.setTitle("CLOSE ISSUE", for: UIControlState.normal)
-          self?.propertyBarButtonItem.isEnabled = true
+          self.closeButton.setTitle("CLOSE ISSUE", for: UIControlState.normal)
+          self.propertyBarButtonItem.isEnabled = true
         }
       }).disposed(by: bag)
     
     //close 탭시 이슈 상태 변경 요청해서 성공하면 화면 나가기
     closeButton.rx.tap
       .throttle(0.5, scheduler: MainScheduler.instance)
-      .flatMap { [weak self] _ -> Observable<Bool> in
-        if let issue = self?.viewModel.issueDetail.value {
-          let labels = IssueService().transformIssueLabelToLabel(
-            issueLabelArr: issue.labels)
-          if issue.state == "closed" {
-            return (self?.viewModel.editIssue(state: .open,
-                                              newTitleText: issue.title,
-                                              newBodyText: issue.body!,
-                                              label: labels,
-                                              assignees: issue.assignees))!
-          } else {
-            return (self?.viewModel.editIssue(state: .closed,
-                                              newTitleText: issue.title,
-                                              newBodyText: issue.body!,
-                                              label: labels,
-                                              assignees: issue.assignees))!
-          }
+      .flatMap { [unowned self] _ -> Observable<Bool> in
+        let issue = self.viewModel.issueDetail.value
+        let labels = IssueService().transformIssueLabelToLabel(
+          issueLabelArr: issue.labels)
+        if issue.state == "closed" {
+          return self.viewModel.editIssue(state: .open,
+                                            newTitleText: issue.title,
+                                            newBodyText: issue.body!,
+                                            label: labels,
+                                            assignees: issue.assignees)
+        } else {
+          return self.viewModel.editIssue(state: .closed,
+                                            newTitleText: issue.title,
+                                            newBodyText: issue.body!,
+                                            label: labels,
+                                            assignees: issue.assignees)
         }
-        return Observable.just(false)
+        
       }
       .observeOn(MainScheduler.instance)
-      .bind { [weak self] (success) in
+      .bind { [unowned self] (success) in
         if success {
-          self?.navigationController?.popViewController(animated: true)
+          self.navigationController?.popViewController(animated: true)
         }
       }.disposed(by: bag)
     
+    refreshControl.rx.controlEvent(.valueChanged)
+      .asDriver()
+      .drive(onNext: { [unowned self] _ in
+        self.viewModel.refreshData()
+      })
+      .disposed(by: bag)
+    
+    viewModel.running.asDriver()
+      .drive(refreshControl.rx.isRefreshing)
+      .disposed(by: bag)
   }
   
   func bindTableView() {
     viewModel.commentList.asDriver()
-      .drive(onNext: { [weak self] _ in
-        self?.commentTableView.reloadData()
+      .drive(onNext: { [unowned self] _ in
+        self.commentTableView.reloadData()
       })
       .disposed(by: bag)
     
@@ -238,8 +248,8 @@ class IssueDetailViewController: UIViewController {
     viewModel.commentList.asObservable()
       .observeOn(MainScheduler.instance)
       .bind(to: commentTableView.rx.items) {
-        [weak self] (tableView: UITableView, index: Int, element: Comment) in
-        let cell = CommentCell(comment: element, viewModel: (self?.viewModel)!)
+        [unowned self] (tableView: UITableView, index: Int, element: Comment) in
+        let cell = CommentCell(comment: element, viewModel: self.viewModel)
         return cell
       }
       .disposed(by: bag)

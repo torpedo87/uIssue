@@ -100,13 +100,13 @@ class IssuePropertyView: UIView {
   
   func bindTableView() {
     viewModel.labelItemsDict.asDriver()
-      .drive(onNext: { [weak self] _ in
-        self?.labelTableView.reloadData()
+      .drive(onNext: { [unowned self] _ in
+        self.labelTableView.reloadData()
       })
       .disposed(by: bag)
     viewModel.assigneeItemsDict.asDriver()
-      .drive(onNext: { [weak self] _ in
-        self?.assigneeTableView.reloadData()
+      .drive(onNext: { [unowned self] _ in
+        self.assigneeTableView.reloadData()
       })
       .disposed(by: bag)
     
@@ -140,31 +140,8 @@ class IssuePropertyView: UIView {
     labelTableView.rx
       .modelSelected(LabelItem.self)
       .observeOn(MainScheduler.instance)
-      .flatMap({ [weak self] model -> Observable<Bool> in
-        if let viewmodel = self?.viewModel as? IssueDetailViewViewModel {
-          let issue = viewmodel.issueDetail.value
-          var checkedDict =
-            self?.viewModel.labelItemsDict.value.filter{ $0.value.isChecked }
-          if model.isChecked {
-            checkedDict?.removeValue(forKey: model.label.rawValue)
-          } else {
-            checkedDict![model.label.rawValue] = model
-          }
-          let updatedLabels = Array(checkedDict!.values).map{ $0.label }
-          let state = IssueService().transformStrToState(stateString: issue.state)
-          return viewmodel.editIssue(state: state!,
-                                     newTitleText: issue.title,
-                                     newBodyText: issue.body ?? "",
-                                     label: updatedLabels,
-                                     assignees: issue.assignees)
-        } else {
-          let updatedDict
-            = IssuePropertyItemService().updateLabelWhenToggled(
-              dict: (self?.viewModel.labelItemsDict.value)!,
-              item: model)
-          self?.viewModel.labelItemsDict.accept(updatedDict)
-          return Observable.just(false)
-        }
+      .flatMap({ [unowned self] model -> Observable<Bool> in
+        self.editLabelWithModel(model: model)
       })
       .subscribe(onNext: { success in
         if success {
@@ -180,35 +157,8 @@ class IssuePropertyView: UIView {
     assigneeTableView.rx
       .modelSelected(AssigneeItem.self)
       .observeOn(MainScheduler.instance)
-      .flatMap({ [weak self] model -> Observable<Bool> in
-        if let viewmodel = self?.viewModel as? IssueDetailViewViewModel {
-          let issue = viewmodel.issueDetail.value
-          var checkedDict =
-            self?.viewModel.assigneeItemsDict.value.filter{ $0.value.isChecked }
-          
-          if model.isChecked {
-            checkedDict?.removeValue(forKey: model.user.login)
-          } else {
-            checkedDict![model.user.login] = model
-          }
-          
-          let updatedUsers = Array(checkedDict!.values).map{ $0.user }
-          let labels =
-            IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
-          let state = IssueService().transformStrToState(stateString: issue.state)
-          return viewmodel.editIssue(state: state!,
-                                     newTitleText: issue.title,
-                                     newBodyText: issue.body!,
-                                     label: labels,
-                                     assignees: updatedUsers)
-        } else {
-          let updatedDict =
-            IssuePropertyItemService().updateAssigneeWhenToggled(
-              dict: (self?.viewModel.assigneeItemsDict.value)!,
-              item: model)
-          self?.viewModel.assigneeItemsDict.accept(updatedDict)
-          return Observable.just(false)
-        }
+      .flatMap({ [unowned self] model -> Observable<Bool> in
+        self.editAssigneeWithModel(model: model)
       })
       .subscribe(onNext: { success in
         if success {
@@ -219,5 +169,63 @@ class IssuePropertyView: UIView {
       })
       .disposed(by: bag)
     
+  }
+  
+  private func editLabelWithModel(model: LabelItem) -> Observable<Bool> {
+    if let viewmodel = viewModel as? IssueDetailViewViewModel {
+      let issue = viewmodel.issueDetail.value
+      var checkedDict =
+        self.viewModel.labelItemsDict.value.filter{ $0.value.isChecked }
+      if model.isChecked {
+        checkedDict.removeValue(forKey: model.label.rawValue)
+      } else {
+        checkedDict[model.label.rawValue] = model
+      }
+      let updatedLabels = Array(checkedDict.values).map{ $0.label }
+      let state = IssueService().transformStrToState(stateString: issue.state)
+      return viewmodel.editIssue(state: state!,
+                                 newTitleText: issue.title,
+                                 newBodyText: issue.body ?? "",
+                                 label: updatedLabels,
+                                 assignees: issue.assignees)
+    } else {
+      let updatedDict
+        = IssuePropertyItemService().updateLabelWhenToggled(
+          dict: self.viewModel.labelItemsDict.value,
+          item: model)
+      self.viewModel.labelItemsDict.accept(updatedDict)
+      return Observable.just(false)
+    }
+  }
+  
+  private func editAssigneeWithModel(model: AssigneeItem) -> Observable<Bool> {
+    if let viewmodel = viewModel as? IssueDetailViewViewModel {
+      let issue = viewmodel.issueDetail.value
+      var checkedDict =
+        self.viewModel.assigneeItemsDict.value.filter{ $0.value.isChecked }
+      
+      if model.isChecked {
+        checkedDict.removeValue(forKey: model.user.login)
+      } else {
+        checkedDict[model.user.login] = model
+      }
+      
+      let updatedUsers = Array(checkedDict.values).map{ $0.user }
+      let labels =
+        IssueService().transformIssueLabelToLabel(issueLabelArr: issue.labels)
+      let state = IssueService().transformStrToState(stateString: issue.state)
+      return viewmodel.editIssue(state: state!,
+                                 newTitleText: issue.title,
+                                 newBodyText: issue.body!,
+                                 label: labels,
+                                 assignees: updatedUsers)
+    } else {
+      let updatedDict =
+        IssuePropertyItemService().updateAssigneeWhenToggled(
+          dict: self.viewModel.assigneeItemsDict.value,
+          item: model)
+      self.viewModel.assigneeItemsDict.accept(updatedDict)
+      return Observable.just(false)
+    }
   }
 }

@@ -32,16 +32,16 @@ class RepoListViewViewModel {
     
     //내 정보 받아오기 성공하면 내 이슈 몽땅 로컬로 가져오기
     statusDriver.asObservable()
-      .flatMap({ [weak self] (status) -> Observable<Bool> in
+      .flatMap({ [unowned self] (status) -> Observable<Bool> in
         if status == .authorized {
-          return (self?.issueApi)!.getUser()
+          return self.issueApi.getUser()
         }
         return Observable.just(false)
       })
       .asDriver(onErrorJustReturn: false)
-      .drive(onNext: { [weak self] bool in
+      .drive(onNext: { [unowned self] bool in
         if bool {
-          LocalDataManager.shared.bindOutput(issueApi: (self?.issueApi)!)
+          LocalDataManager.shared.bindOutput(issueApi: self.issueApi)
         }
       })
       .disposed(by: bag)

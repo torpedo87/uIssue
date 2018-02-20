@@ -21,12 +21,13 @@ class LocalDataManager {
   let running = BehaviorRelay<Bool>(value: true)
   
   //데이터 가져와서 바인딩
-  func bindOutput(issueApi: IssueServiceRepresentable) {
+  func bindOutput(issueApi: IssueServiceRepresentable = IssueService()) {
+    resultProvider.accept([Int:Repository]())
     IssueListFetcher().getAllData(issueApi: issueApi)
-      .do(onNext: { [weak self] _ in
-        self?.running.accept(true)
-      }, onCompleted: { [weak self] in
-        self?.running.accept(false)
+      .do(onNext: { [unowned self] _ in
+        self.running.accept(true)
+      }, onCompleted: { [unowned self] in
+        self.running.accept(false)
       })
       .bind(to: resultProvider)
       .disposed(by: bag)

@@ -25,15 +25,15 @@ class SplashViewController: UIViewController {
     //왜 드라이버를 사용하는 데에도 디스패치큐를 지정해줘야만 작동하지?
     AuthService().status
       .asDriver()
-      .drive(onNext: { [weak self] (status) in
+      .drive(onNext: { [unowned self] (status) in
         switch status {
         case .authorized:
           DispatchQueue.main.async {
-            Navigator.shared.show(destination: .repoList, sender: self!)
+            Navigator.shared.show(destination: .repoList, sender: self)
           }
         case .unAuthorized:
           DispatchQueue.main.async {
-            Navigator.shared.show(destination: .login, sender: self!)
+            Navigator.shared.show(destination: .login, sender: self)
           }
         }
       })

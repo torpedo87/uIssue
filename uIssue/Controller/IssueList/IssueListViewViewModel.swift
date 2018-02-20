@@ -18,6 +18,7 @@ class IssueListViewViewModel {
   //output
   let rawIssueList = BehaviorRelay<[Issue]>(value: [])
   let issueList = BehaviorRelay<[Issue]>(value: [])
+  let running = LocalDataManager.shared.running
   
   init(repoId: Int) {
     self.repoId = repoId
@@ -92,6 +93,17 @@ class IssueListViewViewModel {
     issueList.accept(issueList.value.filter {
       issueLabelSet.isSubset(of: Set($0.labels))
     })
+  }
+  
+  func refreshData() {
+    LocalDataManager.shared.bindOutput()
+  }
+  
+  func filterByQuery(query: String) {
+    issueList.accept(rawIssueList.value.filter { $0.state == "open" })
+    if query != "" {
+      issueList.accept(issueList.value.filter { $0.title.hasPrefix(query) })
+    }
   }
 }
 
