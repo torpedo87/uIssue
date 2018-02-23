@@ -16,7 +16,6 @@ class IssueListFetcher {
   func getAllData(issueApi: IssueServiceRepresentable) -> Observable<[Int:Repository]> {
     
     return issueApi.fetchAllIssues(filter: .all, state: .all, sort: .created, page: 1)
-      .debug("-------getalldata------------")
       .map { issueArr -> [Int:Repository] in
         var dict = [Repository:[Issue]]()
         for issue in issueArr {

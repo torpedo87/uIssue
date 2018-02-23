@@ -55,7 +55,7 @@ class IssueListViewController: UIViewController {
     view.tableHeaderView = searchBar
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.rowHeight = UIScreen.main.bounds.height / 20
+    view.rowHeight = UIScreen.main.bounds.height / 15
     return view
   }()
   
@@ -102,7 +102,7 @@ class IssueListViewController: UIViewController {
     bindTableView()
   }
   
-  func setupView() {
+  private func setupView() {
     title = "Issue List"
     navigationItem.rightBarButtonItem = addBarButtonItem
     view.backgroundColor = UIColor.white
@@ -141,7 +141,7 @@ class IssueListViewController: UIViewController {
     }
   }
   
-  func bindUI() {
+  private func bindUI() {
     
     //state 누르면 팝업
     stateButton.rx.tap
@@ -220,7 +220,7 @@ class IssueListViewController: UIViewController {
       .disposed(by: bag)
   }
   
-  func bindTableView() {
+  private func bindTableView() {
     viewModel.issueList.asDriver()
       .drive(onNext: { [unowned self] _ in self.tableView.reloadData() })
       .disposed(by: bag)
@@ -240,10 +240,10 @@ class IssueListViewController: UIViewController {
     tableView.rx
       .itemSelected
       .subscribe(onNext: { [unowned self] indexPath in
-        let repoId = self.viewModel.repoId
         self.tableView.deselectRow(at: indexPath, animated: true)
         let selectedIssue = self.viewModel.issueList.value[indexPath.row]
-        Navigator.shared.show(destination: .issueDetail(repoId!, selectedIssue.id),
+        let repoId = selectedIssue.repository!.id
+        Navigator.shared.show(destination: .issueDetail(repoId, selectedIssue.id),
                               sender: self)
       })
       .disposed(by: bag)

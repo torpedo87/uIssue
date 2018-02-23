@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		2055F0B7BC0D3F735C840BA9 /* Pods_uIssue.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7237C7F0E77AEB4EE858BDB2 /* Pods_uIssue.framework */; };
 		24F4C84D5167248291595973 /* Pods_uIssueTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 49E59641D9AC918CEDDD6A4B /* Pods_uIssueTests.framework */; };
+		4829657C203E8DD400AA584D /* SidebarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4829657B203E8DD400AA584D /* SidebarViewController.swift */; };
+		4829657E203E8EB000AA584D /* LeftViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4829657D203E8EB000AA584D /* LeftViewController.swift */; };
+		48296580203E8EBD00AA584D /* MainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4829657F203E8EBD00AA584D /* MainViewController.swift */; };
 		4840CBCF2024753600517961 /* CommentCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4840CBCE2024753600517961 /* CommentCell.swift */; };
 		4843CFEE2026D7C800B70DCD /* UIColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFED2026D7C800B70DCD /* UIColor.swift */; };
 		4843CFF02026F41B00B70DCD /* PopUpViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */; };
@@ -45,6 +48,7 @@
 		48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B83A18200F66FA00F2A490 /* SettingViewController.swift */; };
 		48B96ED12019F7C6003DDF35 /* IssueListFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */; };
 		48B96ED3201B156D003DDF35 /* CommentBoxView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B96ED2201B156D003DDF35 /* CommentBoxView.swift */; };
+		48C6A52720400B640025442E /* RealmModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48C6A52620400B640025442E /* RealmModel.swift */; };
 		48E44ABF1FF4B7C5008F9649 /* RepoListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */; };
 		48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC31FF4F12C008F9649 /* Userdefaults.swift */; };
 		48E44AC61FF508E9008F9649 /* Issue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48E44AC51FF508E9008F9649 /* Issue.swift */; };
@@ -70,6 +74,9 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		4829657B203E8DD400AA584D /* SidebarViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SidebarViewController.swift; sourceTree = "<group>"; };
+		4829657D203E8EB000AA584D /* LeftViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LeftViewController.swift; sourceTree = "<group>"; };
+		4829657F203E8EBD00AA584D /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
 		4840CBCE2024753600517961 /* CommentCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentCell.swift; sourceTree = "<group>"; };
 		4843CFED2026D7C800B70DCD /* UIColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColor.swift; sourceTree = "<group>"; };
 		4843CFEF2026F41B00B70DCD /* PopUpViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PopUpViewController.swift; sourceTree = "<group>"; };
@@ -110,6 +117,7 @@
 		48B83A18200F66FA00F2A490 /* SettingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingViewController.swift; sourceTree = "<group>"; };
 		48B96ED02019F7C6003DDF35 /* IssueListFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IssueListFetcher.swift; sourceTree = "<group>"; };
 		48B96ED2201B156D003DDF35 /* CommentBoxView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommentBoxView.swift; sourceTree = "<group>"; };
+		48C6A52620400B640025442E /* RealmModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RealmModel.swift; sourceTree = "<group>"; };
 		48E44ABE1FF4B7C5008F9649 /* RepoListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RepoListViewController.swift; sourceTree = "<group>"; };
 		48E44AC31FF4F12C008F9649 /* Userdefaults.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Userdefaults.swift; sourceTree = "<group>"; };
 		48E44AC51FF508E9008F9649 /* Issue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Issue.swift; sourceTree = "<group>"; };
@@ -294,6 +302,7 @@
 		48A314051FF3959400201F6E /* Controller */ = {
 			isa = PBXGroup;
 			children = (
+				48C6A525204007700025442E /* Slidebar */,
 				48470FB720171998003F5FBB /* IssueDetail */,
 				48470FB220170672003F5FBB /* CreateIssue */,
 				48470FAB20163149003F5FBB /* Splash */,
@@ -339,6 +348,7 @@
 				48EF0C3C202ED40E00987DCB /* Comment.swift */,
 				48EF0C3E202ED42800987DCB /* Repository.swift */,
 				4896D51B2032C50800E73780 /* IssueLabel.swift */,
+				48C6A52620400B640025442E /* RealmModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -351,6 +361,16 @@
 				48A313EE1FF3956D00201F6E /* LaunchScreen.storyboard */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		48C6A525204007700025442E /* Slidebar */ = {
+			isa = PBXGroup;
+			children = (
+				4829657B203E8DD400AA584D /* SidebarViewController.swift */,
+				4829657D203E8EB000AA584D /* LeftViewController.swift */,
+				4829657F203E8EBD00AA584D /* MainViewController.swift */,
+			);
+			path = Slidebar;
 			sourceTree = "<group>";
 		};
 		48E44AC21FF4F117008F9649 /* Extensions */ = {
@@ -509,6 +529,8 @@
 				"${BUILT_PRODUCTS_DIR}/Alamofire/Alamofire.framework",
 				"${BUILT_PRODUCTS_DIR}/Kingfisher/Kingfisher.framework",
 				"${BUILT_PRODUCTS_DIR}/Moya/Moya.framework",
+				"${BUILT_PRODUCTS_DIR}/Realm/Realm.framework",
+				"${BUILT_PRODUCTS_DIR}/RealmSwift/RealmSwift.framework",
 				"${BUILT_PRODUCTS_DIR}/Result/Result.framework",
 				"${BUILT_PRODUCTS_DIR}/RxCocoa/RxCocoa.framework",
 				"${BUILT_PRODUCTS_DIR}/RxSwift/RxSwift.framework",
@@ -519,6 +541,8 @@
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Alamofire.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Kingfisher.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Moya.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Realm.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RealmSwift.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/Result.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxCocoa.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RxSwift.framework",
@@ -607,6 +631,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				48470F912011F32D003F5FBB /* LoginViewViewModel.swift in Sources */,
+				48C6A52720400B640025442E /* RealmModel.swift in Sources */,
 				4843CFEE2026D7C800B70DCD /* UIColor.swift in Sources */,
 				48EF0C37202C463500987DCB /* IssuePropertyViewController.swift in Sources */,
 				48E44AC41FF4F12C008F9649 /* Userdefaults.swift in Sources */,
@@ -619,6 +644,7 @@
 				4840CBCF2024753600517961 /* CommentCell.swift in Sources */,
 				48A9C9C4202AF3ED003EAFCD /* IssuePropertyItemService.swift in Sources */,
 				48470F9D20138936003F5FBB /* IssueListViewViewModel.swift in Sources */,
+				4829657E203E8EB000AA584D /* LeftViewController.swift in Sources */,
 				48470FB9201719AB003F5FBB /* IssueDetailViewController.swift in Sources */,
 				48470F95201244CB003F5FBB /* RepoListViewViewModel.swift in Sources */,
 				48FFC13320258794003CAA13 /* IssueAPI.swift in Sources */,
@@ -639,10 +665,12 @@
 				48A3140F1FF3A07B00201F6E /* AuthService.swift in Sources */,
 				48470FBD20184EC8003F5FBB /* LocalDataManager.swift in Sources */,
 				48B83A17200F28BB00F2A490 /* Token.swift in Sources */,
+				48296580203E8EBD00AA584D /* MainViewController.swift in Sources */,
 				48470FB42017068D003F5FBB /* CreateIssueViewController.swift in Sources */,
 				48EF0C39202D64AD00987DCB /* UIView.swift in Sources */,
 				48E44AC61FF508E9008F9649 /* Issue.swift in Sources */,
 				48B83A19200F66FA00F2A490 /* SettingViewController.swift in Sources */,
+				4829657C203E8DD400AA584D /* SidebarViewController.swift in Sources */,
 				48470F9B20135092003F5FBB /* IssueListViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

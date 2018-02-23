@@ -17,7 +17,7 @@ class RepoListViewController: UIViewController {
     let view = UITableView()
     view.register(ListCell.self,
                   forCellReuseIdentifier: ListCell.reuseIdentifier)
-    view.rowHeight = UIScreen.main.bounds.height / 20
+    view.rowHeight = UIScreen.main.bounds.height / 15
     return view
   }()
   

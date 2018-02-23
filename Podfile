@@ -11,6 +11,7 @@ target 'uIssue' do
   pod 'RxCocoa'
   pod 'Moya/RxSwift'
   pod 'Kingfisher', '~> 4.0'
+  pod 'RealmSwift'
 
   target 'uIssueTests' do
     inherit! :search_paths

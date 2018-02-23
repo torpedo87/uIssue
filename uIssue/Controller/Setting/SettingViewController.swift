@@ -14,6 +14,12 @@ class SettingViewController: UIViewController {
   
   private let bag = DisposeBag()
   private var viewModel: SettingViewViewModel!
+  private let imgView: UIImageView = {
+    let view = UIImageView()
+    view.image = UIImage(named: "issue")
+    view.contentMode = .scaleAspectFill
+    return view
+  }()
   private let logoutBtn: UIButton = {
     let btn = UIButton()
     btn.setTitle("Logout", for: UIControlState.normal)
@@ -39,12 +45,11 @@ class SettingViewController: UIViewController {
     return txtField
   }()
   
-  private let messageLabel: UILabel = {
-    let label = UILabel()
-    label.isHidden = true
-    label.sizeToFit()
-    label.textAlignment = .center
-    return label
+  private let gitHubBtn: UIButton = {
+    let btn = UIButton()
+    btn.setTitle("Forget your password?", for: .normal)
+    btn.setTitleColor(UIColor.blue, for: .normal)
+    return btn
   }()
   
   static func createWith(viewModel: SettingViewViewModel) -> SettingViewController {
@@ -64,15 +69,22 @@ class SettingViewController: UIViewController {
   func setupView() {
     title = "LOGOUT"
     view.backgroundColor = UIColor.white
+    view.addSubview(imgView)
     view.addSubview(idTextField)
     view.addSubview(passWordTextField)
     view.addSubview(logoutBtn)
-    view.addSubview(messageLabel)
+    view.addSubview(gitHubBtn)
+    
+    imgView.snp.makeConstraints { (make) in
+      make.centerX.equalToSuperview()
+      make.width.height.equalTo(UIScreen.main.bounds.height / 4)
+      make.bottom.equalTo(idTextField.snp.top).offset(-10)
+    }
     
     idTextField.snp.makeConstraints({ (make) in
       make.centerX.equalToSuperview()
       make.centerY.equalToSuperview().offset(-100)
-      make.width.equalTo(UIScreen.main.bounds.width / 2)
+      make.width.equalTo(UIScreen.main.bounds.width * 2 / 3)
       make.height.equalTo(UIScreen.main.bounds.height / 15)
     })
     
@@ -82,16 +94,16 @@ class SettingViewController: UIViewController {
       make.width.height.equalTo(idTextField)
     })
     
-    logoutBtn.snp.makeConstraints { (make) in
+    logoutBtn.snp.makeConstraints({ (make) in
       logoutBtn.sizeToFit()
-      make.top.equalTo(passWordTextField.snp.bottom).offset(10)
       make.centerX.equalToSuperview()
-    }
+      make.top.equalTo(passWordTextField.snp.bottom).offset(10)
+    })
     
-    messageLabel.snp.makeConstraints { (make) in
+    gitHubBtn.snp.makeConstraints { (make) in
+      gitHubBtn.sizeToFit()
       make.centerX.equalToSuperview()
       make.top.equalTo(logoutBtn.snp.bottom).offset(10)
-      make.width.height.equalTo(passWordTextField)
     }
   }
   
@@ -127,14 +139,25 @@ class SettingViewController: UIViewController {
       })
       .disposed(by: bag)
     
+    gitHubBtn.rx.tap
+      .throttle(0.5, scheduler: MainScheduler.instance)
+      .asDriver(onErrorJustReturn: ())
+      .drive(onNext: { _ in
+        if let url = URL(string: "https://github.com/password_reset") {
+          UIApplication.shared.open(url, options: [:], completionHandler: nil)
+        }
+      })
+      .disposed(by: bag)
   }
   
   func showErrorMsg(message: String) {
-    messageLabel.text = message
-    messageLabel.isHidden = false
-    Timer.scheduledTimer(withTimeInterval: 3.0, repeats: false) { _ in
-      self.messageLabel.isHidden = true
-    }
+    let alert = UIAlertController(title: "Login Failed",
+                                  message: message,
+                                  preferredStyle: .alert)
+    alert.addAction(UIAlertAction(title: "OK",
+                                  style: .default,
+                                  handler: nil))
+    self.present(alert, animated: true, completion: nil)
   }
   
 }
